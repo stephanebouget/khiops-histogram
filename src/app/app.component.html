@@ -1,0 +1,29 @@
+<code id="partitions">{{ partition | json }}</code>
+<span>Linear visualization </span>
+<section *ngIf="datasSet1 && datasSet2">
+  <app-khiops-histogram
+    *ngIf="datasSet1"
+    [range]="range"
+    [datas]="datasSet1"
+  ></app-khiops-histogram>
+  <app-khiops-histogram
+    *ngIf="datasSet2"
+    [range]="range"
+    [datas]="datasSet2"
+  ></app-khiops-histogram>
+</section>
+
+<span>Logarithmic visualization</span>
+<section *ngIf="datasSet1 && datasSet2">
+  <app-khiops-histogram
+    *ngIf="datasSet1"
+    [type]="'log'"
+    [range]="range"
+    [datas]="datasSet1"
+  ></app-khiops-histogram>
+  <app-khiops-histogram
+    [type]="'log'"
+    [range]="range"
+    [datas]="datasSet2"
+  ></app-khiops-histogram>
+</section>

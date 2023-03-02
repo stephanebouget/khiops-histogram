@@ -1,0 +1,56 @@
+[
+  {
+    "name": "1",
+    "partition": [-100, -20],
+    "value": 33,
+    "color": "#839192"
+  },
+  {
+    "name": "2",
+    "partition": [-20, -2],
+    "value": 70,
+    "color": "#34495E"
+  },
+  {
+    "name": "3",
+    "partition": [-2, -1],
+    "value": 4,
+    "color": "#873600"
+  },
+  {
+    "name": "1",
+    "partition": [1, 2],
+    "value": 33,
+    "color": "#003f5c"
+  },
+  {
+    "name": "2",
+    "partition": [2, 5],
+    "value": 70,
+    "color": "#58508d"
+  },
+  {
+    "name": "3",
+    "partition": [5, 50],
+    "value": 4,
+    "color": "#bc5090"
+  },
+  {
+    "name": "4",
+    "partition": [50, 53],
+    "value": 21,
+    "color": "#ff6361"
+  },
+  {
+    "name": "5",
+    "partition": [53, 950],
+    "value": 92,
+    "color": "#ffa600"
+  },
+  {
+    "name": "6",
+    "partition": [950, 1000],
+    "value": 55,
+    "color": "#dd5182"
+  }
+]
