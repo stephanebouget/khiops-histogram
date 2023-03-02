@@ -17,7 +17,7 @@
 </section>
 
 <span>Logarithmic visualization</span>
-<section *ngIf="datasSet1 && datasSet2">
+<section *ngIf="datasSet1 && datasSet2 && datasSet3 && datasSet4">
   <app-khiops-histogram
     *ngIf="datasSet1"
     [type]="'log'"
@@ -25,14 +25,22 @@
     [range]="range"
     [datas]="datasSet1"
   ></app-khiops-histogram>
-  <!-- <app-khiops-histogram
+  <app-khiops-histogram
     [type]="'log'"
     [isInfiniteValues]="true"
     [hideYAxis]="true"
     [rangeY]="rangeY"
-    [range]="range"
+    [range]="0"
     [datas]="datasSet3"
-  ></app-khiops-histogram> -->
+  ></app-khiops-histogram>
+  <app-khiops-histogram
+    [type]="'log'"
+    [isInfiniteValues]="true"
+    [hideYAxis]="true"
+    [rangeY]="rangeY"
+    [range]="1"
+    [datas]="datasSet4"
+  ></app-khiops-histogram>
   <app-khiops-histogram
     [type]="'log'"
     [hideYAxis]="true"

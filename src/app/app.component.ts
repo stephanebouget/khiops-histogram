@@ -8,6 +8,7 @@ import { Component } from '@angular/core';
 export class AppComponent {
   datas: any;
   partition: any;
+  datasSet4!: any[];
   datasSet3!: any[];
   datasSet2!: any[];
   datasSet1!: any[];
@@ -34,16 +35,12 @@ export class AppComponent {
       });
   }
 
-  getRange(): void {
+  getRangeY(): void {
     this.rangeY = Math.max(...this.datas?.map((e: any) => e.value));
-    this.rangeY = Math.round(this.rangeY * 100) / 100;
-    console.log(
-      'file: app.component.ts:38 ~ AppComponent ~ getRange ~ this.rangeY:',
-      this.rangeY
-    );
+    // this.rangeY = Math.round(this.rangeY * 100) / 100;
   }
 
-  getRangeY(): void {
+  getRange(): void {
     var maxRange1 = Math.max(
       Math.abs(this.datasSet1[0].partition[0]),
       Math.abs(this.datasSet1[this.datasSet1.length - 1].partition[1])
@@ -59,14 +56,17 @@ export class AppComponent {
     this.datasSet1 = [];
     this.datasSet2 = [];
     this.datasSet3 = [];
+    this.datasSet4 = [];
     datas.forEach((d: any) => {
       if (d.partition[0] >= 1 && d.partition[1] >= 1) {
         this.datasSet2.push(d);
       } else if (d.partition[0] <= -1 && d.partition[1] <= -1) {
         this.datasSet1.push(d);
-      } else {
+      } else if (d.partition[0] >= -1 && d.partition[1] <= 0) {
         this.datasSet3.push(d);
-        console.log('file: app.component.ts:68 ~ AppComponent ~ datas.forEach ~ this.datasSet3:', this.datasSet3);
+      } else if (d.partition[0] >= 0 && d.partition[1] <= 1) {
+        this.datasSet4.push(d);
+      } else {
       }
     });
   }

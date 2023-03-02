@@ -24,26 +24,27 @@ export class KhiopsHistogramComponent {
   chart!: ElementRef;
   chartPaddingRight: number = 0;
   chartPaddingLeft: number = 0;
+  isPos: boolean = true;
 
   constructor() {}
 
   ngAfterViewInit(): void {
-    console.log(
-      'file: khiops-histogram.component.ts:10 ~ KhiopsHistogramComponent ~ datas:',
-      this.datas
-    );
-
     if (this.type === 'log') {
       // Reduce the width in log mode to insert 3rd chart for [-1, 1] values
       this.w = this.w - this.padding;
     }
 
     this.datas = JSON.parse(JSON.stringify(this.datas));
+
+    if (this.isInfiniteValues) {
+      this.w = this.padding;
+    }
+
     this.svg = d3
       .select(this.chart.nativeElement)
       .append('svg')
       .attr('width', this.w)
-      .attr('height', this.h + this.padding / 2);
+      .attr('height', this.h + this.padding);
     this.render(this.type);
   }
 
@@ -51,17 +52,19 @@ export class KhiopsHistogramComponent {
     var maxVal = this.datas[this.datas.length - 1].partition[1];
     var minVal = this.datas[0].partition[0];
 
-    var isPos = maxVal > 1;
+    this.isPos = maxVal > 0;
 
-    if (isPos) {
-      this.chartPaddingRight = this.padding;
-      this.chartPaddingLeft = 0;
-    } else {
-      this.chartPaddingRight = 0;
-      this.chartPaddingLeft = this.padding;
+    if (!this.isInfiniteValues) {
+      if (this.isPos) {
+        this.chartPaddingRight = this.padding;
+        this.chartPaddingLeft = 0;
+      } else {
+        this.chartPaddingRight = 0;
+        this.chartPaddingLeft = this.padding;
+      }
     }
 
-    if (!isPos) {
+    if (!this.isPos) {
       // convert datas to reverse axis
       this.datas = this.datas.reverse();
       this.datas.forEach((d: any) => {
@@ -79,40 +82,49 @@ export class KhiopsHistogramComponent {
     let ratio;
     if (type === 'log') {
       maxVal = Math.log10(Math.abs(this.range));
+      if (maxVal === -Infinity) {
+        maxVal = 1;
+      }
       ratio = (this.w - 2 * this.padding) / maxVal;
     } else {
       ratio = (this.w - (2 * this.padding) / 2) / this.range;
     }
+    let ratioY = (this.h - this.padding / 2) / this.rangeY;
 
-    let ratioY = this.h / this.rangeY;
+    // if (this.isInfiniteValues) {
+    // } else {
+    this.drawHistogram(ratio, ratioY);
+    this.drawXAxis(maxVal);
+    // }
 
-    this.drawHistogram(isPos, ratio, ratioY);
-    this.drawXAxis(isPos, maxVal);
     if (!this.hideYAxis) {
-      this.drawYAxis(isPos, maxVal);
+      this.drawYAxis(maxVal);
     }
   }
 
-  drawYAxis(isPos: boolean, maxVal: number) {
+  drawYAxis(maxVal: number) {
     // Create the scale
     var y = d3
       .scaleLinear()
       .domain([0, this.rangeY]) // This is what is written on the Axis: from 0 to 100
-      .range([this.h - 0, 0]); // Note it is reversed
+      .range([this.h - this.padding / 2, 0]); // Note it is reversed
 
     // Draw the axis
     this.svg
       .append('g')
-      .attr('transform', 'translate(' + (this.padding - 0) + ',' + 0 + ')') // This controls the vertical position of the Axis
+      .attr(
+        'transform',
+        'translate(' + this.padding + ',' + this.padding / 2 + ')'
+      ) // This controls the vertical position of the Axis
       .call(d3.axisLeft(y));
   }
 
-  drawXAxis(isPos: boolean, maxVal: number) {
+  drawXAxis(maxVal: number) {
     var x: any;
     if (this.type === 'lin') {
       let domain = [0, this.range];
 
-      if (!isPos) {
+      if (!this.isPos) {
         domain = [this.range, 0];
       } else {
       }
@@ -122,20 +134,32 @@ export class KhiopsHistogramComponent {
         .domain(domain) // This is what is written on the Axis: from 0 to 100
         .range([0 + this.chartPaddingLeft, this.w - this.chartPaddingRight]); // This is where the axis is placed: from 100px to 800px
     } else if (this.type === 'log') {
-      let domain = [1, maxVal];
-      if (!isPos) {
-        domain = [-maxVal, -1];
+      let minXVal = 1;
+      if (this.isInfiniteValues) {
+        minXVal = 0;
+      }
+
+      let domain = [minXVal, maxVal];
+      if (!this.isPos) {
+        domain = [-maxVal, -minXVal];
+      }
+      if (this.isInfiniteValues) {
+        if (this.isPos) {
+        } else {
+          domain = [-1, -0.0001]; // hack : 0.0001 to hide 0
+        }
       }
       x = d3
         .scaleLog()
         .domain(domain)
         .range([0 + this.chartPaddingLeft, this.w - this.chartPaddingRight]); // This is where the axis is placed: from 100px to 800px
     }
+    let tick = this.isInfiniteValues ? 1 : null;
     // Draw the axis
     this.svg
       .append('g')
       .attr('transform', 'translate(0,' + (this.h + this.axisPadding) + ')') // This controls the vertical position of the Axis
-      .call(d3.axisBottom(x));
+      .call(d3.axisBottom(x).ticks(tick));
 
     // this.svg
     //   .append('text')
@@ -146,25 +170,20 @@ export class KhiopsHistogramComponent {
     //   .text(this.type);
   }
 
-  drawHistogram(isPos: boolean, ratio: number, ratioY: number) {
+  drawHistogram(ratio: number, ratioY: number) {
     this.datas.forEach((d: any, i: number) => {
       let barW = d.partition[1] - d.partition[0];
       let barX = d.partition[0];
 
-      let rectPadding = isPos ? this.chartPaddingLeft : this.chartPaddingRight;
-      console.log(
-        'file: khiops-histogram.component.ts:155 ~ KhiopsHistogramComponent ~ this.datas.forEach ~ rectPadding:',
-        rectPadding
-      );
+      let rectPadding = this.isPos
+        ? this.chartPaddingLeft
+        : this.chartPaddingRight;
+
       if (this.type === 'log') {
         barW = Math.log10(d.partition[1]) - Math.log10(d.partition[0]);
         barX = Math.log10(d.partition[0]);
         // rectPadding = this.padding;
       }
-      console.log(
-        'file: khiops-histogram.component.ts:158 ~ KhiopsHistogramComponent ~ this.datas.forEach ~ barW:',
-        barW
-      );
 
       this.svg
         .append('rect')
@@ -186,7 +205,7 @@ export class KhiopsHistogramComponent {
         .attr('height', d.value * ratioY)
         .attr(
           'transform',
-          isPos ? '' : 'translate(' + this.w + ', 0) scale(-1,1)'
+          this.isPos ? '' : 'translate(' + this.w + ', 0) scale(-1,1)'
         )
         .attr('fill', d.color);
     });
