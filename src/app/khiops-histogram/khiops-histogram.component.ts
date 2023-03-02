@@ -15,7 +15,7 @@ export class KhiopsHistogramComponent {
   @Input() w: number = 500;
   @Input() padding: number = 40;
   @Input() type: string = 'lin';
-  @Input() axisPadding: number = 5;
+  @Input() axisPadding: number = 0;
   @Input() hideYAxis: boolean = false;
   @Input() isInfiniteValues: boolean = false;
   svg: any;
@@ -43,7 +43,7 @@ export class KhiopsHistogramComponent {
       .select(this.chart.nativeElement)
       .append('svg')
       .attr('width', this.w)
-      .attr('height', this.h + this.padding * 2);
+      .attr('height', this.h + this.padding / 2);
     this.render(this.type);
   }
 
@@ -81,10 +81,10 @@ export class KhiopsHistogramComponent {
       maxVal = Math.log10(Math.abs(this.range));
       ratio = (this.w - 2 * this.padding) / maxVal;
     } else {
-      ratio = (this.w - 2 * this.padding / 2) / this.range;
+      ratio = (this.w - (2 * this.padding) / 2) / this.range;
     }
 
-    let ratioY = this.h / 100;
+    let ratioY = this.h / this.rangeY;
 
     this.drawHistogram(isPos, ratio, ratioY);
     this.drawXAxis(isPos, maxVal);
@@ -98,7 +98,7 @@ export class KhiopsHistogramComponent {
     var y = d3
       .scaleLinear()
       .domain([0, this.rangeY]) // This is what is written on the Axis: from 0 to 100
-      .range([this.h + this.axisPadding, 0]); // Note it is reversed
+      .range([this.h - 0, 0]); // Note it is reversed
 
     // Draw the axis
     this.svg
@@ -137,13 +137,13 @@ export class KhiopsHistogramComponent {
       .attr('transform', 'translate(0,' + (this.h + this.axisPadding) + ')') // This controls the vertical position of the Axis
       .call(d3.axisBottom(x));
 
-    this.svg
-      .append('text')
-      .attr('x', this.w / 2)
-      .attr('y', this.h + this.padding)
-      .attr('text-anchor', 'middle')
-      .style('font-size', '12px')
-      .text(this.type);
+    // this.svg
+    //   .append('text')
+    //   .attr('x', this.w / 2)
+    //   .attr('y', this.h + this.padding)
+    //   .attr('text-anchor', 'middle')
+    //   .style('font-size', '12px')
+    //   .text(this.type);
   }
 
   drawHistogram(isPos: boolean, ratio: number, ratioY: number) {
@@ -152,13 +152,19 @@ export class KhiopsHistogramComponent {
       let barX = d.partition[0];
 
       let rectPadding = isPos ? this.chartPaddingLeft : this.chartPaddingRight;
-      console.log('file: khiops-histogram.component.ts:155 ~ KhiopsHistogramComponent ~ this.datas.forEach ~ rectPadding:', rectPadding);
+      console.log(
+        'file: khiops-histogram.component.ts:155 ~ KhiopsHistogramComponent ~ this.datas.forEach ~ rectPadding:',
+        rectPadding
+      );
       if (this.type === 'log') {
         barW = Math.log10(d.partition[1]) - Math.log10(d.partition[0]);
         barX = Math.log10(d.partition[0]);
         // rectPadding = this.padding;
       }
-      console.log('file: khiops-histogram.component.ts:158 ~ KhiopsHistogramComponent ~ this.datas.forEach ~ barW:', barW);
+      console.log(
+        'file: khiops-histogram.component.ts:158 ~ KhiopsHistogramComponent ~ this.datas.forEach ~ barW:',
+        barW
+      );
 
       this.svg
         .append('rect')
