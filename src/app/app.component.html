@@ -3,11 +3,14 @@
 <section *ngIf="datasSet1 && datasSet2">
   <app-khiops-histogram
     *ngIf="datasSet1"
+    [rangeY]="rangeY"
     [range]="range"
     [datas]="datasSet1"
   ></app-khiops-histogram>
   <app-khiops-histogram
     *ngIf="datasSet2"
+    [hideYAxis]="true"
+    [rangeY]="rangeY"
     [range]="range"
     [datas]="datasSet2"
   ></app-khiops-histogram>
@@ -18,11 +21,22 @@
   <app-khiops-histogram
     *ngIf="datasSet1"
     [type]="'log'"
+    [rangeY]="rangeY"
     [range]="range"
     [datas]="datasSet1"
   ></app-khiops-histogram>
+  <!-- <app-khiops-histogram
+    [type]="'log'"
+    [isInfiniteValues]="true"
+    [hideYAxis]="true"
+    [rangeY]="rangeY"
+    [range]="range"
+    [datas]="datasSet3"
+  ></app-khiops-histogram> -->
   <app-khiops-histogram
     [type]="'log'"
+    [hideYAxis]="true"
+    [rangeY]="rangeY"
     [range]="range"
     [datas]="datasSet2"
   ></app-khiops-histogram>
