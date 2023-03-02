@@ -26,6 +26,11 @@ export class KhiopsHistogramComponent {
   chartPaddingLeft: number = 0;
   isPos: boolean = true;
 
+  config: any = {
+    xTicksCount: 10,
+    yTicksCount: 5,
+  };
+
   constructor() {}
 
   ngAfterViewInit(): void {
@@ -97,9 +102,9 @@ export class KhiopsHistogramComponent {
     this.drawXAxis(maxVal);
     // }
 
-    if (!this.hideYAxis) {
-      this.drawYAxis(maxVal);
-    }
+    // if (!this.isInfiniteValues) {
+    this.drawYAxis(maxVal);
+    // }
   }
 
   drawYAxis(maxVal: number) {
@@ -109,14 +114,26 @@ export class KhiopsHistogramComponent {
       .domain([0, this.rangeY]) // This is what is written on the Axis: from 0 to 100
       .range([this.h - this.padding / 2, 0]); // Note it is reversed
 
+    let shift = this.padding;
+    if (this.isPos && !this.isInfiniteValues) {
+      shift = -this.padding;
+    }
+
+    let tickSize = -this.w;
+    if (this.isInfiniteValues) {
+      tickSize = this.w;
+    }
+
     // Draw the axis
+    const axis = d3
+      .axisLeft(y)
+      .tickSize(tickSize)
+      .ticks(this.config.yTicksCount);
     this.svg
       .append('g')
-      .attr(
-        'transform',
-        'translate(' + this.padding + ',' + this.padding / 2 + ')'
-      ) // This controls the vertical position of the Axis
-      .call(d3.axisLeft(y));
+      .attr('class', 'y axis-grid')
+      .attr('transform', 'translate(' + shift + ',' + this.padding / 2 + ')') // This controls the vertical position of the Axis
+      .call(axis);
   }
 
   drawXAxis(maxVal: number) {
@@ -155,11 +172,18 @@ export class KhiopsHistogramComponent {
         .range([0 + this.chartPaddingLeft, this.w - this.chartPaddingRight]); // This is where the axis is placed: from 100px to 800px
     }
     let tick = this.isInfiniteValues ? 1 : null;
+
     // Draw the axis
+    const axis = d3
+      .axisBottom(x)
+      .ticks(tick)
+      .ticks(this.isInfiniteValues ? 1 : this.config.xTicksCount)
+      .tickSize(-this.h + this.padding / 2);
     this.svg
       .append('g')
+      .attr('class', 'x axis-grid')
       .attr('transform', 'translate(0,' + (this.h + this.axisPadding) + ')') // This controls the vertical position of the Axis
-      .call(d3.axisBottom(x).ticks(tick));
+      .call(axis);
 
     // this.svg
     //   .append('text')

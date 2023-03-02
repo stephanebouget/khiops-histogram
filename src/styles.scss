@@ -44,3 +44,14 @@ section {
   flex-direction: row;
   display: flex;
 }
+
+.axis-grid {
+  .domain {
+    opacity: 0.1;
+  }
+  .tick {
+    line {
+      opacity: 0.07;
+    }
+  }
+}
