@@ -21,9 +21,7 @@ export class HistogramComponent {
   datasSetZero: any[] = [];
 
   @Input() h: number = 250;
-  @Input() w: number = 200;
-  @Input() middleW: number = 100;
-  @Input() padding: number = 40;
+  @Input() w: number = 1000;
   chartPaddingRight: number = 0;
   chartPaddingLeft: number = 0;
   config: any = {
@@ -31,27 +29,37 @@ export class HistogramComponent {
     yTicksCount: 5,
   };
 
+  chartW = 0;
+  middleW = 0;
   rangeX = 0;
+  padding = 0;
   rangeY = 0;
   tickCount = 3;
 
   constructor() {}
 
   ngAfterViewInit(): void {
+    this.chartW = this.w / 5;
+    this.middleW = this.w / 10;
+    this.padding = this.w / 20;
+
     this.svg = d3
       .select(this.chart.nativeElement)
       .append('svg')
-      .attr('width', this.w * 5)
+      .attr('width', this.chartW * 5)
       .attr('height', this.h + this.padding);
 
     this.analyseDatas(this.datas);
     this.drawXAxis([this.rangeX, 1], this.padding);
-    this.drawXAxis([1, 1 / this.rangeX], this.w + this.padding);
-    this.drawXAxis([-1, 0, 1], this.w * 2 + this.padding, this.middleW);
-    this.drawXAxis([1, this.rangeX], this.w * 3 + this.padding + this.middleW);
+    this.drawXAxis([1, 1 / this.rangeX], this.chartW + this.padding);
+    this.drawXAxis([-1, 0, 1], this.chartW * 2 + this.padding, this.middleW);
+    this.drawXAxis(
+      [1, this.rangeX],
+      this.chartW * 3 + this.padding + this.middleW
+    );
     this.drawXAxis(
       [1 / this.rangeX, 1],
-      this.w * 2 + this.padding + this.middleW
+      this.chartW * 2 + this.padding + this.middleW
     );
     this.drawYAxis();
   }
@@ -92,7 +100,7 @@ export class HistogramComponent {
     console.log(' this.datasSetNegNeg:', this.datasSetNegNeg);
   }
 
-  drawXAxis(domain: any, shift: any, width = this.w) {
+  drawXAxis(domain: any, shift: any, width = this.chartW) {
     let x = d3.scaleLog().base(10).domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
     const axis = d3
       .axisBottom(x)
@@ -118,7 +126,7 @@ export class HistogramComponent {
       .range([this.h - this.padding / 2, 0]); // Note it is reversed
 
     let shift = this.padding;
-    let tickSize = -(4 * this.w + this.middleW);
+    let tickSize = -(4 * this.chartW + this.middleW);
 
     // Draw the axis
     const axis = d3
