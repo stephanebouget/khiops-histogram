@@ -30,7 +30,8 @@ export class HistogramComponent {
     yTicksCount: 5,
   };
 
-  range = 1000;
+  rangeX = 1000;
+  rangeY = 200;
   tickCount = 3;
 
   constructor() {}
@@ -43,11 +44,15 @@ export class HistogramComponent {
       .attr('height', this.h + this.padding);
 
     this.analyseDatas(this.datas);
-    this.drawXAxis([this.range, 1], 0);
-    this.drawXAxis([1, 1 / this.range], this.w);
-    this.drawXAxis([-1, 0, 1], this.w * 2, this.middleW);
-    this.drawXAxis([1, this.range], this.w * 3 + this.middleW);
-    this.drawXAxis([1 / this.range, 1], this.w * 2 + this.middleW);
+    this.drawXAxis([this.rangeX, 1], this.padding);
+    this.drawXAxis([1, 1 / this.rangeX], this.w + this.padding);
+    this.drawXAxis([-1, 0, 1], this.w * 2 + this.padding, this.middleW);
+    this.drawXAxis([1, this.rangeX], this.w * 3 + this.padding + this.middleW);
+    this.drawXAxis(
+      [1 / this.rangeX, 1],
+      this.w * 2 + this.padding + this.middleW
+    );
+    this.drawYAxis();
   }
 
   analyseDatas(datas: any) {
@@ -86,6 +91,35 @@ export class HistogramComponent {
       .append('g')
       .attr('class', 'x axis-grid')
       .attr('transform', 'translate(' + shift + ',' + this.h + ')') // This controls the vertical position of the Axis
+      .call(axis);
+  }
+
+  drawYAxis() {
+    // Create the scale
+    var y = d3
+      .scaleLinear()
+      .domain([0, this.rangeY]) // This is what is written on the Axis: from 0 to 100
+      .range([this.h - this.padding / 2, 0]); // Note it is reversed
+
+    let shift = this.padding;
+    // if (this.isPos && !this.isInfiniteValues) {
+    //   shift = -this.padding;
+    // }
+
+    let tickSize = -(4 * this.w + this.middleW);
+    // if (this.isInfiniteValues) {
+    //   tickSize = this.w;
+    // }
+
+    // Draw the axis
+    const axis = d3
+      .axisLeft(y)
+      .tickSize(tickSize)
+      .ticks(this.config.yTicksCount);
+    this.svg
+      .append('g')
+      .attr('class', 'y axis-grid')
+      .attr('transform', 'translate(' + shift + ',' + this.padding / 2 + ')') // This controls the vertical position of the Axis
       .call(axis);
   }
 }
