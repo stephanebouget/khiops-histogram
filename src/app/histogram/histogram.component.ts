@@ -34,7 +34,7 @@ export class HistogramComponent {
   rangeX = 0;
   padding = 0;
   rangeY = 0;
-  tickCount = 5;
+  tickCount = 3;
 
   constructor() {}
 
@@ -51,14 +51,19 @@ export class HistogramComponent {
 
     this.analyseDatas(this.datas);
     this.drawXAxis([this.rangeX, 1], this.padding);
-    this.drawXAxis([1 / this.rangeX, 1], this.chartW + this.padding);
+    this.drawXAxis(
+      [1, 1 / this.rangeX], // do not work with more than 3 ticks, axis are reversed
+      // [1 / this.rangeX, 1],
+      this.chartW + this.padding
+    );
     this.drawXAxis([-1, 0, 1], this.chartW * 2 + this.padding, this.middleW);
     this.drawXAxis(
       [1, this.rangeX],
       this.chartW * 3 + this.padding + this.middleW
     );
     this.drawXAxis(
-      [1, 1 / this.rangeX],
+      // [1, 1 / this.rangeX],
+      [1 / this.rangeX, 1], // do not work with more than 3 ticks, axis are reversed
       this.chartW * 2 + this.padding + this.middleW,
       this.chartW,
       true
@@ -183,7 +188,12 @@ export class HistogramComponent {
       //@ts-ignore
       .tickFormat(function (d) {
         //@ts-ignore
-        return Math.round(Math.log(d));
+        let val: number = d;
+        if (reverse) {
+          return Math.round(Math.log(val));
+        } else {
+          return Math.round(Math.log(val));
+        }
       });
     this.svg
       .append('g')
