@@ -15,7 +15,9 @@ export class AppComponent {
   rangeY!: number;
 
   constructor() {
-    fetch('./assets/datas.json')
+    // let mock = 'datas';
+    let mock = 'datas2';
+    fetch('./assets/' + mock + '.json')
       .then((response) => {
         return response.json();
       })

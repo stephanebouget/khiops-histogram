@@ -34,7 +34,7 @@ export class HistogramComponent {
   rangeX = 0;
   padding = 0;
   rangeY = 0;
-  tickCount = 3;
+  tickCount = 2;
 
   constructor() {}
 
@@ -118,6 +118,10 @@ export class HistogramComponent {
       }
       ratioX = this.chartW / maxVal;
     }
+    console.log(
+      'file: histogram.component.ts:123 ~ HistogramComponent ~ getRatioX ~ ratioX:',
+      ratioX
+    );
     return ratioX;
   }
 
@@ -125,16 +129,30 @@ export class HistogramComponent {
     return (this.h - this.padding / 2) / this.rangeY;
   }
 
-  getBar(d: any) {
+  getBar(d: any, reverse = false) {
     let barMax = Math.max(Math.abs(d.partition[1]), Math.abs(d.partition[0]));
+    console.log(
+      'file: histogram.component.ts:134 ~ HistogramComponent ~ getBar ~ barMax:',
+      barMax
+    );
     let barMin = Math.min(Math.abs(d.partition[1]), Math.abs(d.partition[0]));
+    console.log(
+      'file: histogram.component.ts:136 ~ HistogramComponent ~ getBar ~ barMin:',
+      barMin
+    );
 
     let barW = barMax - barMin;
     let barX = barMin;
 
     if (this.type === 'log') {
-      barW = Math.log10(d.partition[1]) - Math.log10(d.partition[0]);
-      barX = Math.log10(d.partition[0]);
+      // barW = Math.log10(d.partition[1]) - Math.log10(d.partition[0]);
+      // barX = Math.log10(d.partition[0]);
+      barW = Math.log10(barMax) - Math.log10(barMin);
+      barX = Math.log10(barMin);
+      if (reverse) {
+        // barX =  Math.abs(Math.log10(barX))
+        // barW =  Math.abs(Math.log10(barW))
+      }
     }
     return {
       value: d.value,
@@ -147,7 +165,11 @@ export class HistogramComponent {
     datasSet.forEach((d: any, i: number) => {
       console.log(d);
 
-      const bar = this.getBar(d);
+      const bar = this.getBar(d, reverse);
+      console.log(
+        'file: histogram.component.ts:154 ~ HistogramComponent ~ datasSet.forEach ~ bar:',
+        bar
+      );
 
       this.svg
         .append('rect')
@@ -180,19 +202,31 @@ export class HistogramComponent {
   }
 
   drawXAxis(domain: any, shift: any, width = this.chartW, reverse = false) {
-    let x = d3.scaleLog().base(10).domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
+    let x;
+
+    if (this.type === 'lin') {
+      x = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
+    } else {
+      x = d3.scaleLog().base(10).domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
+    }
     const axis = d3
       .axisBottom(x)
       .ticks(this.tickCount)
       .tickSize(-this.h + this.padding / 2)
       //@ts-ignore
-      .tickFormat(function (d) {
+      .tickFormat((d) => {
         //@ts-ignore
         let val: number = d;
         if (reverse) {
-          return Math.round(Math.log(val));
+          return Math.round(Math.log10(val));
         } else {
-          return Math.round(Math.log(val));
+          if (this.type === 'lin') {
+            return val;
+          } else {
+            return Math.round(Math.log10(val));
+            // return Math.log10(val).toFixed(2);
+            // return Math.log10(val).toFixed(2);
+          }
         }
       });
     this.svg
