@@ -1,5 +1,6 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
+import { max } from 'd3';
 
 @Component({
   selector: 'app-histogram',
@@ -30,8 +31,8 @@ export class HistogramComponent {
     yTicksCount: 5,
   };
 
-  rangeX = 1000;
-  rangeY = 200;
+  rangeX = 0;
+  rangeY = 0;
   tickCount = 3;
 
   constructor() {}
@@ -56,6 +57,21 @@ export class HistogramComponent {
   }
 
   analyseDatas(datas: any) {
+    const dataValues = datas.map((e: any) => e.value);
+    this.rangeY = Math.max(...dataValues);
+
+    var maxX = this.datas[this.datas.length - 1].partition[1];
+    var minX = this.datas[0].partition[0];
+    this.rangeX = Math.max(Math.abs(maxX), Math.abs(minX));
+    // console.log(
+    //   'file: histogram.component.ts:62 ~ HistogramComponent ~ analyseDatas ~ Math.max(...dataValues):',
+    //   Math.max(...dataValues)
+    // );
+    console.log(
+      'file: histogram.component.ts:61 ~ HistogramComponent ~ analyseDatas ~ this.rangeX:',
+      this.rangeX
+    );
+
     datas.forEach((d: any) => {
       if (d.partition[0] >= 1) {
         this.datasSetPosPos.push(d);
@@ -102,14 +118,7 @@ export class HistogramComponent {
       .range([this.h - this.padding / 2, 0]); // Note it is reversed
 
     let shift = this.padding;
-    // if (this.isPos && !this.isInfiniteValues) {
-    //   shift = -this.padding;
-    // }
-
     let tickSize = -(4 * this.w + this.middleW);
-    // if (this.isInfiniteValues) {
-    //   tickSize = this.w;
-    // }
 
     // Draw the axis
     const axis = d3
