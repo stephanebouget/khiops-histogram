@@ -18,7 +18,7 @@
     "color": "#ff6600"
   },
   {
-    "name": "infinite1",
+    "name": "4",
     "partition": [-1, -0.1],
     "value": 56,
     "color": "#ff6600"
@@ -30,10 +30,16 @@
     "color": "#00ff66"
   },
   {
-    "name": "infinite3",
-    "partition": [0.1, 1],
+    "name": "special1",
+    "partition": [0, 0.1],
     "value": 30,
     "color": "#66ff00"
+  },
+  {
+    "name": "special2",
+    "partition": [0.1, 1],
+    "value": 60,
+    "color": "#65498"
   },
   {
     "name": "1",

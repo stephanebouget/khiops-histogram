@@ -8,7 +8,6 @@ import { Component } from '@angular/core';
 export class AppComponent {
   datas: any;
   partition: any;
-  datasSet4!: any[];
   datasSet3!: any[];
   datasSet2!: any[];
   datasSet1!: any[];
@@ -56,18 +55,18 @@ export class AppComponent {
     this.datasSet1 = [];
     this.datasSet2 = [];
     this.datasSet3 = [];
-    this.datasSet4 = [];
     datas.forEach((d: any) => {
-      if (d.partition[0] >= 1 && d.partition[1] >= 1) {
+      if (d.partition[0] > 0) {
         this.datasSet2.push(d);
-      } else if (d.partition[0] <= -1 && d.partition[1] <= -1) {
+      } else if (d.partition[0] < 0) {
         this.datasSet1.push(d);
-      } else if (d.partition[0] >= -1 && d.partition[1] <= 0) {
+      } else if (d.partition[0] === 0 || d.partition[1] === 0) {
         this.datasSet3.push(d);
-      } else if (d.partition[0] >= 0 && d.partition[1] <= 1) {
-        this.datasSet4.push(d);
       } else {
       }
     });
+    console.log(' this.datasSet1:', this.datasSet1);
+    console.log(' this.datasSet2:', this.datasSet2);
+    console.log(' this.datasSet3:', this.datasSet3);
   }
 }
