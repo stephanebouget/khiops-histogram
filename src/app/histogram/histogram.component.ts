@@ -21,7 +21,7 @@ export class HistogramComponent {
   datasSetZero: any[] = [];
 
   @Input() h: number = 250;
-  @Input() w: number = 2000;
+  @Input() w: number = 1000;
   chartPaddingRight: number = 0;
   chartPaddingLeft: number = 0;
   config: any = {
@@ -51,15 +51,17 @@ export class HistogramComponent {
 
     this.analyseDatas(this.datas);
     this.drawXAxis([this.rangeX, 1], this.padding);
-    this.drawXAxis([1, 1 / this.rangeX], this.chartW + this.padding);
+    this.drawXAxis([1 / this.rangeX, 1], this.chartW + this.padding);
     this.drawXAxis([-1, 0, 1], this.chartW * 2 + this.padding, this.middleW);
     this.drawXAxis(
       [1, this.rangeX],
       this.chartW * 3 + this.padding + this.middleW
     );
     this.drawXAxis(
-      [1 / this.rangeX, 1],
-      this.chartW * 2 + this.padding + this.middleW
+      [1, 1 / this.rangeX],
+      this.chartW * 2 + this.padding + this.middleW,
+      this.chartW,
+      true
     );
     this.drawYAxis();
 
@@ -172,7 +174,7 @@ export class HistogramComponent {
     });
   }
 
-  drawXAxis(domain: any, shift: any, width = this.chartW) {
+  drawXAxis(domain: any, shift: any, width = this.chartW, reverse = false) {
     let x = d3.scaleLog().base(10).domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
     const axis = d3
       .axisBottom(x)
@@ -187,6 +189,13 @@ export class HistogramComponent {
       .append('g')
       .attr('class', 'x axis-grid')
       .attr('transform', 'translate(' + shift + ',' + this.h + ')') // This controls the vertical position of the Axis
+
+      // .attr(
+      //   'transform',
+      //   reverse
+      //     ? 'translate(' + (shift + width) + ',' + this.h + ')  scale(-1,1)'
+      //     : 'translate(' + shift + ',' + this.h + ') '
+      // ) // This controls the vertical position of the Axis
       .call(axis);
   }
 
