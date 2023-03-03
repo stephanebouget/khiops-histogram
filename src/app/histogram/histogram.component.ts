@@ -21,7 +21,7 @@ export class HistogramComponent {
   datasSetZero: any[] = [];
 
   @Input() h: number = 250;
-  @Input() w: number = 1000;
+  @Input() w: number = 2000;
   chartPaddingRight: number = 0;
   chartPaddingLeft: number = 0;
   config: any = {
@@ -34,7 +34,7 @@ export class HistogramComponent {
   rangeX = 0;
   padding = 0;
   rangeY = 0;
-  tickCount = 3;
+  tickCount = 5;
 
   constructor() {}
 
@@ -66,6 +66,11 @@ export class HistogramComponent {
     this.drawHistogram(
       this.datasSetPosPos,
       this.chartW * 3 + this.padding + this.middleW
+    );
+    this.drawHistogram(
+      this.datasSetPosNeg,
+      this.chartW * 2 + this.padding + this.middleW,
+      true
     );
   }
 
@@ -114,8 +119,11 @@ export class HistogramComponent {
   }
 
   getBar(d: any) {
-    let barW = d.partition[1] - d.partition[0];
-    let barX = d.partition[0];
+    let barMax = Math.max(Math.abs(d.partition[1]), Math.abs(d.partition[0]));
+    let barMin = Math.min(Math.abs(d.partition[1]), Math.abs(d.partition[0]));
+
+    let barW = barMax - barMin;
+    let barX = barMin;
 
     if (this.type === 'log') {
       barW = Math.log10(d.partition[1]) - Math.log10(d.partition[0]);
@@ -128,7 +136,7 @@ export class HistogramComponent {
     };
   }
 
-  drawHistogram(datasSet: any, shift: any) {
+  drawHistogram(datasSet: any, shift: any, reverse = false) {
     datasSet.forEach((d: any, i: number) => {
       console.log(d);
 
@@ -142,6 +150,7 @@ export class HistogramComponent {
         .attr('y', this.h - d.value * this.getRatioY())
         .attr('stroke', 'black')
         .attr('stroke-width', '0')
+
         .on('click', function (e: any) {
           //@ts-ignore
           d3.select(this.parentNode)
@@ -153,11 +162,12 @@ export class HistogramComponent {
         })
         .attr('width', bar.barW * this.getRatioX())
         .attr('height', bar.value * this.getRatioY())
-        // .attr(
-        //   'transform',
-        //   // this.isPos ? '' : 'translate(' + this.w + ', 0) scale(-1,1)'
-        //   true ? '' : 'translate(' + shift + ', 0) scale(-1,1)'
-        // )
+        .attr(
+          'transform',
+          //   // this.isPos ? '' : 'translate(' + this.w + ', 0) scale(-1,1)'
+          reverse ? 'translate(' + this.chartW + ', 0)' : ''
+          // 'translate(' + -50 + ', 0)'
+        )
         .attr('fill', d.color);
     });
   }

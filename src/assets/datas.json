@@ -37,25 +37,31 @@
   },
   {
     "name": "special2",
-    "partition": [0.1, 1],
+    "partition": [0.1, 0.2],
     "value": 60,
-    "color": "#65498"
+    "color": "#655498"
+  },
+  {
+    "name": "special2",
+    "partition": [0.2, 1],
+    "value": 60,
+    "color": "#ff6600"
   },
   {
     "name": "1",
-    "partition": [1, 2],
+    "partition": [1, 1.2],
     "value": 80,
     "color": "#003f5c"
   },
   {
     "name": "2",
-    "partition": [2, 5],
+    "partition": [1.2, 2],
     "value": 70,
     "color": "#58508d"
   },
   {
     "name": "3",
-    "partition": [5, 50],
+    "partition": [2, 50],
     "value": 60,
     "color": "#bc5090"
   },
