@@ -61,20 +61,20 @@
   },
   {
     "name": "4",
-    "partition": [50, 53],
+    "partition": [50, 530],
     "value": 50,
     "color": "#ff6361"
   },
   {
     "name": "5",
-    "partition": [53, 950],
+    "partition": [530, 950],
     "value": 40,
     "color": "#ffa600"
   },
   {
     "name": "6",
     "partition": [950, 1000],
-    "value": 30,
+    "value": 100,
     "color": "#dd5182"
   }
 ]

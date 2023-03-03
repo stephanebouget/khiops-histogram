@@ -62,6 +62,11 @@ export class HistogramComponent {
       this.chartW * 2 + this.padding + this.middleW
     );
     this.drawYAxis();
+
+    this.drawHistogram(
+      this.datasSetPosPos,
+      this.chartW * 3 + this.padding + this.middleW
+    );
   }
 
   analyseDatas(datas: any) {
@@ -71,14 +76,6 @@ export class HistogramComponent {
     var maxX = this.datas[this.datas.length - 1].partition[1];
     var minX = this.datas[0].partition[0];
     this.rangeX = Math.max(Math.abs(maxX), Math.abs(minX));
-    // console.log(
-    //   'file: histogram.component.ts:62 ~ HistogramComponent ~ analyseDatas ~ Math.max(...dataValues):',
-    //   Math.max(...dataValues)
-    // );
-    console.log(
-      'file: histogram.component.ts:61 ~ HistogramComponent ~ analyseDatas ~ this.rangeX:',
-      this.rangeX
-    );
 
     datas.forEach((d: any) => {
       if (d.partition[0] >= 1) {
@@ -98,6 +95,71 @@ export class HistogramComponent {
     console.log(' this.datasSetZero:', this.datasSetZero);
     console.log(' this.datasSetPosNeg:', this.datasSetNegPos);
     console.log(' this.datasSetNegNeg:', this.datasSetNegNeg);
+  }
+
+  getRatioX() {
+    let ratioX = this.chartW / this.rangeX;
+    if (this.type === 'log') {
+      let maxVal = Math.log10(Math.abs(this.rangeX));
+      if (maxVal === -Infinity) {
+        maxVal = 1;
+      }
+      ratioX = this.chartW / maxVal;
+    }
+    return ratioX;
+  }
+
+  getRatioY() {
+    return (this.h - this.padding / 2) / this.rangeY;
+  }
+
+  getBar(d: any) {
+    let barW = d.partition[1] - d.partition[0];
+    let barX = d.partition[0];
+
+    if (this.type === 'log') {
+      barW = Math.log10(d.partition[1]) - Math.log10(d.partition[0]);
+      barX = Math.log10(d.partition[0]);
+    }
+    return {
+      value: d.value,
+      barW: barW,
+      barX: barX,
+    };
+  }
+
+  drawHistogram(datasSet: any, shift: any) {
+    datasSet.forEach((d: any, i: number) => {
+      console.log(d);
+
+      const bar = this.getBar(d);
+
+      this.svg
+        .append('rect')
+        .attr('id', 'rect-' + i)
+        // .attr('x', barX * ratio)
+        .attr('x', shift + this.getRatioX() * bar.barX)
+        .attr('y', this.h - d.value * this.getRatioY())
+        .attr('stroke', 'black')
+        .attr('stroke-width', '0')
+        .on('click', function (e: any) {
+          //@ts-ignore
+          d3.select(this.parentNode)
+            .selectAll('rect')
+            .style('stroke-width', '0');
+
+          //@ts-ignore
+          d3.select(this).style('stroke-width', '2px');
+        })
+        .attr('width', bar.barW * this.getRatioX())
+        .attr('height', bar.value * this.getRatioY())
+        // .attr(
+        //   'transform',
+        //   // this.isPos ? '' : 'translate(' + this.w + ', 0) scale(-1,1)'
+        //   true ? '' : 'translate(' + shift + ', 0) scale(-1,1)'
+        // )
+        .attr('fill', d.color);
+    });
   }
 
   drawXAxis(domain: any, shift: any, width = this.chartW) {
