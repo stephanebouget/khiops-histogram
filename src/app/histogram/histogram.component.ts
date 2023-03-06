@@ -209,9 +209,9 @@ export class HistogramComponent {
       .ticks(this.tickCount)
       .tickSize(-this.h + this.padding / 2)
       //@ts-ignore
-      .tickFormat((d) => {
+      .tickFormat((d, i) => {
         //@ts-ignore
-        let val: number = d;
+        let val: any = d;
         if (this.type === 'lin') {
           if (reverse) {
             return '-' + val;
@@ -219,11 +219,13 @@ export class HistogramComponent {
             return val;
           }
         } else {
-          const tick = Math.round(Math.log10(val) * 100) / 100;
-          if (reverse) {
-            return tick !== 0 ? '-' + tick : '' + tick;
-          } else {
-            return tick;
+          if (i % 2) {
+            const tick = Math.round(Math.log10(val) * 100) / 100;
+            if (reverse) {
+              return tick !== 0 ? '-' + tick : '' + tick;
+            } else {
+              return tick;
+            }
           }
         }
       });
