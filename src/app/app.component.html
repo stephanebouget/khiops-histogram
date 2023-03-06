@@ -1,45 +1,8 @@
 <code id="partitions">{{ partition | json }}</code>
-<span>Linear visualization </span>
-<!-- <section *ngIf="datasSet1 && datasSet2">
-  <app-khiops-histogram
-    *ngIf="datasSet1"
-    [rangeY]="rangeY"
-    [range]="range"
-    [datas]="datasSet1"
-  ></app-khiops-histogram>
-  <app-khiops-histogram
-    *ngIf="datasSet2"
-    [hideYAxis]="true"
-    [rangeY]="rangeY"
-    [range]="range"
-    [datas]="datasSet2"
-  ></app-khiops-histogram>
-</section> -->
 
-<span>Logarithmic visualization</span>
 <section *ngIf="datasSet1 && datasSet2 && datasSet3">
-  <!-- <app-khiops-histogram
-    *ngIf="datasSet1"
-    [type]="'log'"
-    [rangeY]="rangeY"
-    [range]="range"
-    [datas]="datasSet1"
-  ></app-khiops-histogram>
-  <app-khiops-histogram
-    [type]="'log'"
-    [isInfiniteValues]="true"
-    [hideYAxis]="true"
-    [rangeY]="rangeY"
-    [range]="0"
-    [datas]="datasSet3"
-  ></app-khiops-histogram> -->
-  <!-- <app-khiops-histogram
-    [type]="'log'"
-    [hideYAxis]="true"
-    [rangeY]="rangeY"
-    [range]="range"
-    [datas]="datasSet2"
-  ></app-khiops-histogram> -->
+  <span>Linear visualization </span>
   <app-histogram [type]="'lin'" [datas]="datas"></app-histogram>
+  <span>Logarithmic visualization</span>
   <app-histogram [type]="'log'" [datas]="datas"></app-histogram>
 </section>

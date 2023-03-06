@@ -164,6 +164,7 @@ export class HistogramComponent {
       console.log(d);
 
       const bar = this.getBar(d, reverse);
+      var self = this;
 
       this.svg
         .append('rect')
@@ -173,7 +174,6 @@ export class HistogramComponent {
         .attr('y', this.h - d.value * this.getRatioY())
         .attr('stroke', 'black')
         .attr('stroke-width', '0')
-
         .on('click', function (e: any) {
           //@ts-ignore
           d3.select(this.parentNode)
@@ -182,6 +182,7 @@ export class HistogramComponent {
 
           //@ts-ignore
           d3.select(this).style('stroke-width', '2px');
+          self.bringSvgToTop(document.getElementById('rect-' + i));
         })
         .attr('width', bar.barW * this.getRatioX())
         .attr('height', bar.value * this.getRatioY())
@@ -193,6 +194,12 @@ export class HistogramComponent {
         )
         .attr('fill', d.color);
     });
+  }
+
+  bringSvgToTop(targetElement: any) {
+    // put the element at the bottom of its parent
+    let parent = targetElement.parentNode;
+    parent.appendChild(targetElement);
   }
 
   drawXAxis(domain: any, shift: any, width = this.chartW, reverse = false) {
@@ -233,7 +240,6 @@ export class HistogramComponent {
       .append('g')
       .attr('class', 'x axis-grid')
       .attr('transform', 'translate(' + shift + ',' + this.h + ') ') // This controls the vertical position of the Axis
-
       .call(axis)
       .selectAll('text')
       .style('text-anchor', 'end')
