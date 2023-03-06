@@ -1,6 +1,5 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import { max } from 'd3';
 
 @Component({
   selector: 'app-histogram',
@@ -61,8 +60,7 @@ export class HistogramComponent {
       this.drawXAxis(
         [-1, 0, 1],
         this.chartW * 2 + this.padding,
-        this.chartW / 4,
-        false
+        this.chartW / 4
       );
     }
     this.drawXAxis(
@@ -78,15 +76,17 @@ export class HistogramComponent {
 
     this.drawYAxis();
 
-    this.drawHistogram(
-      this.datasSetPosPos,
-      this.chartW * 3 + this.padding + this.middleW
-    );
-    this.drawHistogram(
-      this.datasSetPosNeg,
-      this.chartW * 2 + this.padding + this.middleW,
-      true
-    );
+    // this.drawHistogram(
+    //   this.datasSetPosPos,
+    //   this.chartW * 3 + this.padding + this.middleW
+    // );
+    // this.drawHistogram(
+    //   this.datasSetPosNeg,
+    //   this.chartW * 2 + this.padding + this.middleW,
+    //   true
+    // );
+    // this.drawHistogram(this.datasSetZero, this.chartW * 2 + this.padding, true);
+    this.drawHistogram2(this.datas);
   }
 
   analyseDatas(datas: any) {
@@ -97,24 +97,24 @@ export class HistogramComponent {
     var minX = this.datas[0].partition[0];
     this.rangeX = Math.max(Math.abs(maxX), Math.abs(minX));
 
-    datas.forEach((d: any) => {
-      if (d.partition[0] >= 1) {
-        this.datasSetPosPos.push(d);
-      } else if (d.partition[1] <= 1 && d.partition[0] > 0) {
-        this.datasSetPosNeg.push(d);
-      } else if (d.partition[1] <= -1) {
-        this.datasSetNegNeg.push(d);
-      } else if (d.partition[0] <= -1 && d.partition[1] >= -1) {
-        this.datasSetNegPos.push(d);
-      } else {
-        this.datasSetZero.push(d);
-      }
-    });
-    console.log(' this.datasSetPosPos:', this.datasSetPosPos);
-    console.log(' this.datasSetPosNeg:', this.datasSetPosNeg);
-    console.log(' this.datasSetZero:', this.datasSetZero);
-    console.log(' this.datasSetPosNeg:', this.datasSetNegPos);
-    console.log(' this.datasSetNegNeg:', this.datasSetNegNeg);
+    // datas.forEach((d: any) => {
+    //   if (d.partition[0] >= 1) {
+    //     this.datasSetPosPos.push(d);
+    //   } else if (d.partition[1] <= 1 && d.partition[0] > 0) {
+    //     this.datasSetPosNeg.push(d);
+    //   } else if (d.partition[1] <= -1) {
+    //     this.datasSetNegNeg.push(d);
+    //   } else if (d.partition[0] <= -1 && d.partition[1] >= -1) {
+    //     this.datasSetNegPos.push(d);
+    //   } else {
+    //     this.datasSetZero.push(d);
+    //   }
+    // });
+    // console.log(' this.datasSetPosPos:', this.datasSetPosPos);
+    // console.log(' this.datasSetPosNeg:', this.datasSetPosNeg);
+    // console.log(' this.datasSetZero:', this.datasSetZero);
+    // console.log(' this.datasSetPosNeg:', this.datasSetNegPos);
+    // console.log(' this.datasSetNegNeg:', this.datasSetNegNeg);
   }
 
   getRatioX() {
@@ -126,7 +126,6 @@ export class HistogramComponent {
       }
       ratioX = this.chartW / maxVal;
     }
-
     return ratioX;
   }
 
@@ -134,24 +133,29 @@ export class HistogramComponent {
     return (this.h - this.padding / 2) / this.rangeY;
   }
 
-  getBar(d: any, reverse = false) {
-    let barMax = Math.max(Math.abs(d.partition[1]), Math.abs(d.partition[0]));
-
-    let barMin = Math.min(Math.abs(d.partition[1]), Math.abs(d.partition[0]));
-
-    let barW = barMax - barMin;
-    let barX = barMin;
+  getBar(d: any) {
+    let barMax = Math.max(d.partition[1], d.partition[0]);
+    let barMin = Math.min(d.partition[1], d.partition[0]);
+    let barW = 0;
+    barW = barMax - barMin;
 
     if (this.type === 'log') {
-      // barW = Math.log10(d.partition[1]) - Math.log10(d.partition[0]);
-      // barX = Math.log10(d.partition[0]);
-      barW = Math.log10(barMax) - Math.log10(barMin);
-      barX = Math.log10(barMin);
-      if (reverse) {
-        // barX =  Math.abs(Math.log10(barX))
-        // barW =  Math.abs(Math.log10(barW))
+      if (
+        (d.partition[0] <= 0 && d.partition[1] >= 0) ||
+        (d.partition[0] < 0 && d.partition[1] <= 0)
+      ) {
+        // barW = barMax - barMin;
+      } else {
+        // barW = barMax + barMin;
       }
     }
+
+    let barX = barMin;
+    if (this.type === 'log') {
+      // barW = Math.log10(Math.abs(barW));
+      barX = Math.log10(Math.abs(barMin));
+    }
+
     return {
       value: d.value,
       barW: barW,
@@ -159,42 +163,143 @@ export class HistogramComponent {
     };
   }
 
-  drawHistogram(datasSet: any, shift: any, reverse = false) {
+  drawHistogram2(datasSet: any) {
     datasSet.forEach((d: any, i: number) => {
       console.log(d);
 
-      const bar = this.getBar(d, reverse);
+      const bar = this.getBar(d);
+
+      let reverse = false;
+      let shift = 0;
       var self = this;
+      let x = shift + this.getRatioX() * bar.barX;
 
-      this.svg
-        .append('rect')
-        .attr('id', 'rect-' + i)
-        // .attr('x', barX * ratio)
-        .attr('x', shift + this.getRatioX() * bar.barX)
-        .attr('y', this.h - d.value * this.getRatioY())
-        .attr('stroke', 'black')
-        .attr('stroke-width', '0')
-        .on('click', function (e: any) {
-          //@ts-ignore
-          d3.select(this.parentNode)
-            .selectAll('rect')
-            .style('stroke-width', '0');
+      if (this.type === 'lin') {
+        shift = this.chartW * 3 + this.padding + this.middleW;
+        x = shift + this.getRatioX() * bar.barX;
+      } else {
+        // if (bar.barX === -Infinity || bar.barW === -Infinity) {
+        //   x = this.chartW * 2 + this.getRatioX();
+        //   bar.barX = 5;
+        //   bar.barW = 200;
+        //   console.log(
+        //     'file: histogram.component.ts:185 ~ HistogramComponent ~ datasSet.forEach ~  bar.barW:',
+        //     bar.barW
+        //   );
+        // } else {
+          if (d.partition[0] > 0) {
+            shift = this.chartW * 3 + this.padding + this.middleW;
+            x = shift + this.getRatioX() * bar.barX;
+            bar.barW =
+              Math.log10(Math.abs(d.partition[1])) -
+              Math.log10(Math.abs(d.partition[0]));
+          } else if (d.partition[1] < -1) {
+            shift = this.chartW + this.padding;
+            x = shift - this.getRatioX() * bar.barX;
+            bar.barW =
+              Math.log10(Math.abs(d.partition[0])) -
+              Math.log10(Math.abs(d.partition[1]));
+          } else {
+            let isZeroP0 = d.partition[0] === 0;
+            let isZeroP1 = d.partition[1] === 0;
 
-          //@ts-ignore
-          d3.select(this).style('stroke-width', '2px');
-          self.bringSvgToTop(document.getElementById('rect-' + i));
-        })
-        .attr('width', bar.barW * this.getRatioX())
-        .attr('height', bar.value * this.getRatioY())
-        .attr(
-          'transform',
-          //   // this.isPos ? '' : 'translate(' + this.w + ', 0) scale(-1,1)'
-          reverse ? 'translate(' + this.chartW + ', 0)' : ''
-          // 'translate(' + -50 + ', 0)'
-        )
-        .attr('fill', d.color);
+            if (isZeroP0) {
+
+              shift = this.chartW + this.padding;
+              x = shift - this.getRatioX() * bar.barX;
+              if (!isZeroP1) {
+                bar.barW =
+                  (this.chartW * 2 + this.middleW) / this.getRatioX() +
+                  Math.log10(Math.abs(d.partition[0])) +
+                  Math.log10(Math.abs(d.partition[1]));
+              } else {
+                // bar.barW =
+                //   bar.barW * this.getRatioX() +
+                //   (this.chartW + this.middleW / 2 + this.padding / 2) /
+                //     this.getRatioX();
+                bar.barW =
+                  (this.chartW * 2 + this.middleW) / this.getRatioX() +
+                  Math.log10(Math.abs(d.partition[0])) +
+                  Math.log10(Math.abs(d.partition[1]));
+              }
+            }
+
+            // let logP0 = Math.log10(Math.abs(d.partition[0]));
+            // console.warn(
+            //   'file: histogram.component.ts:183 ~ HistogramComponent ~ datasSet.forEach ~ logP0:',
+            //   logP0
+            // );
+            // let logP1 = Math.log10(Math.abs(d.partition[1]));
+            // console.warn(
+            //   'file: histogram.component.ts:185 ~ HistogramComponent ~ datasSet.forEach ~ logP1:',
+            //   logP1
+            // );
+          }
+        // }
+      }
+      console.log(
+        'file: histogram.component.ts:183 ~ HistogramComponent ~ datasSet.forEach ~ x :',
+        x
+      );
+      console.log(
+        'file: histogram.component.ts:185 ~ HistogramComponent ~ datasSet.forEach ~ bar.barW:',
+        bar.barW
+      );
+
+      if (shift) {
+        this.svg
+          .append('rect')
+          .attr('id', 'rect-' + i)
+          .attr('x', x)
+          .attr('y', this.h - d.value * this.getRatioY())
+          .attr('stroke', 'black')
+          .attr('stroke-width', '0')
+          .on('click', function (e: any) {
+            //@ts-ignore
+            d3.select(this.parentNode)
+              .selectAll('rect')
+              .style('stroke-width', '0');
+            //@ts-ignore
+            d3.select(this).style('stroke-width', '2px');
+            self.bringSvgToTop(document.getElementById('rect-' + i));
+          })
+          .attr('width', bar.barW * this.getRatioX())
+          .attr('height', bar.value * this.getRatioY())
+          .attr('transform', reverse ? 'translate(' + this.chartW + ', 0)' : '')
+          .attr('fill', d.color);
+      }
     });
   }
+  // drawHistogram(datasSet: any, shift: any, reverse = false) {
+  //   datasSet.forEach((d: any, i: number) => {
+  //     console.log(d);
+
+  //     const bar = this.getBar(d, reverse);
+
+  //     var self = this;
+
+  //     this.svg
+  //       .append('rect')
+  //       .attr('id', 'rect-' + i)
+  //       .attr('x', shift + this.getRatioX() * bar.barX)
+  //       .attr('y', this.h - d.value * this.getRatioY())
+  //       .attr('stroke', 'black')
+  //       .attr('stroke-width', '0')
+  //       .on('click', function (e: any) {
+  //         //@ts-ignore
+  //         d3.select(this.parentNode)
+  //           .selectAll('rect')
+  //           .style('stroke-width', '0');
+  //         //@ts-ignore
+  //         d3.select(this).style('stroke-width', '2px');
+  //         self.bringSvgToTop(document.getElementById('rect-' + i));
+  //       })
+  //       .attr('width', bar.barW * this.getRatioX())
+  //       .attr('height', bar.value * this.getRatioY())
+  //       .attr('transform', reverse ? 'translate(' + this.chartW + ', 0)' : '')
+  //       .attr('fill', d.color);
+  //   });
+  // }
 
   bringSvgToTop(targetElement: any) {
     // put the element at the bottom of its parent

@@ -17,6 +17,7 @@ export class AppComponent {
   constructor() {
     let mock = 'datas';
     // let mock = 'datas2';
+    // let mock = 'datas3';
     fetch('./assets/' + mock + '.json')
       .then((response) => {
         return response.json();
@@ -28,7 +29,6 @@ export class AppComponent {
         // showCharts(datas);
 
         this.analyseDatas(this.datas);
-        this.getRange();
         this.getRangeY();
       })
       .catch(function (err) {
@@ -39,18 +39,6 @@ export class AppComponent {
   getRangeY(): void {
     this.rangeY = Math.max(...this.datas?.map((e: any) => e.value));
     // this.rangeY = Math.round(this.rangeY * 100) / 100;
-  }
-
-  getRange(): void {
-    var maxRange1 = Math.max(
-      Math.abs(this.datasSet1[0].partition[0]),
-      Math.abs(this.datasSet1[this.datasSet1.length - 1].partition[1])
-    );
-    var maxRange2 = Math.max(
-      Math.abs(this.datasSet2[0].partition[0]),
-      Math.abs(this.datasSet2[this.datasSet2.length - 1].partition[1])
-    );
-    this.range = Math.max(maxRange1, maxRange2);
   }
 
   analyseDatas(datas: any) {

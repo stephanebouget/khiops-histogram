@@ -25,9 +25,21 @@
   },
   {
     "name": "infinite2",
-    "partition": [-0.1, 0.01],
+    "partition": [-0.1, -0.01],
     "value": 80,
     "color": "#00ff66"
+  },
+  {
+    "name": "infinite2",
+    "partition": [-0.01, 0],
+    "value": 80,
+    "color": "#00ff66"
+  },
+  {
+    "name": "special1",
+    "partition": [0, 0.01],
+    "value": 30,
+    "color": "#66ff00"
   },
   {
     "name": "special1",
