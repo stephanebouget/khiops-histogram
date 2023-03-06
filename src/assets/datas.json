@@ -1,7 +1,7 @@
 [
   {
     "name": "1",
-    "partition": [-100, -20],
+    "partition": [-500, -20],
     "value": 20,
     "color": "#839192"
   },

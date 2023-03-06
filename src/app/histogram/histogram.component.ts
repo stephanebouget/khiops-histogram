@@ -187,54 +187,59 @@ export class HistogramComponent {
         //     bar.barW
         //   );
         // } else {
-          if (d.partition[0] > 0) {
-            shift = this.chartW * 3 + this.padding + this.middleW;
-            x = shift + this.getRatioX() * bar.barX;
-            bar.barW =
-              Math.log10(Math.abs(d.partition[1])) -
-              Math.log10(Math.abs(d.partition[0]));
-          } else if (d.partition[1] < -1) {
+        if (d.partition[0] > 0) {
+          shift = this.chartW * 3 + this.padding + this.middleW;
+          x = shift + this.getRatioX() * bar.barX;
+          bar.barW =
+            Math.log10(Math.abs(d.partition[1])) -
+            Math.log10(Math.abs(d.partition[0]));
+        } else if (d.partition[1] <= -1) {
+          shift = this.chartW + this.padding;
+          x = shift - this.getRatioX() * bar.barX;
+          bar.barW =
+            Math.log10(Math.abs(d.partition[0])) -
+            Math.log10(Math.abs(d.partition[1]));
+        } else if (d.partition[1] < 0) {
+          shift = this.chartW + this.padding;
+          x = shift - this.getRatioX() * bar.barX;
+          bar.barW =
+            Math.log10(Math.abs(d.partition[0])) -
+            Math.log10(Math.abs(d.partition[1]));
+        } else {
+          let isZeroP0 = d.partition[0] === 0;
+          let isZeroP1 = d.partition[1] === 0;
+
+          if (isZeroP0) {
             shift = this.chartW + this.padding;
             x = shift - this.getRatioX() * bar.barX;
-            bar.barW =
-              Math.log10(Math.abs(d.partition[0])) -
-              Math.log10(Math.abs(d.partition[1]));
-          } else {
-            let isZeroP0 = d.partition[0] === 0;
-            let isZeroP1 = d.partition[1] === 0;
-
-            if (isZeroP0) {
-
-              shift = this.chartW + this.padding;
-              x = shift - this.getRatioX() * bar.barX;
-              if (!isZeroP1) {
-                bar.barW =
-                  (this.chartW * 2 + this.middleW) / this.getRatioX() +
-                  Math.log10(Math.abs(d.partition[0])) +
-                  Math.log10(Math.abs(d.partition[1]));
-              } else {
-                // bar.barW =
-                //   bar.barW * this.getRatioX() +
-                //   (this.chartW + this.middleW / 2 + this.padding / 2) /
-                //     this.getRatioX();
-                bar.barW =
-                  (this.chartW * 2 + this.middleW) / this.getRatioX() +
-                  Math.log10(Math.abs(d.partition[0])) +
-                  Math.log10(Math.abs(d.partition[1]));
-              }
+            if (!isZeroP1) {
+              bar.barW =
+                (this.chartW * 2 + this.middleW) / this.getRatioX() +
+                Math.log10(Math.abs(d.partition[0])) +
+                Math.log10(Math.abs(d.partition[1]));
+            } else {
+              // bar.barW =
+              //   bar.barW * this.getRatioX() +
+              //   (this.chartW + this.middleW / 2 + this.padding / 2) /
+              //     this.getRatioX();
+              bar.barW =
+                (this.chartW * 2 + this.middleW) / this.getRatioX() +
+                Math.log10(Math.abs(d.partition[0])) +
+                Math.log10(Math.abs(d.partition[1]));
             }
-
-            // let logP0 = Math.log10(Math.abs(d.partition[0]));
-            // console.warn(
-            //   'file: histogram.component.ts:183 ~ HistogramComponent ~ datasSet.forEach ~ logP0:',
-            //   logP0
-            // );
-            // let logP1 = Math.log10(Math.abs(d.partition[1]));
-            // console.warn(
-            //   'file: histogram.component.ts:185 ~ HistogramComponent ~ datasSet.forEach ~ logP1:',
-            //   logP1
-            // );
           }
+
+          // let logP0 = Math.log10(Math.abs(d.partition[0]));
+          // console.warn(
+          //   'file: histogram.component.ts:183 ~ HistogramComponent ~ datasSet.forEach ~ logP0:',
+          //   logP0
+          // );
+          // let logP1 = Math.log10(Math.abs(d.partition[1]));
+          // console.warn(
+          //   'file: histogram.component.ts:185 ~ HistogramComponent ~ datasSet.forEach ~ logP1:',
+          //   logP1
+          // );
+        }
         // }
       }
       console.log(
