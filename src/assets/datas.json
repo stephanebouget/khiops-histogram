@@ -32,13 +32,13 @@
   {
     "name": "infinite2",
     "partition": [-0.01, 0],
-    "value": 80,
-    "color": "#00ff66"
+    "value": 800,
+    "color": "#000000"
   },
   {
     "name": "special1",
     "partition": [0, 0.01],
-    "value": 30,
+    "value": 800,
     "color": "#66ff00"
   },
   {

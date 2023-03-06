@@ -207,27 +207,44 @@ export class HistogramComponent {
             Math.log10(Math.abs(d.partition[1]));
         } else {
           let isZeroP0 = d.partition[0] === 0;
+          console.log(
+            'file: histogram.component.ts:220 ~ HistogramComponent ~ datasSet.forEach ~ isZeroP0:',
+            isZeroP0
+          );
           let isZeroP1 = d.partition[1] === 0;
+          console.log(
+            'file: histogram.component.ts:221 ~ HistogramComponent ~ datasSet.forEach ~ isZeroP1:',
+            isZeroP1
+          );
 
           if (isZeroP0) {
-            shift = this.chartW + this.padding;
-            x = shift - this.getRatioX() * bar.barX;
-            if (!isZeroP1) {
-              bar.barW =
-                (this.chartW * 2 + this.middleW) / this.getRatioX() +
-                Math.log10(Math.abs(d.partition[0])) +
-                Math.log10(Math.abs(d.partition[1]));
-            } else {
-              // bar.barW =
-              //   bar.barW * this.getRatioX() +
-              //   (this.chartW + this.middleW / 2 + this.padding / 2) /
-              //     this.getRatioX();
-              bar.barW =
-                (this.chartW * 2 + this.middleW) / this.getRatioX() +
-                Math.log10(Math.abs(d.partition[0])) +
-                Math.log10(Math.abs(d.partition[1]));
-            }
+            console.warn('-----------------------');
+            // x = this.chartW + this.padding;
+            shift = this.chartW * 2 + this.middleW / 2 + this.padding;
+            x = shift - this.getRatioX();
+            // bar.barW = (this.chartW * 2 + this.middleW) / this.getRatioX();
+            bar.barW = 1;
           }
+
+          // if (isZeroP0) {
+          //   shift = this.chartW + this.padding;
+          //   x = shift - this.getRatioX() * bar.barX;
+          //   if (!isZeroP1) {
+          //     bar.barW =
+          //       (this.chartW * 2 + this.middleW) / this.getRatioX() +
+          //       Math.log10(Math.abs(d.partition[0])) +
+          //       Math.log10(Math.abs(d.partition[1]));
+          //   } else {
+          //     // bar.barW =
+          //     //   bar.barW * this.getRatioX() +
+          //     //   (this.chartW + this.middleW / 2 + this.padding / 2) /
+          //     //     this.getRatioX();
+          //     bar.barW =
+          //       (this.chartW * 2 + this.middleW) / this.getRatioX() +
+          //       Math.log10(Math.abs(d.partition[0])) +
+          //       Math.log10(Math.abs(d.partition[1]));
+          //   }
+          // }
 
           // let logP0 = Math.log10(Math.abs(d.partition[0]));
           // console.warn(
@@ -244,7 +261,8 @@ export class HistogramComponent {
       }
       console.log(
         'file: histogram.component.ts:183 ~ HistogramComponent ~ datasSet.forEach ~ x :',
-        x
+        x,
+        bar.barX
       );
       console.log(
         'file: histogram.component.ts:185 ~ HistogramComponent ~ datasSet.forEach ~ bar.barW:',
