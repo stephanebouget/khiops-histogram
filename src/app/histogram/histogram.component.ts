@@ -34,7 +34,7 @@ export class HistogramComponent {
   rangeX = 0;
   padding = 0;
   rangeY = 0;
-  tickCount = 2;
+  tickCount = 5;
 
   constructor() {}
 
@@ -50,24 +50,32 @@ export class HistogramComponent {
       .attr('height', this.h + this.padding);
 
     this.analyseDatas(this.datas);
-    this.drawXAxis([this.rangeX, 1], this.padding);
+    if (this.type === 'log') {
+      this.drawXAxis([this.rangeX, 1], this.padding);
+      this.drawXAxis(
+        [1, this.rangeX],
+        this.chartW + this.padding,
+        this.chartW,
+        true
+      );
+      this.drawXAxis(
+        [-1, 0, 1],
+        this.chartW * 2 + this.padding,
+        this.chartW / 4,
+        false
+      );
+    }
     this.drawXAxis(
-      [1, 1 / this.rangeX], // do not work with more than 3 ticks, axis are reversed
-      // [1 / this.rangeX, 1],
-      this.chartW + this.padding
-    );
-    this.drawXAxis([-1, 0, 1], this.chartW * 2 + this.padding, this.middleW);
-    this.drawXAxis(
-      [1, this.rangeX],
-      this.chartW * 3 + this.padding + this.middleW
-    );
-    this.drawXAxis(
-      // [1, 1 / this.rangeX],
-      [1 / this.rangeX, 1], // do not work with more than 3 ticks, axis are reversed
+      [this.rangeX, 1],
       this.chartW * 2 + this.padding + this.middleW,
       this.chartW,
       true
     );
+    this.drawXAxis(
+      [1, this.rangeX],
+      this.chartW * 3 + this.padding + this.middleW
+    );
+
     this.drawYAxis();
 
     this.drawHistogram(
@@ -118,10 +126,7 @@ export class HistogramComponent {
       }
       ratioX = this.chartW / maxVal;
     }
-    console.log(
-      'file: histogram.component.ts:123 ~ HistogramComponent ~ getRatioX ~ ratioX:',
-      ratioX
-    );
+
     return ratioX;
   }
 
@@ -131,15 +136,8 @@ export class HistogramComponent {
 
   getBar(d: any, reverse = false) {
     let barMax = Math.max(Math.abs(d.partition[1]), Math.abs(d.partition[0]));
-    console.log(
-      'file: histogram.component.ts:134 ~ HistogramComponent ~ getBar ~ barMax:',
-      barMax
-    );
+
     let barMin = Math.min(Math.abs(d.partition[1]), Math.abs(d.partition[0]));
-    console.log(
-      'file: histogram.component.ts:136 ~ HistogramComponent ~ getBar ~ barMin:',
-      barMin
-    );
 
     let barW = barMax - barMin;
     let barX = barMin;
@@ -166,10 +164,6 @@ export class HistogramComponent {
       console.log(d);
 
       const bar = this.getBar(d, reverse);
-      console.log(
-        'file: histogram.component.ts:154 ~ HistogramComponent ~ datasSet.forEach ~ bar:',
-        bar
-      );
 
       this.svg
         .append('rect')
@@ -207,8 +201,9 @@ export class HistogramComponent {
     if (this.type === 'lin') {
       x = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
     } else {
-      x = d3.scaleLog().base(10).domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
+      x = d3.scaleLog().base(10).domain(domain).range([0, width]);
     }
+
     const axis = d3
       .axisBottom(x)
       .ticks(this.tickCount)
@@ -217,30 +212,28 @@ export class HistogramComponent {
       .tickFormat((d) => {
         //@ts-ignore
         let val: number = d;
-        if (reverse) {
-          return Math.round(Math.log10(val));
+        if (this.type === 'lin') {
+          return val;
         } else {
-          if (this.type === 'lin') {
-            return val;
+          const tick = Math.round(Math.log10(val) * 100) / 100;
+          if (reverse) {
+            return tick !== 0 ? '-' + tick : '' + tick;
           } else {
-            return Math.round(Math.log10(val));
-            // return Math.log10(val).toFixed(2);
-            // return Math.log10(val).toFixed(2);
+            return tick;
           }
         }
       });
     this.svg
       .append('g')
       .attr('class', 'x axis-grid')
-      .attr('transform', 'translate(' + shift + ',' + this.h + ')') // This controls the vertical position of the Axis
+      .attr('transform', 'translate(' + shift + ',' + this.h + ') ') // This controls the vertical position of the Axis
 
-      // .attr(
-      //   'transform',
-      //   reverse
-      //     ? 'translate(' + (shift + width) + ',' + this.h + ')  scale(-1,1)'
-      //     : 'translate(' + shift + ',' + this.h + ') '
-      // ) // This controls the vertical position of the Axis
-      .call(axis);
+      .call(axis)
+      .selectAll('text')
+      .style('text-anchor', 'end')
+      .attr('dx', '-.8em')
+      .attr('dy', '.15em')
+      .attr('transform', 'rotate(-65)');
   }
 
   drawYAxis() {
