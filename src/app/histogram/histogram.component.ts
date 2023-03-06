@@ -213,7 +213,11 @@ export class HistogramComponent {
         //@ts-ignore
         let val: number = d;
         if (this.type === 'lin') {
-          return val;
+          if (reverse) {
+            return '-' + val;
+          } else {
+            return val;
+          }
         } else {
           const tick = Math.round(Math.log10(val) * 100) / 100;
           if (reverse) {
