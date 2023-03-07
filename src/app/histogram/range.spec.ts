@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HistogramComponent } from './histogram.component';
 
-describe('HistogramComponent', () => {
+describe('Range', () => {
   let component: HistogramComponent;
   let fixture: ComponentFixture<HistogramComponent>;
 
@@ -13,10 +13,6 @@ describe('HistogramComponent', () => {
     fixture = TestBed.createComponent(HistogramComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
   });
 
   it('[-200, -200]', () => {

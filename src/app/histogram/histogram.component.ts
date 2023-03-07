@@ -134,11 +134,6 @@ export class HistogramComponent {
         }
       }
     });
-    console.log(
-      'file: histogram.component.ts:139 ~ HistogramComponent ~ getRange ~ this.rangeXLin, this.rangeXLog:',
-      this.rangeXLin,
-      this.rangeXLog
-    );
     return [this.rangeXLin, this.rangeXLog];
   }
 
@@ -159,25 +154,6 @@ export class HistogramComponent {
     return (this.h - this.padding / 2) / this.rangeY;
   }
 
-  getBar(d: any) {
-    let barMax = Math.max(d.partition[1], d.partition[0]);
-    let barMin = Math.min(d.partition[1], d.partition[0]);
-    let barW = 0;
-    barW = barMax - barMin;
-
-    let barX = barMin;
-    if (this.type === 'log') {
-      barX = Math.log10(Math.abs(barMin));
-    }
-
-    return {
-      value: d.value,
-      barW: barW,
-      barX: barX,
-      partition: d.partition,
-    };
-  }
-
   addTooltip() {
     this.tooltip = d3
       .select('#tooltip')
@@ -190,143 +166,158 @@ export class HistogramComponent {
       .style('padding', '5px');
   }
 
-  drawHistogram(datasSet: any) {
-    datasSet.forEach((d: any, i: number) => {
-      const bar = this.getBar(d);
+  getBarDimensions(d: any) {
+    let shift = 0;
+    let barW = 0;
+    let barX = 0;
+    let x = 0;
+    let barMin = 0;
 
-      let reverse = false;
-      let shift = 0;
-      var self = this;
-      let x = shift + this.getRatioX() * bar.barX;
+    if (this.type === 'lin') {
+      barMin = Math.min(d.partition[1], d.partition[0]);
+      shift = this.chartW + this.padding;
+      barX = barMin;
+      x = shift + this.getRatioX() * barX;
+      let barMax = Math.max(d.partition[1], d.partition[0]);
 
-      if (this.type === 'lin') {
+      barW = barMax - barMin;
+    } else {
+      barMin = Math.min(d.partition[1], d.partition[0]);
+      barX = Math.log10(Math.abs(barMin));
+
+      if (d.partition[0] > 0) {
+        shift = this.chartW * 3 + this.padding + this.middleW;
+        x = shift + this.getRatioX() * barX;
+        barW =
+          Math.log10(Math.abs(d.partition[1])) -
+          Math.log10(Math.abs(d.partition[0]));
+      } else if (d.partition[1] <= -1) {
         shift = this.chartW + this.padding;
-        x = shift + this.getRatioX() * bar.barX;
+        x = shift - this.getRatioX() * barX;
+        barW =
+          Math.log10(Math.abs(d.partition[0])) -
+          Math.log10(Math.abs(d.partition[1]));
+      } else if (d.partition[1] < 0) {
+        shift = this.chartW + this.padding;
+        x = shift - this.getRatioX() * barX;
+        barW =
+          Math.log10(Math.abs(d.partition[0])) -
+          Math.log10(Math.abs(d.partition[1]));
       } else {
-        if (d.partition[0] > 0) {
-          shift = this.chartW * 3 + this.padding + this.middleW;
-          x = shift + this.getRatioX() * bar.barX;
-          bar.barW =
-            Math.log10(Math.abs(d.partition[1])) -
-            Math.log10(Math.abs(d.partition[0]));
-        } else if (d.partition[1] <= -1) {
-          shift = this.chartW + this.padding;
-          x = shift - this.getRatioX() * bar.barX;
-          bar.barW =
-            Math.log10(Math.abs(d.partition[0])) -
-            Math.log10(Math.abs(d.partition[1]));
-        } else if (d.partition[1] < 0) {
-          shift = this.chartW + this.padding;
-          x = shift - this.getRatioX() * bar.barX;
-          bar.barW =
-            Math.log10(Math.abs(d.partition[0])) -
-            Math.log10(Math.abs(d.partition[1]));
-        } else {
-          let isZeroP0 = d.partition[0] === 0;
-          let isZeroP1 = d.partition[1] === 0;
+        let isZeroP0 = d.partition[0] === 0;
+        let isZeroP1 = d.partition[1] === 0;
 
-          if (isZeroP0) {
-            shift = this.chartW * 2 + this.middleW / 2 + this.padding;
-            x = shift;
-            bar.barW = this.middleW / 2 / this.getRatioX();
-            let diff = 0;
-            if (d.partition[1] > 1) {
-              // case P0 =0 and P1 >1
-              diff =
-                Math.log10(this.rangeXLog) +
-                Math.abs(Math.log10(d.partition[1]));
-            } else {
-              diff =
-                Math.log10(this.rangeXLog) -
-                Math.abs(Math.log10(d.partition[1]));
-            }
-            bar.barW = bar.barW + diff;
-          } else if (isZeroP1) {
-            shift = this.chartW * 2 + this.middleW / 2 + this.padding;
-            x = shift;
-            bar.barW = this.middleW / 2 / this.getRatioX();
-            let diff =
-              Math.log10(this.rangeXLog) -
-              Math.abs(Math.log10(Math.abs(d.partition[0])));
-
-            bar.barW = bar.barW + diff;
-            x = x - bar.barW * this.getRatioX();
+        if (isZeroP0) {
+          shift = this.chartW * 2 + this.middleW / 2 + this.padding;
+          x = shift;
+          barW = this.middleW / 2 / this.getRatioX();
+          let diff = 0;
+          if (d.partition[1] > 1) {
+            // case P0 =0 and P1 >1
+            diff =
+              Math.log10(this.rangeXLog) + Math.abs(Math.log10(d.partition[1]));
           } else {
-            // partition is neg and pos
-            shift = this.chartW + this.padding;
-            x = shift - this.getRatioX() * bar.barX;
-
-            bar.barW =
-              Math.log10(Math.abs(d.partition[0])) +
-              this.middleW / this.getRatioX() +
-              this.chartW / this.getRatioX() +
-              this.chartW / this.getRatioX() +
-              Math.log10(Math.abs(d.partition[1]));
+            diff =
+              Math.log10(this.rangeXLog) - Math.abs(Math.log10(d.partition[1]));
           }
+          barW = barW + diff;
+        } else if (isZeroP1) {
+          shift = this.chartW * 2 + this.middleW / 2 + this.padding;
+          x = shift;
+          barW = this.middleW / 2 / this.getRatioX();
+          let diff =
+            Math.log10(this.rangeXLog) -
+            Math.abs(Math.log10(Math.abs(d.partition[0])));
+
+          barW = barW + diff;
+          x = x - barW * this.getRatioX();
+        } else {
+          // partition is neg and pos
+          shift = this.chartW + this.padding;
+          x = shift - this.getRatioX() * barX;
+
+          barW =
+            Math.log10(Math.abs(d.partition[0])) +
+            this.middleW / this.getRatioX() +
+            this.chartW / this.getRatioX() +
+            this.chartW / this.getRatioX() +
+            Math.log10(Math.abs(d.partition[1]));
         }
       }
+    }
+    return [x, barW];
+  }
 
-      const onclickRect = function (e: any) {
-        //@ts-ignore
-        d3.select(this.parentNode).selectAll('rect').style('stroke-width', '0');
-        //@ts-ignore
-        d3.select(this).style('stroke-width', '2px');
-        self.bringSvgToTop(document.getElementById('rect-' + i));
-      };
-      const mouseover = function (d: any) {
-        //@ts-ignore
-        self.tooltip.style('display', 'block').style('width', '140px');
-      };
-      const mousemove = function (d: any) {
-        let logRange =
-          '[' +
-          self.getSign(bar.partition[0]) +
-          Math.round(Math.log10(Math.abs(bar.partition[0])) * 100) / 100 +
-          ', ';
-        logRange +=
-          self.getSign(bar.partition[1]) +
-          Math.round(Math.log10(Math.abs(bar.partition[1])) * 100) / 100 +
-          ']';
+  drawRect(d: any, i: number) {
+    var self = this;
+    let x, barW;
+    [x, barW] = this.getBarDimensions(d);
 
-        //@ts-ignore
-        self.tooltip.html(
-          'Value: ' +
-            bar.value +
-            '<br>' +
-            'Range: ' +
-            JSON.stringify(bar.partition) +
-            '<br>' +
-            'Log: ' +
-            logRange
-        );
-        //@ts-ignore
-        self.tooltip.style('margin-left', d.clientX - 70 + 'px');
-        //@ts-ignore
-        self.tooltip.style('margin-top', d.layerY - self.h / 2 + 'px');
-      };
-      const mouseleave = function (d: any) {
-        //@ts-ignore
-        self.tooltip
-          .style('display', 'none')
-          .style('margin-left', '0px')
-          .style('margin-top', '0px');
-      };
+    const onclickRect = function (e: any) {
+      //@ts-ignore
+      d3.select(this.parentNode).selectAll('rect').style('stroke-width', '0');
+      //@ts-ignore
+      d3.select(this).style('stroke-width', '2px');
+      self.bringSvgToTop(document.getElementById('rect-' + i));
+    };
+    const mouseover = function (e: any) {
+      //@ts-ignore
+      self.tooltip.style('display', 'block').style('width', '140px');
+    };
+    const mousemove = function (e: any) {
+      let logRange =
+        '[' +
+        self.getSign(d.partition[0]) +
+        Math.round(Math.log10(Math.abs(d.partition[0])) * 100) / 100 +
+        ', ';
+      logRange +=
+        self.getSign(d.partition[1]) +
+        Math.round(Math.log10(Math.abs(d.partition[1])) * 100) / 100 +
+        ']';
 
-      this.svg
-        .append('rect')
-        .attr('id', 'rect-' + i)
-        .attr('x', x)
-        .attr('y', this.h - d.value * this.getRatioY())
-        .attr('stroke', 'black')
-        .attr('stroke-width', '0')
-        .on('click', onclickRect)
-        .on('mouseover', mouseover)
-        .on('mousemove', mousemove)
-        .on('mouseleave', mouseleave)
-        .attr('width', bar.barW * this.getRatioX())
-        .attr('height', bar.value * this.getRatioY())
-        .attr('transform', reverse ? 'translate(' + this.chartW + ', 0)' : '')
-        .attr('fill', d.color);
+      //@ts-ignore
+      self.tooltip.html(
+        'Value: ' +
+          d.value +
+          '<br>' +
+          'Range: ' +
+          JSON.stringify(d.partition) +
+          '<br>' +
+          'Log: ' +
+          logRange
+      );
+      //@ts-ignore
+      self.tooltip.style('margin-left', d.clientX - 70 + 'px');
+      //@ts-ignore
+      self.tooltip.style('margin-top', d.layerY - self.h / 2 + 'px');
+    };
+    const mouseleave = function (e: any) {
+      //@ts-ignore
+      self.tooltip
+        .style('display', 'none')
+        .style('margin-left', '0px')
+        .style('margin-top', '0px');
+    };
+
+    this.svg
+      .append('rect')
+      .attr('id', 'rect-' + i)
+      .attr('x', x)
+      .attr('y', this.h - d.value * this.getRatioY())
+      .attr('stroke', 'black')
+      .attr('stroke-width', '0')
+      .on('click', onclickRect)
+      .on('mouseover', mouseover)
+      .on('mousemove', mousemove)
+      .on('mouseleave', mouseleave)
+      .attr('width', barW * this.getRatioX())
+      .attr('height', d.value * this.getRatioY())
+      .attr('fill', d.color);
+  }
+
+  drawHistogram(datasSet: any) {
+    datasSet.forEach((d: any, i: number) => {
+      this.drawRect(d, i);
     });
   }
 
