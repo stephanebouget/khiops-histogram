@@ -31,6 +31,7 @@ export class HistogramComponent {
   xTickCount = 10;
   yTicksCount = 5;
   tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
+  tickSize = 0;
 
   constructor() {}
 
@@ -46,17 +47,19 @@ export class HistogramComponent {
     if (this.chart) {
       this.chart.nativeElement.innerHTML = '';
       const containerElt = document.getElementById('app-container');
+
       this.w = containerElt?.clientWidth || 0;
       this.w = this.w - 40; // add padding
-
       this.padding = this.w / 20;
+      this.getRange(this.datas);
 
       if (this.type === 'log') {
         this.chartW = this.w / 5;
         this.middleW = this.w / 10;
+        this.tickSize = -(4 * this.chartW + this.middleW);
 
         this.drawChart(this.chartW * 4 + this.padding * 2 + this.middleW);
-        this.analyseDatas(this.datas);
+
         this.drawXAxis([this.rangeXLog, 1], this.padding);
         this.drawXAxis(
           [1, this.rangeXLog],
@@ -79,23 +82,22 @@ export class HistogramComponent {
           [1, this.rangeXLog],
           this.chartW * 3 + this.padding + this.middleW
         );
-        let tickSize = -(4 * this.chartW + this.middleW);
-        this.drawYAxis(tickSize);
       } else {
         this.chartW = this.w / 2 - this.padding;
+        this.tickSize = -(2 * this.chartW);
+
         this.drawChart(this.chartW * 2 + this.padding * 2);
-        this.analyseDatas(this.datas);
+
         this.drawXAxis([this.rangeXLin, 1], this.padding, this.chartW, true);
         this.drawXAxis([1, this.rangeXLin], this.chartW + this.padding);
-        let tickSize = -(2 * this.chartW);
-        this.drawYAxis(tickSize);
       }
+      this.drawYAxis();
       this.addTooltip();
       this.drawHistogram(this.datas);
     }
   }
 
-  drawChart(chartW: any) {
+  drawChart(chartW: number) {
     this.svg = d3
       .select(this.chart.nativeElement)
       .append('svg')
@@ -103,7 +105,7 @@ export class HistogramComponent {
       .attr('height', this.h + this.padding);
   }
 
-  analyseDatas(datas: any) {
+  getRange(datas: any) {
     const dataValues = datas.map((e: any) => e.value);
     this.rangeY = Math.max(...dataValues);
     this.rangeXLog = 0;
@@ -245,58 +247,54 @@ export class HistogramComponent {
         }
       }
 
-      if (shift) {
-        const onclickRect = function (e: any) {
-          //@ts-ignore
-          d3.select(this.parentNode)
-            .selectAll('rect')
-            .style('stroke-width', '0');
-          //@ts-ignore
-          d3.select(this).style('stroke-width', '2px');
-          self.bringSvgToTop(document.getElementById('rect-' + i));
-        };
-        const mouseover = function (d: any) {
-          //@ts-ignore
-          self.tooltip.style('display', 'block').style('width', '140px');
-        };
-        const mousemove = function (d: any) {
-          //@ts-ignore
-          self.tooltip.html(
-            'Value: ' +
-              bar.value +
-              '<br>' +
-              'Range: ' +
-              JSON.stringify(bar.partition)
-          );
-          //@ts-ignore
-          self.tooltip.style('margin-left', d.clientX - 70 + 'px');
-          //@ts-ignore
-          self.tooltip.style('margin-top', d.layerY - self.h / 2 + 'px');
-        };
-        const mouseleave = function (d: any) {
-          //@ts-ignore
-          self.tooltip
-            .style('display', 'none')
-            .style('margin-left', '0px')
-            .style('margin-top', '0px');
-        };
+      const onclickRect = function (e: any) {
+        //@ts-ignore
+        d3.select(this.parentNode).selectAll('rect').style('stroke-width', '0');
+        //@ts-ignore
+        d3.select(this).style('stroke-width', '2px');
+        self.bringSvgToTop(document.getElementById('rect-' + i));
+      };
+      const mouseover = function (d: any) {
+        //@ts-ignore
+        self.tooltip.style('display', 'block').style('width', '140px');
+      };
+      const mousemove = function (d: any) {
+        //@ts-ignore
+        self.tooltip.html(
+          'Value: ' +
+            bar.value +
+            '<br>' +
+            'Range: ' +
+            JSON.stringify(bar.partition)
+        );
+        //@ts-ignore
+        self.tooltip.style('margin-left', d.clientX - 70 + 'px');
+        //@ts-ignore
+        self.tooltip.style('margin-top', d.layerY - self.h / 2 + 'px');
+      };
+      const mouseleave = function (d: any) {
+        //@ts-ignore
+        self.tooltip
+          .style('display', 'none')
+          .style('margin-left', '0px')
+          .style('margin-top', '0px');
+      };
 
-        this.svg
-          .append('rect')
-          .attr('id', 'rect-' + i)
-          .attr('x', x)
-          .attr('y', this.h - d.value * this.getRatioY())
-          .attr('stroke', 'black')
-          .attr('stroke-width', '0')
-          .on('click', onclickRect)
-          .on('mouseover', mouseover)
-          .on('mousemove', mousemove)
-          .on('mouseleave', mouseleave)
-          .attr('width', bar.barW * this.getRatioX())
-          .attr('height', bar.value * this.getRatioY())
-          .attr('transform', reverse ? 'translate(' + this.chartW + ', 0)' : '')
-          .attr('fill', d.color);
-      }
+      this.svg
+        .append('rect')
+        .attr('id', 'rect-' + i)
+        .attr('x', x)
+        .attr('y', this.h - d.value * this.getRatioY())
+        .attr('stroke', 'black')
+        .attr('stroke-width', '0')
+        .on('click', onclickRect)
+        .on('mouseover', mouseover)
+        .on('mousemove', mousemove)
+        .on('mouseleave', mouseleave)
+        .attr('width', bar.barW * this.getRatioX())
+        .attr('height', bar.value * this.getRatioY())
+        .attr('transform', reverse ? 'translate(' + this.chartW + ', 0)' : '')
+        .attr('fill', d.color);
     });
   }
 
@@ -306,7 +304,12 @@ export class HistogramComponent {
     parent.appendChild(targetElement);
   }
 
-  drawXAxis(domain: any, shift: any, width = this.chartW, reverse = false) {
+  drawXAxis(
+    domain: any,
+    shift: number,
+    width: number = this.chartW,
+    reverse = false
+  ) {
     let x;
 
     if (this.type === 'lin') {
@@ -356,7 +359,7 @@ export class HistogramComponent {
       .attr('transform', 'rotate(-65)');
   }
 
-  drawYAxis(tickSize: any) {
+  drawYAxis() {
     // Create the scale
     var y = d3
       .scaleLinear()
@@ -366,7 +369,7 @@ export class HistogramComponent {
     let shift = this.padding;
 
     // Draw the axis
-    const axis = d3.axisLeft(y).tickSize(tickSize).ticks(this.yTicksCount);
+    const axis = d3.axisLeft(y).tickSize(this.tickSize).ticks(this.yTicksCount);
     this.svg
       .append('g')
       .attr('class', 'y axis-grid')
