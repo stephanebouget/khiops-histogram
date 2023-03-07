@@ -1,7 +1,7 @@
 [
   {
     "name": "2",
-    "partition": [-200, 2000],
+    "partition": [-200, 200],
     "value": 10,
     "color": "#ff6600"
   },

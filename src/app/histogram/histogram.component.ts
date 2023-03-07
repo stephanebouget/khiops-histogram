@@ -330,8 +330,10 @@ export class HistogramComponent {
             return val;
           }
         } else {
-          if (i === 0 && !reverse) {
-            return 0;
+          if (i === 0) {
+            if (domain[0] < domain[1]) {
+              return 0;
+            }
           } else if (i % 2) {
             const tick = Math.round(Math.log10(val) * 100) / 100;
             if (reverse) {
