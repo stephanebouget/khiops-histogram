@@ -218,13 +218,34 @@ export class HistogramComponent {
           );
 
           if (isZeroP0) {
+            console.warn(d);
             console.warn('-----------------------');
             // x = this.chartW + this.padding;
             shift = this.chartW * 2 + this.middleW / 2 + this.padding;
-            x = shift - this.getRatioX();
+            console.log(
+              'file: histogram.component.ts:225 ~ HistogramComponent ~ datasSet.forEach ~ shift:',
+              shift
+            );
+            x = shift;
             // bar.barW = (this.chartW * 2 + this.middleW) / this.getRatioX();
-            bar.barW = 1;
+            bar.barW = this.middleW / 2 / this.getRatioX();
+            let diff = Math.log10(this.rangeX) - Math.abs(Math.log10(d.partition[1]));
+            console.log(
+              'file: histogram.component.ts:234 ~ HistogramComponent ~ datasSet.forEach ~ diff:',
+              diff
+            );
+            bar.barW = bar.barW + diff ;
           }
+          // if (isZeroP1) {
+          //   console.warn(d);
+          //   console.warn('-----------------------');
+          //   // x = this.chartW + this.padding;
+          //   shift = this.chartW * 2 + this.middleW / 2 + this.padding;
+          //   console.log('file: histogram.component.ts:225 ~ HistogramComponent ~ datasSet.forEach ~ shift:', shift);
+          //   x = shift;
+          //   // bar.barW = (this.chartW * 2 + this.middleW) / this.getRatioX();
+          //   bar.barW = (this.middleW / 2  + 10) / this.getRatioX();
+          // }
 
           // if (isZeroP0) {
           //   shift = this.chartW + this.padding;
