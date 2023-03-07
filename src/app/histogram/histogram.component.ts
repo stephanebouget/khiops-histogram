@@ -268,11 +268,11 @@ export class HistogramComponent {
       let logRange =
         '[' +
         self.getSign(d.partition[0]) +
-        Math.round(Math.log10(Math.abs(d.partition[0])) * 100) / 100 +
+        Math.abs(Math.round(Math.log10(Math.abs(d.partition[0])) * 100) / 100) +
         ', ';
       logRange +=
         self.getSign(d.partition[1]) +
-        Math.round(Math.log10(Math.abs(d.partition[1])) * 100) / 100 +
+        Math.abs(Math.round(Math.log10(Math.abs(d.partition[1])) * 100) / 100) +
         ']';
 
       //@ts-ignore
@@ -328,7 +328,7 @@ export class HistogramComponent {
   }
 
   getSign(input: number) {
-    return input >= 0 ? '' : '-';
+    return input > 0 ? '' : '-';
   }
 
   drawXAxis(
