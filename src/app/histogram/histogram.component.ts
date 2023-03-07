@@ -38,18 +38,13 @@ export class HistogramComponent {
   constructor() {}
 
   ngAfterViewInit(): void {
-    this.chartW = this.w / 5;
-    this.middleW = this.w / 10;
     this.padding = this.w / 20;
 
-    this.svg = d3
-      .select(this.chart.nativeElement)
-      .append('svg')
-      .attr('width', this.chartW * 5)
-      .attr('height', this.h + this.padding);
-
-    this.analyseDatas(this.datas);
     if (this.type === 'log') {
+      this.chartW = this.w / 5;
+      this.middleW = this.w / 10;
+      this.drawChart(this.chartW * 4 + this.padding * 2 + this.middleW);
+      this.analyseDatas(this.datas);
       this.drawXAxis([this.rangeX, 1], this.padding);
       this.drawXAxis(
         [1, this.rangeX],
@@ -62,31 +57,36 @@ export class HistogramComponent {
         this.chartW * 2 + this.padding,
         this.chartW / 4
       );
+      this.drawXAxis(
+        [this.rangeX, 1],
+        this.chartW * 2 + this.padding + this.middleW,
+        this.chartW,
+        true
+      );
+      this.drawXAxis(
+        [1, this.rangeX],
+        this.chartW * 3 + this.padding + this.middleW
+      );
+      let tickSize = -(4 * this.chartW + this.middleW);
+      this.drawYAxis(tickSize);
+      this.drawHistogram(this.datas);
+    } else {
+      this.chartW = this.w / 2 - this.padding;
+      this.drawChart(this.chartW * 2 + this.padding * 2);
+      this.analyseDatas(this.datas);
+      this.drawXAxis([this.rangeX, 1], this.padding, this.chartW, true);
+      this.drawXAxis([1, this.rangeX], this.chartW + this.padding);
+      let tickSize = -(2 * this.chartW);
+      this.drawYAxis(tickSize);
+      this.drawHistogram(this.datas);
     }
-    this.drawXAxis(
-      [this.rangeX, 1],
-      this.chartW * 2 + this.padding + this.middleW,
-      this.chartW,
-      true
-    );
-    this.drawXAxis(
-      [1, this.rangeX],
-      this.chartW * 3 + this.padding + this.middleW
-    );
-
-    this.drawYAxis();
-
-    // this.drawHistogram(
-    //   this.datasSetPosPos,
-    //   this.chartW * 3 + this.padding + this.middleW
-    // );
-    // this.drawHistogram(
-    //   this.datasSetPosNeg,
-    //   this.chartW * 2 + this.padding + this.middleW,
-    //   true
-    // );
-    // this.drawHistogram(this.datasSetZero, this.chartW * 2 + this.padding, true);
-    this.drawHistogram2(this.datas);
+  }
+  drawChart(chartW: any) {
+    this.svg = d3
+      .select(this.chart.nativeElement)
+      .append('svg')
+      .attr('width', chartW)
+      .attr('height', this.h + this.padding);
   }
 
   analyseDatas(datas: any) {
@@ -96,25 +96,6 @@ export class HistogramComponent {
     var maxX = this.datas[this.datas.length - 1].partition[1];
     var minX = this.datas[0].partition[0];
     this.rangeX = Math.max(Math.abs(maxX), Math.abs(minX));
-
-    // datas.forEach((d: any) => {
-    //   if (d.partition[0] >= 1) {
-    //     this.datasSetPosPos.push(d);
-    //   } else if (d.partition[1] <= 1 && d.partition[0] > 0) {
-    //     this.datasSetPosNeg.push(d);
-    //   } else if (d.partition[1] <= -1) {
-    //     this.datasSetNegNeg.push(d);
-    //   } else if (d.partition[0] <= -1 && d.partition[1] >= -1) {
-    //     this.datasSetNegPos.push(d);
-    //   } else {
-    //     this.datasSetZero.push(d);
-    //   }
-    // });
-    // console.log(' this.datasSetPosPos:', this.datasSetPosPos);
-    // console.log(' this.datasSetPosNeg:', this.datasSetPosNeg);
-    // console.log(' this.datasSetZero:', this.datasSetZero);
-    // console.log(' this.datasSetPosNeg:', this.datasSetNegPos);
-    // console.log(' this.datasSetNegNeg:', this.datasSetNegNeg);
   }
 
   getRatioX() {
@@ -139,17 +120,6 @@ export class HistogramComponent {
     let barW = 0;
     barW = barMax - barMin;
 
-    if (this.type === 'log') {
-      if (
-        (d.partition[0] <= 0 && d.partition[1] >= 0) ||
-        (d.partition[0] < 0 && d.partition[1] <= 0)
-      ) {
-        // barW = barMax - barMin;
-      } else {
-        // barW = barMax + barMin;
-      }
-    }
-
     let barX = barMin;
     if (this.type === 'log') {
       // barW = Math.log10(Math.abs(barW));
@@ -163,7 +133,7 @@ export class HistogramComponent {
     };
   }
 
-  drawHistogram2(datasSet: any) {
+  drawHistogram(datasSet: any) {
     datasSet.forEach((d: any, i: number) => {
       console.log(d);
 
@@ -175,18 +145,9 @@ export class HistogramComponent {
       let x = shift + this.getRatioX() * bar.barX;
 
       if (this.type === 'lin') {
-        shift = this.chartW * 3 + this.padding + this.middleW;
+        shift = this.chartW + this.padding;
         x = shift + this.getRatioX() * bar.barX;
       } else {
-        // if (bar.barX === -Infinity || bar.barW === -Infinity) {
-        //   x = this.chartW * 2 + this.getRatioX();
-        //   bar.barX = 5;
-        //   bar.barW = 200;
-        //   console.log(
-        //     'file: histogram.component.ts:185 ~ HistogramComponent ~ datasSet.forEach ~  bar.barW:',
-        //     bar.barW
-        //   );
-        // } else {
         if (d.partition[0] > 0) {
           shift = this.chartW * 3 + this.padding + this.middleW;
           x = shift + this.getRatioX() * bar.barX;
@@ -207,15 +168,7 @@ export class HistogramComponent {
             Math.log10(Math.abs(d.partition[1]));
         } else {
           let isZeroP0 = d.partition[0] === 0;
-          console.log(
-            'file: histogram.component.ts:220 ~ HistogramComponent ~ datasSet.forEach ~ isZeroP0:',
-            isZeroP0
-          );
           let isZeroP1 = d.partition[1] === 0;
-          console.log(
-            'file: histogram.component.ts:221 ~ HistogramComponent ~ datasSet.forEach ~ isZeroP1:',
-            isZeroP1
-          );
 
           if (isZeroP0) {
             shift = this.chartW * 2 + this.middleW / 2 + this.padding;
@@ -226,8 +179,6 @@ export class HistogramComponent {
             bar.barW = bar.barW + diff;
           }
           if (isZeroP1) {
-            console.warn(d);
-            console.warn('-----------------------');
             shift = this.chartW * 2 + this.middleW / 2 + this.padding;
             x = shift;
             bar.barW = this.middleW / 2 / this.getRatioX();
@@ -238,49 +189,8 @@ export class HistogramComponent {
             bar.barW = bar.barW + diff;
             x = x - bar.barW * this.getRatioX();
           }
-
-          // if (isZeroP0) {
-          //   shift = this.chartW + this.padding;
-          //   x = shift - this.getRatioX() * bar.barX;
-          //   if (!isZeroP1) {
-          //     bar.barW =
-          //       (this.chartW * 2 + this.middleW) / this.getRatioX() +
-          //       Math.log10(Math.abs(d.partition[0])) +
-          //       Math.log10(Math.abs(d.partition[1]));
-          //   } else {
-          //     // bar.barW =
-          //     //   bar.barW * this.getRatioX() +
-          //     //   (this.chartW + this.middleW / 2 + this.padding / 2) /
-          //     //     this.getRatioX();
-          //     bar.barW =
-          //       (this.chartW * 2 + this.middleW) / this.getRatioX() +
-          //       Math.log10(Math.abs(d.partition[0])) +
-          //       Math.log10(Math.abs(d.partition[1]));
-          //   }
-          // }
-
-          // let logP0 = Math.log10(Math.abs(d.partition[0]));
-          // console.warn(
-          //   'file: histogram.component.ts:183 ~ HistogramComponent ~ datasSet.forEach ~ logP0:',
-          //   logP0
-          // );
-          // let logP1 = Math.log10(Math.abs(d.partition[1]));
-          // console.warn(
-          //   'file: histogram.component.ts:185 ~ HistogramComponent ~ datasSet.forEach ~ logP1:',
-          //   logP1
-          // );
         }
-        // }
       }
-      console.log(
-        'file: histogram.component.ts:183 ~ HistogramComponent ~ datasSet.forEach ~ x :',
-        x,
-        bar.barX
-      );
-      console.log(
-        'file: histogram.component.ts:185 ~ HistogramComponent ~ datasSet.forEach ~ bar.barW:',
-        bar.barW
-      );
 
       if (shift) {
         this.svg
@@ -306,36 +216,6 @@ export class HistogramComponent {
       }
     });
   }
-  // drawHistogram(datasSet: any, shift: any, reverse = false) {
-  //   datasSet.forEach((d: any, i: number) => {
-  //     console.log(d);
-
-  //     const bar = this.getBar(d, reverse);
-
-  //     var self = this;
-
-  //     this.svg
-  //       .append('rect')
-  //       .attr('id', 'rect-' + i)
-  //       .attr('x', shift + this.getRatioX() * bar.barX)
-  //       .attr('y', this.h - d.value * this.getRatioY())
-  //       .attr('stroke', 'black')
-  //       .attr('stroke-width', '0')
-  //       .on('click', function (e: any) {
-  //         //@ts-ignore
-  //         d3.select(this.parentNode)
-  //           .selectAll('rect')
-  //           .style('stroke-width', '0');
-  //         //@ts-ignore
-  //         d3.select(this).style('stroke-width', '2px');
-  //         self.bringSvgToTop(document.getElementById('rect-' + i));
-  //       })
-  //       .attr('width', bar.barW * this.getRatioX())
-  //       .attr('height', bar.value * this.getRatioY())
-  //       .attr('transform', reverse ? 'translate(' + this.chartW + ', 0)' : '')
-  //       .attr('fill', d.color);
-  //   });
-  // }
 
   bringSvgToTop(targetElement: any) {
     // put the element at the bottom of its parent
@@ -389,7 +269,7 @@ export class HistogramComponent {
       .attr('transform', 'rotate(-65)');
   }
 
-  drawYAxis() {
+  drawYAxis(tickSize: any) {
     // Create the scale
     var y = d3
       .scaleLinear()
@@ -397,7 +277,6 @@ export class HistogramComponent {
       .range([this.h - this.padding / 2, 0]); // Note it is reversed
 
     let shift = this.padding;
-    let tickSize = -(4 * this.chartW + this.middleW);
 
     // Draw the axis
     const axis = d3
