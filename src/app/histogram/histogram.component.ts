@@ -40,6 +40,7 @@ export class HistogramComponent {
   padding = 0;
   rangeY = 0;
   tickCount = 10;
+  tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
 
   constructor() {}
 
@@ -89,6 +90,7 @@ export class HistogramComponent {
         );
         let tickSize = -(4 * this.chartW + this.middleW);
         this.drawYAxis(tickSize);
+        this.addTooltip();
         this.drawHistogram(this.datas);
       } else {
         this.chartW = this.w / 2 - this.padding;
@@ -98,6 +100,7 @@ export class HistogramComponent {
         this.drawXAxis([1, this.rangeX], this.chartW + this.padding);
         let tickSize = -(2 * this.chartW);
         this.drawYAxis(tickSize);
+        this.addTooltip();
         this.drawHistogram(this.datas);
       }
     }
@@ -151,7 +154,21 @@ export class HistogramComponent {
       value: d.value,
       barW: barW,
       barX: barX,
+      partition: d.partition,
     };
+  }
+
+  addTooltip() {
+    this.tooltip = d3
+      .select('#tooltip')
+      .append('div')
+      .style('display', 'none')
+      .attr('class', 'tooltip')
+      .style('background-color', 'white')
+      .style('border', 'solid')
+      .style('border-width', '2px')
+      .style('border-radius', '5px')
+      .style('padding', '5px');
   }
 
   drawHistogram(datasSet: any) {
@@ -212,6 +229,41 @@ export class HistogramComponent {
       }
 
       if (shift) {
+        const onclickRect = function (e: any) {
+          //@ts-ignore
+          d3.select(this.parentNode)
+            .selectAll('rect')
+            .style('stroke-width', '0');
+          //@ts-ignore
+          d3.select(this).style('stroke-width', '2px');
+          self.bringSvgToTop(document.getElementById('rect-' + i));
+        };
+        const mouseover = function (d: any) {
+          //@ts-ignore
+          self.tooltip.style('display', 'block').style('width', '140px');
+        };
+        const mousemove = function (d: any) {
+          //@ts-ignore
+          self.tooltip.html(
+            'Value: ' +
+              bar.value +
+              '<br>' +
+              'Range: ' +
+              JSON.stringify(bar.partition)
+          );
+          //@ts-ignore
+          self.tooltip.style('margin-left', d.clientX - 70 + 'px');
+          //@ts-ignore
+          self.tooltip.style('margin-top', d.layerY - self.h / 2 + 'px');
+        };
+        const mouseleave = function (d: any) {
+          //@ts-ignore
+          self.tooltip
+            .style('display', 'none')
+            .style('margin-left', '0px')
+            .style('margin-top', '0px');
+        };
+
         this.svg
           .append('rect')
           .attr('id', 'rect-' + i)
@@ -219,15 +271,10 @@ export class HistogramComponent {
           .attr('y', this.h - d.value * this.getRatioY())
           .attr('stroke', 'black')
           .attr('stroke-width', '0')
-          .on('click', function (e: any) {
-            //@ts-ignore
-            d3.select(this.parentNode)
-              .selectAll('rect')
-              .style('stroke-width', '0');
-            //@ts-ignore
-            d3.select(this).style('stroke-width', '2px');
-            self.bringSvgToTop(document.getElementById('rect-' + i));
-          })
+          .on('click', onclickRect)
+          .on('mouseover', mouseover)
+          .on('mousemove', mousemove)
+          .on('mouseleave', mouseleave)
           .attr('width', bar.barW * this.getRatioX())
           .attr('height', bar.value * this.getRatioY())
           .attr('transform', reverse ? 'translate(' + this.chartW + ', 0)' : '')
