@@ -323,7 +323,7 @@ export class HistogramComponent {
             return val;
           }
         } else {
-          if (i === 0) {
+          if (i === 0 && !reverse) {
             return 0;
           } else if (i % 2) {
             const tick = Math.round(Math.log10(val) * 100) / 100;
