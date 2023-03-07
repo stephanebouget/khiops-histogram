@@ -19,8 +19,8 @@ export class AppComponent {
 
   constructor() {
     let mock;
-    mock = 'datas';
-    //  mock = 'datas2';
+    // mock = 'datas';
+     mock = 'datas2';
     //  mock = 'datas3';
     fetch('./assets/' + mock + '.json')
       .then((response) => {

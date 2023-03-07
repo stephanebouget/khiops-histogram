@@ -10,7 +10,7 @@
   },
   {
     "name": "6",
-    "partition": [20, 50],
+    "partition": [0, 50],
     "value": 100,
     "color": "#ff6600"
   },

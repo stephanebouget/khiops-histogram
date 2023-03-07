@@ -259,13 +259,26 @@ export class HistogramComponent {
         self.tooltip.style('display', 'block').style('width', '140px');
       };
       const mousemove = function (d: any) {
+        let logRange =
+          '[' +
+          self.getSign(bar.partition[0]) +
+          Math.round(Math.log10(Math.abs(bar.partition[0])) * 100) / 100 +
+          ', ';
+        logRange +=
+          self.getSign(bar.partition[1]) +
+          Math.round(Math.log10(Math.abs(bar.partition[1])) * 100) / 100 +
+          ']';
+
         //@ts-ignore
         self.tooltip.html(
           'Value: ' +
             bar.value +
             '<br>' +
             'Range: ' +
-            JSON.stringify(bar.partition)
+            JSON.stringify(bar.partition) +
+            '<br>' +
+            'Log: ' +
+            logRange
         );
         //@ts-ignore
         self.tooltip.style('margin-left', d.clientX - 70 + 'px');
@@ -302,6 +315,10 @@ export class HistogramComponent {
     // put the element at the bottom of its parent
     let parent = targetElement.parentNode;
     parent.appendChild(targetElement);
+  }
+
+  getSign(input: number) {
+    return input >= 0 ? '' : '-';
   }
 
   drawXAxis(
