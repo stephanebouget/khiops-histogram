@@ -287,9 +287,9 @@ export class HistogramComponent {
           logRange
       );
       //@ts-ignore
-      self.tooltip.style('margin-left', d.clientX - 70 + 'px');
+      self.tooltip.style('margin-left', e.clientX - 70 + 'px');
       //@ts-ignore
-      self.tooltip.style('margin-top', d.layerY - self.h / 2 + 'px');
+      self.tooltip.style('margin-top', e.layerY - self.h / 2 + 'px');
     };
     const mouseleave = function (e: any) {
       //@ts-ignore
