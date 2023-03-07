@@ -19,27 +19,17 @@ export class HistogramComponent {
 
   @Input() datas: any;
   @Input() type: string = 'lin';
-  datasSetPosPos: any[] = [];
-  datasSetPosNeg: any[] = [];
-  datasSetNegPos: any[] = [];
-  datasSetNegNeg: any[] = [];
-  datasSetZero: any[] = [];
-
   @Input() h: number = 220;
   @Input() w: number = 1000;
-  chartPaddingRight: number = 0;
-  chartPaddingLeft: number = 0;
-  config: any = {
-    xTicksCount: 10,
-    yTicksCount: 5,
-  };
 
   chartW = 0;
   middleW = 0;
-  rangeX = 0;
+  rangeXLog = 0;
+  rangeXLin = 0;
   padding = 0;
   rangeY = 0;
-  tickCount = 10;
+  xTickCount = 10;
+  yTicksCount = 5;
   tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
 
   constructor() {}
@@ -66,9 +56,9 @@ export class HistogramComponent {
         this.middleW = this.w / 10;
         this.drawChart(this.chartW * 4 + this.padding * 2 + this.middleW);
         this.analyseDatas(this.datas);
-        this.drawXAxis([this.rangeX, 1], this.padding);
+        this.drawXAxis([this.rangeXLog, 1], this.padding);
         this.drawXAxis(
-          [1, this.rangeX],
+          [1, this.rangeXLog],
           this.chartW + this.padding,
           this.chartW,
           true
@@ -79,13 +69,13 @@ export class HistogramComponent {
           this.chartW / 4
         );
         this.drawXAxis(
-          [this.rangeX, 1],
+          [this.rangeXLog, 1],
           this.chartW * 2 + this.padding + this.middleW,
           this.chartW,
           true
         );
         this.drawXAxis(
-          [1, this.rangeX],
+          [1, this.rangeXLog],
           this.chartW * 3 + this.padding + this.middleW
         );
         let tickSize = -(4 * this.chartW + this.middleW);
@@ -96,8 +86,8 @@ export class HistogramComponent {
         this.chartW = this.w / 2 - this.padding;
         this.drawChart(this.chartW * 2 + this.padding * 2);
         this.analyseDatas(this.datas);
-        this.drawXAxis([this.rangeX, 1], this.padding, this.chartW, true);
-        this.drawXAxis([1, this.rangeX], this.chartW + this.padding);
+        this.drawXAxis([this.rangeXLin, 1], this.padding, this.chartW, true);
+        this.drawXAxis([1, this.rangeXLin], this.chartW + this.padding);
         let tickSize = -(2 * this.chartW);
         this.drawYAxis(tickSize);
         this.addTooltip();
@@ -120,13 +110,34 @@ export class HistogramComponent {
 
     var maxX = this.datas[this.datas.length - 1].partition[1];
     var minX = this.datas[0].partition[0];
-    this.rangeX = Math.max(Math.abs(maxX), Math.abs(minX));
+    this.rangeXLin = Math.max(Math.abs(maxX), Math.abs(minX));
+    this.rangeXLog = 0;
+    // We also must check rangeXLog for very small values (0.0001) because they are big log10 values
+    this.datas.forEach((d: any, i: number) => {
+      if (d.partition[0] !== 0) {
+        if (Math.abs(d.partition[0]) > this.rangeXLog) {
+          this.rangeXLog = Math.abs(d.partition[0]);
+        }
+        if (Math.abs(1 / d.partition[0]) > this.rangeXLog) {
+          this.rangeXLog = Math.abs(1 / d.partition[0]);
+        }
+      }
+      if (d.partition[1] !== 0) {
+        if (Math.abs(d.partition[1]) > this.rangeXLog) {
+          this.rangeXLog = Math.abs(d.partition[1]);
+        }
+        if (Math.abs(1 / d.partition[1]) > this.rangeXLog) {
+          this.rangeXLog = Math.abs(1 / d.partition[1]);
+        }
+      }
+    });
   }
 
   getRatioX() {
-    let ratioX = this.chartW / this.rangeX;
+    const currentRange = this.type === 'lin' ? this.rangeXLin : this.rangeXLog;
+    let ratioX = this.chartW / currentRange;
     if (this.type === 'log') {
-      let maxVal = Math.log10(Math.abs(this.rangeX));
+      let maxVal = Math.log10(Math.abs(currentRange));
       if (maxVal === -Infinity) {
         maxVal = 1;
       }
@@ -167,7 +178,6 @@ export class HistogramComponent {
       .style('background-color', 'white')
       .style('border', 'solid')
       .style('border-width', '2px')
-      .style('border-radius', '5px')
       .style('padding', '5px');
   }
 
@@ -211,7 +221,7 @@ export class HistogramComponent {
             x = shift;
             bar.barW = this.middleW / 2 / this.getRatioX();
             let diff =
-              Math.log10(this.rangeX) - Math.abs(Math.log10(d.partition[1]));
+              Math.log10(this.rangeXLog) - Math.abs(Math.log10(d.partition[1]));
             bar.barW = bar.barW + diff;
           }
           if (isZeroP1) {
@@ -219,7 +229,7 @@ export class HistogramComponent {
             x = shift;
             bar.barW = this.middleW / 2 / this.getRatioX();
             let diff =
-              Math.log10(this.rangeX) -
+              Math.log10(this.rangeXLog) -
               Math.abs(Math.log10(Math.abs(d.partition[0])));
 
             bar.barW = bar.barW + diff;
@@ -300,7 +310,7 @@ export class HistogramComponent {
 
     const axis = d3
       .axisBottom(x)
-      .ticks(this.tickCount)
+      .ticks(this.xTickCount)
       .tickSize(-this.h + this.padding / 2)
       //@ts-ignore
       .tickFormat((d, i) => {
@@ -347,10 +357,7 @@ export class HistogramComponent {
     let shift = this.padding;
 
     // Draw the axis
-    const axis = d3
-      .axisLeft(y)
-      .tickSize(tickSize)
-      .ticks(this.config.yTicksCount);
+    const axis = d3.axisLeft(y).tickSize(tickSize).ticks(this.yTicksCount);
     this.svg
       .append('g')
       .attr('class', 'y axis-grid')
