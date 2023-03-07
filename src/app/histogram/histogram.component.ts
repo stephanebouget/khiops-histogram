@@ -25,7 +25,7 @@ export class HistogramComponent {
   datasSetNegNeg: any[] = [];
   datasSetZero: any[] = [];
 
-  @Input() h: number = 250;
+  @Input() h: number = 220;
   @Input() w: number = 1000;
   chartPaddingRight: number = 0;
   chartPaddingLeft: number = 0;
@@ -55,8 +55,8 @@ export class HistogramComponent {
     if (this.chart) {
       this.chart.nativeElement.innerHTML = '';
       const containerElt = document.getElementById('app-container');
-
       this.w = containerElt?.clientWidth || 0;
+      this.w = this.w - 40;
 
       this.padding = this.w / 20;
 
@@ -156,8 +156,6 @@ export class HistogramComponent {
 
   drawHistogram(datasSet: any) {
     datasSet.forEach((d: any, i: number) => {
-      console.log(d);
-
       const bar = this.getBar(d);
 
       let reverse = false;
