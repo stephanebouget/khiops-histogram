@@ -43,6 +43,10 @@ export class HistogramComponent {
 
   ngAfterViewInit(): void {}
 
+  initSpecs(datas: any) {
+    this.datas = datas;
+  }
+
   init() {
     if (this.chart) {
       this.chart.nativeElement.innerHTML = '';
@@ -51,7 +55,7 @@ export class HistogramComponent {
       this.w = containerElt?.clientWidth || 0;
       this.w = this.w - 40; // add padding
       this.padding = this.w / 20;
-      this.getRange(this.datas);
+      this.getRange();
 
       if (this.type === 'log') {
         this.chartW = this.w / 5;
@@ -88,8 +92,8 @@ export class HistogramComponent {
 
         this.drawChart(this.chartW * 2 + this.padding * 2);
 
-        this.drawXAxis([this.rangeXLin, 1], this.padding, this.chartW, true);
-        this.drawXAxis([1, this.rangeXLin], this.chartW + this.padding);
+        this.drawXAxis([this.rangeXLin, 0], this.padding, this.chartW, true);
+        this.drawXAxis([0, this.rangeXLin], this.chartW + this.padding);
       }
       this.drawYAxis();
       this.addTooltip();
@@ -105,8 +109,8 @@ export class HistogramComponent {
       .attr('height', this.h + this.padding);
   }
 
-  getRange(datas: any) {
-    const dataValues = datas.map((e: any) => e.value);
+  getRange() {
+    const dataValues = this.datas.map((e: any) => e.value);
     this.rangeY = Math.max(...dataValues);
     this.rangeXLog = 0;
     this.rangeXLin = 0;
@@ -130,6 +134,12 @@ export class HistogramComponent {
         }
       }
     });
+    console.log(
+      'file: histogram.component.ts:139 ~ HistogramComponent ~ getRange ~ this.rangeXLin, this.rangeXLog:',
+      this.rangeXLin,
+      this.rangeXLog
+    );
+    return [this.rangeXLin, this.rangeXLog];
   }
 
   getRatioX() {
@@ -354,7 +364,9 @@ export class HistogramComponent {
         let val: any = d;
         if (this.type === 'lin') {
           if (reverse) {
-            return '-' + val;
+            if (d !== 0) {
+              return '-' + val;
+            }
           } else {
             return val;
           }
