@@ -10,6 +10,9 @@ MIT
 @angular/router
 MIT
 
+angular-resize-event
+MIT
+
 d3
 ISC
 Copyright 2010-2023 Mike Bostock
