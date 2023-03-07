@@ -13,21 +13,21 @@
   },
   {
     "name": "3",
-    "partition": [-2, -1],
+    "partition": [-2, -1.5],
     "value": 140,
     "color": "#ff6600"
   },
   {
     "name": "4",
-    "partition": [-1, -0.1],
+    "partition": [-1.5, -0.1],
     "value": 56,
-    "color": "#ff6600"
+    "color": "#ff9865"
   },
   {
     "name": "infinite2",
     "partition": [-0.1, -0.01],
     "value": 80,
-    "color": "#00ff66"
+    "color": "#963258"
   },
   {
     "name": "infinite2",
@@ -39,7 +39,7 @@
     "name": "special1",
     "partition": [0, 0.01],
     "value": 200,
-    "color": "#66ff00"
+    "color": "#986354"
   },
   {
     "name": "special1",

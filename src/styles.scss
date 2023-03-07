@@ -56,6 +56,9 @@ section {
   }
 }
 
-rect{
+rect {
+  opacity: 0.6;
+}
+rect:hover {
   opacity: 0.7;
 }

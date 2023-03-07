@@ -33,7 +33,7 @@ export class HistogramComponent {
   rangeX = 0;
   padding = 0;
   rangeY = 0;
-  tickCount = 5;
+  tickCount = 10;
 
   constructor() {}
 
@@ -246,7 +246,9 @@ export class HistogramComponent {
             return val;
           }
         } else {
-          if (i % 2) {
+          if (i === 0) {
+            return 0;
+          } else if (i % 2) {
             const tick = Math.round(Math.log10(val) * 100) / 100;
             if (reverse) {
               return tick !== 0 ? '-' + tick : '' + tick;
