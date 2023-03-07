@@ -122,7 +122,6 @@ export class HistogramComponent {
 
     let barX = barMin;
     if (this.type === 'log') {
-      // barW = Math.log10(Math.abs(barW));
       barX = Math.log10(Math.abs(barMin));
     }
 
