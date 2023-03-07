@@ -45,7 +45,7 @@
     "name": "special1",
     "partition": [0.01, 0.1],
     "value": 30,
-    "color": "#66ff00"
+    "color": "#123123"
   },
   {
     "name": "special2",
