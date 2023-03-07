@@ -1,7 +1,7 @@
 [
   {
     "name": "1",
-    "partition": [-500, -20],
+    "partition": [-100, -20],
     "value": 20,
     "color": "#839192"
   },
@@ -77,21 +77,16 @@
     "value": 60,
     "color": "#bc5090"
   },
-  {
-    "name": "4",
-    "partition": [50, 530],
-    "value": 50,
-    "color": "#ff6361"
-  },
+
   {
     "name": "5",
-    "partition": [530, 950],
+    "partition": [50, 100],
     "value": 40,
     "color": "#ffa600"
   },
   {
     "name": "6",
-    "partition": [950, 10000],
+    "partition": [100, 200],
     "value": 100,
     "color": "#dd5182"
   }

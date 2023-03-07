@@ -1,4 +1,10 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Input,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
 import * as d3 from 'd3';
 
 @Component({
@@ -37,50 +43,66 @@ export class HistogramComponent {
 
   constructor() {}
 
-  ngAfterViewInit(): void {
-    this.padding = this.w / 20;
-
-    if (this.type === 'log') {
-      this.chartW = this.w / 5;
-      this.middleW = this.w / 10;
-      this.drawChart(this.chartW * 4 + this.padding * 2 + this.middleW);
-      this.analyseDatas(this.datas);
-      this.drawXAxis([this.rangeX, 1], this.padding);
-      this.drawXAxis(
-        [1, this.rangeX],
-        this.chartW + this.padding,
-        this.chartW,
-        true
-      );
-      this.drawXAxis(
-        [-1, 0, 1],
-        this.chartW * 2 + this.padding,
-        this.chartW / 4
-      );
-      this.drawXAxis(
-        [this.rangeX, 1],
-        this.chartW * 2 + this.padding + this.middleW,
-        this.chartW,
-        true
-      );
-      this.drawXAxis(
-        [1, this.rangeX],
-        this.chartW * 3 + this.padding + this.middleW
-      );
-      let tickSize = -(4 * this.chartW + this.middleW);
-      this.drawYAxis(tickSize);
-      this.drawHistogram(this.datas);
-    } else {
-      this.chartW = this.w / 2 - this.padding;
-      this.drawChart(this.chartW * 2 + this.padding * 2);
-      this.analyseDatas(this.datas);
-      this.drawXAxis([this.rangeX, 1], this.padding, this.chartW, true);
-      this.drawXAxis([1, this.rangeX], this.chartW + this.padding);
-      let tickSize = -(2 * this.chartW);
-      this.drawYAxis(tickSize);
-      this.drawHistogram(this.datas);
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes?.['w']?.currentValue) {
+      this.init();
     }
   }
+
+  ngAfterViewInit(): void {}
+
+  init() {
+    if (this.chart) {
+      this.chart.nativeElement.innerHTML = '';
+      const containerElt = document.getElementById('app-container');
+
+      this.w = containerElt?.clientWidth || 0;
+
+      this.padding = this.w / 20;
+
+      if (this.type === 'log') {
+        this.chartW = this.w / 5;
+        this.middleW = this.w / 10;
+        this.drawChart(this.chartW * 4 + this.padding * 2 + this.middleW);
+        this.analyseDatas(this.datas);
+        this.drawXAxis([this.rangeX, 1], this.padding);
+        this.drawXAxis(
+          [1, this.rangeX],
+          this.chartW + this.padding,
+          this.chartW,
+          true
+        );
+        this.drawXAxis(
+          [-1, 0, 1],
+          this.chartW * 2 + this.padding,
+          this.chartW / 4
+        );
+        this.drawXAxis(
+          [this.rangeX, 1],
+          this.chartW * 2 + this.padding + this.middleW,
+          this.chartW,
+          true
+        );
+        this.drawXAxis(
+          [1, this.rangeX],
+          this.chartW * 3 + this.padding + this.middleW
+        );
+        let tickSize = -(4 * this.chartW + this.middleW);
+        this.drawYAxis(tickSize);
+        this.drawHistogram(this.datas);
+      } else {
+        this.chartW = this.w / 2 - this.padding;
+        this.drawChart(this.chartW * 2 + this.padding * 2);
+        this.analyseDatas(this.datas);
+        this.drawXAxis([this.rangeX, 1], this.padding, this.chartW, true);
+        this.drawXAxis([1, this.rangeX], this.chartW + this.padding);
+        let tickSize = -(2 * this.chartW);
+        this.drawYAxis(tickSize);
+        this.drawHistogram(this.datas);
+      }
+    }
+  }
+
   drawChart(chartW: any) {
     this.svg = d3
       .select(this.chart.nativeElement)

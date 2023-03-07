@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ResizedEvent } from 'angular-resize-event';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +15,8 @@ export class AppComponent {
   range!: number;
   rangeY!: number;
 
+  w = 1000;
+
   constructor() {
     let mock;
     mock = 'datas';
@@ -26,10 +29,6 @@ export class AppComponent {
       .then((datas) => {
         this.datas = datas;
         this.partition = this.datas?.map((e: any) => e.partition);
-        console.log('🚀 ~ file: app.js ~ line 32 ~ data', datas);
-        // showCharts(datas);
-
-        this.analyseDatas(this.datas);
         this.getRangeY();
       })
       .catch(function (err) {
@@ -39,25 +38,9 @@ export class AppComponent {
 
   getRangeY(): void {
     this.rangeY = Math.max(...this.datas?.map((e: any) => e.value));
-    // this.rangeY = Math.round(this.rangeY * 100) / 100;
   }
 
-  analyseDatas(datas: any) {
-    this.datasSet1 = [];
-    this.datasSet2 = [];
-    this.datasSet3 = [];
-    datas.forEach((d: any) => {
-      if (d.partition[0] > 0) {
-        this.datasSet2.push(d);
-      } else if (d.partition[0] < 0) {
-        this.datasSet1.push(d);
-      } else if (d.partition[0] === 0 || d.partition[1] === 0) {
-        this.datasSet3.push(d);
-      } else {
-      }
-    });
-    console.log(' this.datasSet1:', this.datasSet1);
-    console.log(' this.datasSet2:', this.datasSet2);
-    console.log(' this.datasSet3:', this.datasSet3);
+  onResized(event: ResizedEvent) {
+    this.w = event.newRect.width;
   }
 }

@@ -1,8 +1,8 @@
 <code id="partitions">{{ partition | json }}</code>
 
-<section *ngIf="datasSet1 && datasSet2 && datasSet3">
+<section id="app-container" *ngIf="datas" (resized)="onResized($event)">
   <span>Linear visualization </span>
-  <app-histogram [type]="'lin'" [datas]="datas"></app-histogram>
+  <app-histogram [w]="w" [type]="'lin'" [datas]="datas"></app-histogram>
   <span>Logarithmic visualization</span>
-  <app-histogram [type]="'log'" [datas]="datas"></app-histogram>
+  <app-histogram [w]="w" [type]="'log'" [datas]="datas"></app-histogram>
 </section>
