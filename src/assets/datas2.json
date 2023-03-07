@@ -4,19 +4,19 @@
 
   {
     "name": "5",
-    "partition": [-10, 0],
+    "partition": [-50, 0],
     "value": 40,
     "color": "#ffa600"
   },
   {
     "name": "6",
-    "partition": [0, 50],
+    "partition": [0, 1],
     "value": 100,
     "color": "#ff6600"
   },
   {
     "name": "6",
-    "partition": [50, 500],
+    "partition": [0, 10],
     "value": 10,
     "color": "#125487"
   }

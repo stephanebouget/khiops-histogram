@@ -219,8 +219,17 @@ export class HistogramComponent {
             shift = this.chartW * 2 + this.middleW / 2 + this.padding;
             x = shift;
             bar.barW = this.middleW / 2 / this.getRatioX();
-            let diff =
-              Math.log10(this.rangeXLog) - Math.abs(Math.log10(d.partition[1]));
+            let diff = 0;
+            if (d.partition[1] > 1) {
+              // case P0 =0 and P1 >1
+              diff =
+                Math.log10(this.rangeXLog) +
+                Math.abs(Math.log10(d.partition[1]));
+            } else {
+              diff =
+                Math.log10(this.rangeXLog) -
+                Math.abs(Math.log10(d.partition[1]));
+            }
             bar.barW = bar.barW + diff;
           } else if (isZeroP1) {
             shift = this.chartW * 2 + this.middleW / 2 + this.padding;
