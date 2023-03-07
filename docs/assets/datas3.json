@@ -1,21 +1,15 @@
 [
   {
     "name": "2",
-    "partition": [-200, 200],
+    "partition": [-2, 2],
     "value": 10,
-    "color": "#663322"
+    "color": "#ff6600"
   },
   {
     "name": "2",
-    "partition": [-10, 10],
+    "partition": [0, 0.001],
     "value": 100,
-    "color": "#ff6000"
-  },
-
-  {
-    "name": "2",
-    "partition": [-0.01, 0.01],
-    "value": 40,
-    "color": "#66ff00"
+    "color": "#123456"
   }
+
 ]
