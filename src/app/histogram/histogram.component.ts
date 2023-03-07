@@ -47,13 +47,14 @@ export class HistogramComponent {
       this.chart.nativeElement.innerHTML = '';
       const containerElt = document.getElementById('app-container');
       this.w = containerElt?.clientWidth || 0;
-      this.w = this.w - 40;
+      this.w = this.w - 40; // add padding
 
       this.padding = this.w / 20;
 
       if (this.type === 'log') {
         this.chartW = this.w / 5;
         this.middleW = this.w / 10;
+
         this.drawChart(this.chartW * 4 + this.padding * 2 + this.middleW);
         this.analyseDatas(this.datas);
         this.drawXAxis([this.rangeXLog, 1], this.padding);
@@ -80,8 +81,6 @@ export class HistogramComponent {
         );
         let tickSize = -(4 * this.chartW + this.middleW);
         this.drawYAxis(tickSize);
-        this.addTooltip();
-        this.drawHistogram(this.datas);
       } else {
         this.chartW = this.w / 2 - this.padding;
         this.drawChart(this.chartW * 2 + this.padding * 2);
@@ -90,9 +89,9 @@ export class HistogramComponent {
         this.drawXAxis([1, this.rangeXLin], this.chartW + this.padding);
         let tickSize = -(2 * this.chartW);
         this.drawYAxis(tickSize);
-        this.addTooltip();
-        this.drawHistogram(this.datas);
       }
+      this.addTooltip();
+      this.drawHistogram(this.datas);
     }
   }
 
@@ -107,16 +106,13 @@ export class HistogramComponent {
   analyseDatas(datas: any) {
     const dataValues = datas.map((e: any) => e.value);
     this.rangeY = Math.max(...dataValues);
-
-    var maxX = this.datas[this.datas.length - 1].partition[1];
-    var minX = this.datas[0].partition[0];
-    this.rangeXLin = Math.max(Math.abs(maxX), Math.abs(minX));
     this.rangeXLog = 0;
-    // We also must check rangeXLog for very small values (0.0001) because they are big log10 values
+    this.rangeXLin = 0;
     this.datas.forEach((d: any, i: number) => {
       if (d.partition[0] !== 0) {
         if (Math.abs(d.partition[0]) > this.rangeXLog) {
           this.rangeXLog = Math.abs(d.partition[0]);
+          this.rangeXLin = Math.abs(d.partition[0]);
         }
         if (Math.abs(1 / d.partition[0]) > this.rangeXLog) {
           this.rangeXLog = Math.abs(1 / d.partition[0]);
@@ -125,6 +121,7 @@ export class HistogramComponent {
       if (d.partition[1] !== 0) {
         if (Math.abs(d.partition[1]) > this.rangeXLog) {
           this.rangeXLog = Math.abs(d.partition[1]);
+          this.rangeXLin = Math.abs(d.partition[1]);
         }
         if (Math.abs(1 / d.partition[1]) > this.rangeXLog) {
           this.rangeXLog = Math.abs(1 / d.partition[1]);
@@ -223,8 +220,7 @@ export class HistogramComponent {
             let diff =
               Math.log10(this.rangeXLog) - Math.abs(Math.log10(d.partition[1]));
             bar.barW = bar.barW + diff;
-          }
-          if (isZeroP1) {
+          } else if (isZeroP1) {
             shift = this.chartW * 2 + this.middleW / 2 + this.padding;
             x = shift;
             bar.barW = this.middleW / 2 / this.getRatioX();
@@ -234,6 +230,17 @@ export class HistogramComponent {
 
             bar.barW = bar.barW + diff;
             x = x - bar.barW * this.getRatioX();
+          } else {
+            // partition is neg and pos
+            shift = this.chartW + this.padding;
+            x = shift - this.getRatioX() * bar.barX;
+
+            bar.barW =
+              Math.log10(Math.abs(d.partition[0])) +
+              this.middleW / this.getRatioX() +
+              this.chartW / this.getRatioX() +
+              this.chartW / this.getRatioX() +
+              Math.log10(Math.abs(d.partition[1]));
           }
         }
       }
