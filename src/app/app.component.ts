@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ResizedEvent } from 'angular-resize-event';
+import { UtilsService } from './utils.service';
 
 @Component({
   selector: 'app-root',
@@ -7,6 +8,9 @@ import { ResizedEvent } from 'angular-resize-event';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
+  @ViewChild('codemirror', { static: false })
+  codemirror!: ElementRef;
+
   datas: any;
   partition: any;
   datasSet!: any;
@@ -15,23 +19,23 @@ export class AppComponent {
   w = 0;
   badJson: string = '';
   ls_key = 'Khiops-histogram-dataset';
+  variables: any[] = [];
+  selectedVariable: any;
 
   constructor() {
     const previousDataSet = window.localStorage.getItem(this.ls_key);
-
     if (previousDataSet) {
-      this.datas = JSON.parse(previousDataSet);
-      this.datasSet = JSON.stringify(this.datas, undefined, 4);
-    } else {
-      this.loadMock();
+      this.datasSet = previousDataSet;
+      this.update();
     }
   }
+
   loadMock() {
     let mock;
     // mock = 'datas';
     //  mock = 'datas2';
     //  mock = 'datas3';
-    mock = 'datas4';
+    mock = 'mock1';
     fetch('./assets/' + mock + '.json')
       .then((response) => {
         return response.json();
@@ -39,25 +43,49 @@ export class AppComponent {
       .then((datas) => {
         this.datas = datas;
         this.datasSet = JSON.stringify(datas, undefined, 4);
-        this.update(this.datasSet);
+        this.selectedVariable = undefined;
+        this.update();
       })
       .catch(function (err) {
         console.warn(err);
       });
   }
 
-  update(datas: any) {
-    try {
-      this.badJson = '';
-      this.datas = JSON.parse(datas);
-      window.localStorage.setItem(this.ls_key, datas);
-    } catch (e: any) {
-      console.log('file: app.component.ts:43 ~ AppComponent ~ update ~ e:', e);
-      this.badJson = e.toString();
+  update() {
+    if (this.datasSet) {
+      this.variables = UtilsService.getVariables(JSON.parse(this.datasSet));
+      if (!this.selectedVariable) {
+        this.selectedVariable = this.variables[0];
+      }
+      try {
+        this.badJson = '';
+        this.datas = UtilsService.getDistributionGraphDatas(
+          JSON.parse(this.datasSet),
+          this.selectedVariable
+        );
+        window.localStorage.setItem(this.ls_key, this.datasSet);
+      } catch (e: any) {
+        console.log(
+          'file: app.component.ts:43 ~ AppComponent ~ update ~ e:',
+          e
+        );
+        this.datas = undefined;
+        this.badJson = e.toString();
+      }
     }
   }
 
   onResized(event: ResizedEvent) {
     this.w = event.newRect.width - 40; // add some padding
+  }
+  onVariableChange(event: any) {
+    this.selectedVariable = event;
+    this.update();
+  }
+  onDropFile(event: any) {
+    // clear previous datas
+    this.selectedVariable = undefined;
+    this.datasSet = '';
+    this.update();
   }
 }

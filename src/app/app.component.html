@@ -1,6 +1,7 @@
 <ngx-codemirror
   [(ngModel)]="datasSet"
-  (ngModelChange)="update($event)"
+  (ngModelChange)="update()"
+  (drop)="onDropFile($event)"
   [options]="{
     lineNumbers: true,
     theme: 'material',
@@ -10,6 +11,13 @@
 <button class="favorite styled" type="button" (click)="loadMock()">
   Load default dataSet
 </button>
+<br />
+<label>Select variable: </label>
+<select [ngModel]="selectedVariable" (ngModelChange)="onVariableChange($event)">
+  <option *ngFor="let variable of variables">
+    {{ variable }}
+  </option>
+</select>
 <code *ngIf="badJson">{{ badJson }}</code>
 
 <section id="app-container" *ngIf="datas" (resized)="onResized($event)">
