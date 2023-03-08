@@ -78,7 +78,6 @@ describe('HistogramService', () => {
       20, // middle width
       ratioX
     );
-    console.log('file: bar.service.spec.ts:58 ~ it ~ x, barW:', x, barW);
     const res = x === 20 && barW === 3.3010299956639813;
     expect(res).toBeTruthy();
   });
@@ -102,8 +101,7 @@ describe('HistogramService', () => {
       20, // middle width
       ratioX
     );
-    console.log('file: bar.service.spec.ts:58 ~ it ~ x, barW:', x, barW);
-    const res = x === 20 && barW === 3.3010299956639813;
+    const res = x === 420 && barW === 0.11505149978319906;
     expect(res).toBeTruthy();
   });
 });
