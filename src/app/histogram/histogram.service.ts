@@ -70,7 +70,7 @@ export class HistogramService {
       if (part === 1) {
         return datas[0].partition[0] < 0;
       } else {
-        return datas[0].partition[0] < 0;
+        return datas[datas.length - 1].partition[1] > 0;
       }
     } else {
       return true;
@@ -105,7 +105,7 @@ export class HistogramService {
         shift = chartW * 2 + padding;
         barX = barMin * 2;
       } else {
-        shift = chartW + padding;
+        shift = padding;
         barX = barMin * 2;
       }
 
