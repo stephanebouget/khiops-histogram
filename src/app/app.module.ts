@@ -5,10 +5,18 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HistogramComponent } from './histogram/histogram.component';
 import { AngularResizeEventModule } from 'angular-resize-event';
+import { FormsModule } from '@angular/forms';
+import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 
 @NgModule({
   declarations: [AppComponent, HistogramComponent],
-  imports: [BrowserModule, AngularResizeEventModule, AppRoutingModule],
+  imports: [
+    FormsModule,
+    CodemirrorModule,
+    BrowserModule,
+    AngularResizeEventModule,
+    AppRoutingModule,
+  ],
   providers: [],
   bootstrap: [AppComponent],
 })

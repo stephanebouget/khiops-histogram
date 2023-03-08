@@ -33,7 +33,6 @@ export class HistogramComponent {
   xTickCount = 10;
   yTicksCount = 5;
   tickSize = 0;
-  cssPadding = 40;
 
   // Local variables
   rangeXLog = 0;
@@ -45,7 +44,7 @@ export class HistogramComponent {
   constructor(private histogramService: HistogramService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes?.['w']?.currentValue) {
+    if (changes?.['w']?.currentValue || changes?.['datas']?.currentValue) {
       this.init();
     }
   }
@@ -61,7 +60,6 @@ export class HistogramComponent {
       this.chart.nativeElement.innerHTML = '';
 
       if (this.type === HistogramType.LOG) {
-        this.w = this.w - this.cssPadding; // add padding
         this.padding = this.w / 20;
         [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
           this.datas
@@ -97,7 +95,6 @@ export class HistogramComponent {
           this.chartW * 3 + this.padding + this.middleW
         );
       } else {
-        this.w = this.w - this.cssPadding; // add padding
         this.padding = this.w / 20;
         [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
           this.datas

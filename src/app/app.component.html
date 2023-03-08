@@ -1,8 +1,20 @@
-<code id="partitions">{{ partition | json }}</code>
+<ngx-codemirror
+  [(ngModel)]="datasSet"
+  (ngModelChange)="update($event)"
+  [options]="{
+    lineNumbers: true,
+    theme: 'material',
+    mode: { name: 'javascript', json: true }
+  }"
+></ngx-codemirror>
+<button class="favorite styled" type="button" (click)="loadMock()">
+  Load default dataSet
+</button>
+<code *ngIf="badJson">{{ badJson }}</code>
 
 <section id="app-container" *ngIf="datas" (resized)="onResized($event)">
-  <span>Linear visualization </span>
+  <h1>Linear visualization</h1>
   <app-histogram [w]="w" [type]="'lin'" [datas]="datas"></app-histogram>
-  <span>Logarithmic visualization</span>
+  <h1>Logarithmic visualization</h1>
   <app-histogram [w]="w" [type]="'log'" [datas]="datas"></app-histogram>
 </section>

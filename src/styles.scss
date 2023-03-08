@@ -1,34 +1,46 @@
-* {
-  font-family: Arial, Helvetica, sans-serif;
-}
+@import "node_modules/codemirror/lib/codemirror";
+@import "node_modules/codemirror/theme/material";
 
 body {
-  text-align: center;
   margin: 20px;
 }
-code {
+textarea {
   color: white;
   background: black;
-  padding: 20px;
+  width: calc(100% - 20px);
+  padding: 10px;
   display: flex;
-  margin-bottom: 40px;
   font-size: 12px;
+  font-family: "Courier New", Courier, monospace;
+  resize: none;
+}
+
+code {
+  color: red;
+  margin-top: 10px;
+  display: block;
+  font-size: 12px;
+  text-align: center;
   font-family: "Courier New", Courier, monospace;
 }
 
-span {
+h1 {
   display: flex;
   justify-content: center;
   margin-top: 40px;
+  font-size: 16px;
+  font-family: Arial, Helvetica, sans-serif;
 }
 app-khiops-histogram {
-  margin: 20px;
+  margin: 10px;
   display: flex;
+  text-align: center;
 }
 
 section {
   flex-direction: column;
   display: flex;
+  align-items: center;
 }
 
 .axis-grid {

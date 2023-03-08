@@ -9,39 +9,55 @@ import { ResizedEvent } from 'angular-resize-event';
 export class AppComponent {
   datas: any;
   partition: any;
-  datasSet3!: any[];
-  datasSet2!: any[];
-  datasSet1!: any[];
+  datasSet!: any;
   range!: number;
   rangeY!: number;
-
-  w = 1000;
+  w = 0;
+  badJson: string = '';
+  ls_key = 'Khiops-histogram-dataset';
 
   constructor() {
+    const previousDataSet = window.localStorage.getItem(this.ls_key);
+
+    if (previousDataSet) {
+      this.datas = JSON.parse(previousDataSet);
+      this.datasSet = JSON.stringify(this.datas, undefined, 4);
+    } else {
+      this.loadMock();
+    }
+  }
+  loadMock() {
     let mock;
     // mock = 'datas';
     //  mock = 'datas2';
     //  mock = 'datas3';
-     mock = 'datas4';
+    mock = 'datas4';
     fetch('./assets/' + mock + '.json')
       .then((response) => {
         return response.json();
       })
       .then((datas) => {
         this.datas = datas;
-        this.partition = this.datas?.map((e: any) => e.partition);
-        this.getRangeY();
+        this.datasSet = JSON.stringify(datas, undefined, 4);
+        this.update(this.datasSet);
       })
       .catch(function (err) {
         console.warn(err);
       });
   }
 
-  getRangeY(): void {
-    this.rangeY = Math.max(...this.datas?.map((e: any) => e.value));
+  update(datas: any) {
+    try {
+      this.badJson = '';
+      this.datas = JSON.parse(datas);
+      window.localStorage.setItem(this.ls_key, datas);
+    } catch (e: any) {
+      console.log('file: app.component.ts:43 ~ AppComponent ~ update ~ e:', e);
+      this.badJson = e.toString();
+    }
   }
 
   onResized(event: ResizedEvent) {
-    this.w = event.newRect.width;
+    this.w = event.newRect.width - 40; // add some padding
   }
 }
