@@ -124,6 +124,9 @@ export class HistogramComponent {
   }
 
   addTooltip() {
+    const tooltipElt = document.getElementById('tooltip');
+    tooltipElt!.innerHTML = '';
+
     this.tooltip = d3
       .select('#tooltip')
       .append('div')
