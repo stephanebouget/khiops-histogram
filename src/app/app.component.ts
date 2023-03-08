@@ -79,8 +79,10 @@ export class AppComponent {
     this.w = event.newRect.width - 40; // add some padding
   }
   onVariableChange(event: any) {
-    this.selectedVariable = event;
-    this.update();
+    setTimeout(() => {
+      this.selectedVariable = event;
+      this.update();
+    });
   }
   onDropFile(event: any) {
     // clear previous datas

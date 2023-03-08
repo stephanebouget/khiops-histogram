@@ -76,28 +76,58 @@ export class HistogramComponent {
         this.ratioY = this.histogramService.getRatioY(this.h, this.padding);
         this.drawChart(this.chartW * 4 + this.padding * 2 + this.middleW);
 
-        this.drawXAxis([this.rangeXLog, 1], this.padding);
-        this.drawXAxis(
-          [1, this.rangeXLog],
-          this.chartW + this.padding,
-          this.chartW,
-          true
+        const logPart1 = this.histogramService.isChartVisible(
+          this.datas,
+          HistogramType.LOG,
+          1
         );
-        this.drawXAxis(
-          [-1, 0, 1],
-          this.chartW * 2 + this.padding,
-          this.chartW / 4
+        const logPart2 = this.histogramService.isChartVisible(
+          this.datas,
+          HistogramType.LOG,
+          2
         );
-        this.drawXAxis(
-          [this.rangeXLog, 1],
-          this.chartW * 2 + this.padding + this.middleW,
-          this.chartW,
-          true
-        );
-        this.drawXAxis(
-          [1, this.rangeXLog],
-          this.chartW * 3 + this.padding + this.middleW
-        );
+
+        logPart1 &&
+          this.drawXAxis(
+            [this.rangeXLog, 1],
+            this.padding,
+            logPart2 ? this.chartW : this.chartW * 2
+          );
+        logPart1 &&
+          this.drawXAxis(
+            [1, this.rangeXLog],
+            logPart2
+              ? this.chartW + this.padding
+              : this.chartW * 2 + this.padding,
+            logPart2 ? this.chartW : this.chartW * 2,
+            true
+          );
+        let middleShift = this.chartW * 2 + this.padding;
+
+        if (logPart1 && logPart2) {
+        } else if (logPart1) {
+          middleShift = this.padding + this.chartW * 3;
+        } else {
+          middleShift = this.padding;
+        }
+        this.drawXAxis([-1, 0, 1], middleShift, this.chartW / 4);
+        logPart2 &&
+          this.drawXAxis(
+            [this.rangeXLog, 1],
+            logPart1
+              ? this.chartW * 2 + this.padding + this.middleW
+              : this.padding + this.middleW,
+            logPart1 ? this.chartW : this.chartW * 2,
+            true
+          );
+        logPart2 &&
+          this.drawXAxis(
+            [1, this.rangeXLog],
+            logPart1
+              ? this.chartW * 3 + this.padding + this.middleW
+              : this.chartW * 2 + this.padding + this.middleW,
+            logPart1 ? this.chartW : this.chartW * 2
+          );
       } else {
         this.padding = this.w / 20;
         [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(

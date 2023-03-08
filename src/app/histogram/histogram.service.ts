@@ -18,22 +18,27 @@ export class HistogramService {
       if (d.partition[0] !== 0) {
         if (Math.abs(d.partition[0]) > this.rangeXLog) {
           this.rangeXLog = Math.abs(d.partition[0]);
-          this.rangeXLin = Math.abs(d.partition[0]);
         }
         if (Math.abs(1 / d.partition[0]) > this.rangeXLog) {
           this.rangeXLog = Math.abs(1 / d.partition[0]);
+        }
+        if (Math.abs(d.partition[0]) > this.rangeXLin) {
+          this.rangeXLin = Math.abs(d.partition[0]);
         }
       }
       if (d.partition[1] !== 0) {
         if (Math.abs(d.partition[1]) > this.rangeXLog) {
           this.rangeXLog = Math.abs(d.partition[1]);
-          this.rangeXLin = Math.abs(d.partition[1]);
         }
         if (Math.abs(1 / d.partition[1]) > this.rangeXLog) {
           this.rangeXLog = Math.abs(1 / d.partition[1]);
         }
+        if (Math.abs(d.partition[1]) > this.rangeXLin) {
+          this.rangeXLin = Math.abs(d.partition[1]);
+        }
       }
     });
+
     return [this.rangeXLin, this.rangeXLog];
   }
 
@@ -73,7 +78,11 @@ export class HistogramService {
         return datas[datas.length - 1].partition[1] > 0;
       }
     } else {
-      return true;
+      if (part === 1) {
+        return datas[0].partition[0] < 0;
+      } else {
+        return datas[datas.length - 1].partition[1] > 0;
+      }
     }
   }
 
@@ -95,20 +104,21 @@ export class HistogramService {
     if (type === HistogramType.LIN) {
       barMin = Math.min(d.partition[1], d.partition[0]);
 
-      const linPart1 = this.isChartVisible(datas, type, 1);
-      const linPart2 = this.isChartVisible(datas, type, 2);
+      const linPart1 = this.isChartVisible(datas, HistogramType.LIN, 1);
+      const linPart2 = this.isChartVisible(datas, HistogramType.LIN, 2);
 
+      let n = 0;
       if (linPart1 && linPart2) {
-        shift = chartW + padding;
         barX = barMin;
       } else if (linPart1) {
-        shift = chartW * 2 + padding;
+        n = 1;
         barX = barMin * 2;
       } else {
-        shift = padding;
+        n = -1;
         barX = barMin * 2;
       }
 
+      shift = chartW * (1 + n) + padding;
       x = shift + ratioX * barX;
       let barMax = Math.max(d.partition[1], d.partition[0]);
 
@@ -120,21 +130,32 @@ export class HistogramService {
       barMin = Math.min(d.partition[1], d.partition[0]);
       barX = Math.log10(Math.abs(barMin));
 
+      const logPart1 = this.isChartVisible(datas, HistogramType.LOG, 1);
+      const logPart2 = this.isChartVisible(datas, HistogramType.LOG, 2);
+      let n = 0;
+      if (logPart1 && logPart2) {
+        n = 0;
+      } else if (logPart1) {
+        n = 1;
+      } else {
+        n = 1;
+      }
+
       if (d.partition[0] > 0) {
-        shift = chartW * 3 + padding + middleW;
-        x = shift + ratioX * barX;
+        shift = chartW * (3 - n) + padding + middleW;
+        x = shift + ratioX * barX * (1 + n);
         barW =
           Math.log10(Math.abs(d.partition[1])) -
           Math.log10(Math.abs(d.partition[0]));
       } else if (d.partition[1] <= -1) {
-        shift = chartW + padding;
-        x = shift - ratioX * barX;
+        shift = chartW * (1 + n) + padding;
+        x = shift - ratioX * barX * (1 + n);
         barW =
           Math.log10(Math.abs(d.partition[0])) -
           Math.log10(Math.abs(d.partition[1]));
       } else if (d.partition[1] < 0) {
-        shift = chartW + padding;
-        x = shift - ratioX * barX;
+        shift = chartW * (1 + n) + padding;
+        x = shift - ratioX * barX * (1 + n);
         barW =
           Math.log10(Math.abs(d.partition[0])) -
           Math.log10(Math.abs(d.partition[1]));
@@ -143,9 +164,9 @@ export class HistogramService {
         let isZeroP1 = d.partition[1] === 0;
 
         if (isZeroP0) {
-          shift = chartW * 2 + middleW / 2 + padding;
+          shift = chartW * (2 - 2 * n) + middleW / 2 + padding;
           x = shift;
-          barW = middleW / 2 / ratioX;
+          barW = middleW / (2 + 2 * n) / ratioX;
           let diff = 0;
           if (d.partition[1] > 1) {
             // case P0 =0 and P1 >1
@@ -157,9 +178,9 @@ export class HistogramService {
           }
           barW = barW + diff;
         } else if (isZeroP1) {
-          shift = chartW * 2 + middleW / 2 + padding;
+          shift = chartW * (2 + 2 * n) + middleW / 2 + padding / (2 - (1 - n));
           x = shift;
-          barW = middleW / 2 / ratioX;
+          barW = middleW / (2 + 2 * n) / ratioX;
           let diff =
             Math.log10(this.rangeXLog) -
             Math.abs(Math.log10(Math.abs(d.partition[0])));
@@ -178,6 +199,10 @@ export class HistogramService {
             chartW / ratioX +
             Math.log10(Math.abs(d.partition[1]));
         }
+      }
+
+      if (!(logPart1 && logPart2)) {
+        barW = 2 * barW;
       }
     }
     return [x, barW];
