@@ -45,6 +45,9 @@ export class HistogramComponent {
   ratioY = 0;
   // zoom!: any;
 
+  linPart1 = true;
+  linPart2 = true;
+
   constructor(private histogramService: HistogramService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -110,8 +113,30 @@ export class HistogramComponent {
         this.ratioY = this.histogramService.getRatioY(this.h, this.padding);
         this.drawChart(this.chartW * 2 + this.padding * 2);
 
-        this.drawXAxis([this.rangeXLin, 0], this.padding, this.chartW, true);
-        this.drawXAxis([0, this.rangeXLin], this.chartW + this.padding);
+        this.linPart1 = this.histogramService.isChartVisible(
+          this.datas,
+          HistogramType.LIN,
+          1
+        );
+        this.linPart2 = this.histogramService.isChartVisible(
+          this.datas,
+          HistogramType.LIN,
+          2
+        );
+
+        this.linPart1 &&
+          this.drawXAxis(
+            [this.rangeXLin, 0],
+            this.padding,
+            this.linPart2 ? this.chartW : this.chartW * 2,
+            true
+          );
+        this.linPart2 &&
+          this.drawXAxis(
+            [0, this.rangeXLin],
+            this.linPart1 ? this.chartW + this.padding : this.padding,
+            this.linPart1 ? this.chartW : this.chartW * 2
+          );
       }
       this.drawYAxis();
       this.addTooltip();
@@ -154,6 +179,7 @@ export class HistogramComponent {
     var self = this;
     let x, barW;
     [x, barW] = this.histogramService.getBarDimensions(
+      this.datas,
       d,
       this.type,
       this.chartW,

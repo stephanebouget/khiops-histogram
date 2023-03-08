@@ -65,7 +65,20 @@ export class HistogramService {
     return (h - padding / 2) / this.rangeY;
   }
 
+  isChartVisible(datas: any, type = HistogramType.LIN, part: number) {
+    if (type === HistogramType.LIN) {
+      if (part === 1) {
+        return datas[0].partition[0] < 0;
+      } else {
+        return datas[0].partition[0] < 0;
+      }
+    } else {
+      return true;
+    }
+  }
+
   getBarDimensions(
+    datas: any,
     d: any,
     type: HistogramType | string,
     chartW = 0,
@@ -81,12 +94,28 @@ export class HistogramService {
 
     if (type === HistogramType.LIN) {
       barMin = Math.min(d.partition[1], d.partition[0]);
-      shift = chartW + padding;
-      barX = barMin;
+
+      const linPart1 = this.isChartVisible(datas, type, 1);
+      const linPart2 = this.isChartVisible(datas, type, 2);
+
+      if (linPart1 && linPart2) {
+        shift = chartW + padding;
+        barX = barMin;
+      } else if (linPart1) {
+        shift = chartW * 2 + padding;
+        barX = barMin * 2;
+      } else {
+        shift = chartW + padding;
+        barX = barMin * 2;
+      }
+
       x = shift + ratioX * barX;
       let barMax = Math.max(d.partition[1], d.partition[0]);
 
       barW = barMax - barMin;
+      if (!(linPart1 && linPart2)) {
+        barW = 2 * barW;
+      }
     } else {
       barMin = Math.min(d.partition[1], d.partition[0]);
       barX = Math.log10(Math.abs(barMin));
