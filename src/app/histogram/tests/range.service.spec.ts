@@ -1,21 +1,16 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HistogramComponent } from './histogram.component';
+import { TestBed } from '@angular/core/testing';
 
-describe('Range', () => {
-  let component: HistogramComponent;
-  let fixture: ComponentFixture<HistogramComponent>;
+import { HistogramService } from '../histogram.service';
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [HistogramComponent],
-    }).compileComponents();
+describe('HistogramService', () => {
+  let service: HistogramService;
 
-    fixture = TestBed.createComponent(HistogramComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(HistogramService);
   });
 
-  it('[-200, -200]', () => {
+  it('check rangeX with [-200, -200]', () => {
     const datas = [
       {
         partition: [-200, -100],
@@ -23,13 +18,12 @@ describe('Range', () => {
       },
     ];
     let rangeXLin, rangeXLog;
-    component.initSpecs(datas);
-    [rangeXLin, rangeXLog] = component.getRange();
+    [rangeXLin, rangeXLog] = service.getRangeX(datas);
     const res = rangeXLin === 200 && rangeXLog === 200;
     expect(res).toBeTruthy();
   });
 
-  it('[-200, 0]', () => {
+  it('check rangeX with [-200, 0]', () => {
     const datas = [
       {
         partition: [-200, 0],
@@ -37,12 +31,11 @@ describe('Range', () => {
       },
     ];
     let rangeXLin, rangeXLog;
-    component.initSpecs(datas);
-    [rangeXLin, rangeXLog] = component.getRange();
+    [rangeXLin, rangeXLog] = service.getRangeX(datas);
     const res = rangeXLin === 200 && rangeXLog === 200;
     expect(res).toBeTruthy();
   });
-  it('[-200, 0.0001]', () => {
+  it('check rangeX with [-200, 0.0001]', () => {
     const datas = [
       {
         partition: [-200, 0.0001],
@@ -50,12 +43,11 @@ describe('Range', () => {
       },
     ];
     let rangeXLin, rangeXLog;
-    component.initSpecs(datas);
-    [rangeXLin, rangeXLog] = component.getRange();
+    [rangeXLin, rangeXLog] = service.getRangeX(datas);
     const res = rangeXLin === 200 && rangeXLog === 10000;
     expect(res).toBeTruthy();
   });
-  it('[0, 0.001]', () => {
+  it('check rangeX with [0, 0.001]', () => {
     const datas = [
       {
         partition: [0, 0.001],
@@ -63,12 +55,11 @@ describe('Range', () => {
       },
     ];
     let rangeXLin, rangeXLog;
-    component.initSpecs(datas);
-    [rangeXLin, rangeXLog] = component.getRange();
+    [rangeXLin, rangeXLog] = service.getRangeX(datas);
     const res = rangeXLin === 0.001 && rangeXLog === 1000;
     expect(res).toBeTruthy();
   });
-  it('[0.1, 500]', () => {
+  it('check rangeX with [0.1, 500]', () => {
     const datas = [
       {
         partition: [0.1, 500],
@@ -76,9 +67,21 @@ describe('Range', () => {
       },
     ];
     let rangeXLin, rangeXLog;
-    component.initSpecs(datas);
-    [rangeXLin, rangeXLog] = component.getRange();
+    [rangeXLin, rangeXLog] = service.getRangeX(datas);
     const res = rangeXLin === 500 && rangeXLog === 500;
+    expect(res).toBeTruthy();
+  });
+  it('check rangeY', () => {
+    const datas = [
+      {
+        value: 10,
+      },
+      {
+        value: 100,
+      },
+    ];
+    let rangeY = service.getRangeY(datas);
+    const res = rangeY === 100;
     expect(res).toBeTruthy();
   });
 });

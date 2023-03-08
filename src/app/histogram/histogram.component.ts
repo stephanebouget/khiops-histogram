@@ -6,6 +6,8 @@ import {
   ViewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
+import { HistogramService } from './histogram.service';
+import { HistogramType } from './histogram.types';
 
 @Component({
   selector: 'app-histogram',
@@ -16,24 +18,31 @@ export class HistogramComponent {
   @ViewChild('chart', { static: false })
   chart!: ElementRef;
   svg: any;
+  tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
 
+  // Dynamic values
   @Input() datas: any;
-  @Input() type: string = 'lin';
+  @Input() type: HistogramType | string = HistogramType.LIN;
   @Input() h: number = 220;
   @Input() w: number = 1000;
-
+  padding = 0;
   chartW = 0;
   middleW = 0;
-  rangeXLog = 0;
-  rangeXLin = 0;
-  padding = 0;
-  rangeY = 0;
+
+  // Static config values
   xTickCount = 10;
   yTicksCount = 5;
-  tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
   tickSize = 0;
+  cssPadding = 40;
 
-  constructor() {}
+  // Local variables
+  rangeXLog = 0;
+  rangeXLin = 0;
+  rangeY = 0;
+  ratioX = 0;
+  ratioY = 0;
+
+  constructor(private histogramService: HistogramService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes?.['w']?.currentValue) {
@@ -50,18 +59,20 @@ export class HistogramComponent {
   init() {
     if (this.chart) {
       this.chart.nativeElement.innerHTML = '';
-      const containerElt = document.getElementById('app-container');
 
-      this.w = containerElt?.clientWidth || 0;
-      this.w = this.w - 40; // add padding
+      this.w = this.w - this.cssPadding; // add padding
       this.padding = this.w / 20;
-      this.getRange();
+      [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
+        this.datas
+      );
+      this.rangeY = this.histogramService.getRangeY(this.datas);
 
-      if (this.type === 'log') {
+      if (this.type === HistogramType.LOG) {
         this.chartW = this.w / 5;
         this.middleW = this.w / 10;
         this.tickSize = -(4 * this.chartW + this.middleW);
-
+        this.ratioX = this.histogramService.getRatioX(this.type, this.chartW);
+        this.ratioY = this.histogramService.getRatioY(this.h, this.padding);
         this.drawChart(this.chartW * 4 + this.padding * 2 + this.middleW);
 
         this.drawXAxis([this.rangeXLog, 1], this.padding);
@@ -89,7 +100,8 @@ export class HistogramComponent {
       } else {
         this.chartW = this.w / 2 - this.padding;
         this.tickSize = -(2 * this.chartW);
-
+        this.ratioX = this.histogramService.getRatioX(this.type, this.chartW);
+        this.ratioY = this.histogramService.getRatioY(this.h, this.padding);
         this.drawChart(this.chartW * 2 + this.padding * 2);
 
         this.drawXAxis([this.rangeXLin, 0], this.padding, this.chartW, true);
@@ -109,51 +121,6 @@ export class HistogramComponent {
       .attr('height', this.h + this.padding);
   }
 
-  getRange() {
-    const dataValues = this.datas.map((e: any) => e.value);
-    this.rangeY = Math.max(...dataValues);
-    this.rangeXLog = 0;
-    this.rangeXLin = 0;
-    this.datas.forEach((d: any, i: number) => {
-      if (d.partition[0] !== 0) {
-        if (Math.abs(d.partition[0]) > this.rangeXLog) {
-          this.rangeXLog = Math.abs(d.partition[0]);
-          this.rangeXLin = Math.abs(d.partition[0]);
-        }
-        if (Math.abs(1 / d.partition[0]) > this.rangeXLog) {
-          this.rangeXLog = Math.abs(1 / d.partition[0]);
-        }
-      }
-      if (d.partition[1] !== 0) {
-        if (Math.abs(d.partition[1]) > this.rangeXLog) {
-          this.rangeXLog = Math.abs(d.partition[1]);
-          this.rangeXLin = Math.abs(d.partition[1]);
-        }
-        if (Math.abs(1 / d.partition[1]) > this.rangeXLog) {
-          this.rangeXLog = Math.abs(1 / d.partition[1]);
-        }
-      }
-    });
-    return [this.rangeXLin, this.rangeXLog];
-  }
-
-  getRatioX() {
-    const currentRange = this.type === 'lin' ? this.rangeXLin : this.rangeXLog;
-    let ratioX = this.chartW / currentRange;
-    if (this.type === 'log') {
-      let maxVal = Math.log10(Math.abs(currentRange));
-      if (maxVal === -Infinity) {
-        maxVal = 1;
-      }
-      ratioX = this.chartW / maxVal;
-    }
-    return ratioX;
-  }
-
-  getRatioY() {
-    return (this.h - this.padding / 2) / this.rangeY;
-  }
-
   addTooltip() {
     this.tooltip = d3
       .select('#tooltip')
@@ -166,92 +133,17 @@ export class HistogramComponent {
       .style('padding', '5px');
   }
 
-  getBarDimensions(d: any) {
-    let shift = 0;
-    let barW = 0;
-    let barX = 0;
-    let x = 0;
-    let barMin = 0;
-
-    if (this.type === 'lin') {
-      barMin = Math.min(d.partition[1], d.partition[0]);
-      shift = this.chartW + this.padding;
-      barX = barMin;
-      x = shift + this.getRatioX() * barX;
-      let barMax = Math.max(d.partition[1], d.partition[0]);
-
-      barW = barMax - barMin;
-    } else {
-      barMin = Math.min(d.partition[1], d.partition[0]);
-      barX = Math.log10(Math.abs(barMin));
-
-      if (d.partition[0] > 0) {
-        shift = this.chartW * 3 + this.padding + this.middleW;
-        x = shift + this.getRatioX() * barX;
-        barW =
-          Math.log10(Math.abs(d.partition[1])) -
-          Math.log10(Math.abs(d.partition[0]));
-      } else if (d.partition[1] <= -1) {
-        shift = this.chartW + this.padding;
-        x = shift - this.getRatioX() * barX;
-        barW =
-          Math.log10(Math.abs(d.partition[0])) -
-          Math.log10(Math.abs(d.partition[1]));
-      } else if (d.partition[1] < 0) {
-        shift = this.chartW + this.padding;
-        x = shift - this.getRatioX() * barX;
-        barW =
-          Math.log10(Math.abs(d.partition[0])) -
-          Math.log10(Math.abs(d.partition[1]));
-      } else {
-        let isZeroP0 = d.partition[0] === 0;
-        let isZeroP1 = d.partition[1] === 0;
-
-        if (isZeroP0) {
-          shift = this.chartW * 2 + this.middleW / 2 + this.padding;
-          x = shift;
-          barW = this.middleW / 2 / this.getRatioX();
-          let diff = 0;
-          if (d.partition[1] > 1) {
-            // case P0 =0 and P1 >1
-            diff =
-              Math.log10(this.rangeXLog) + Math.abs(Math.log10(d.partition[1]));
-          } else {
-            diff =
-              Math.log10(this.rangeXLog) - Math.abs(Math.log10(d.partition[1]));
-          }
-          barW = barW + diff;
-        } else if (isZeroP1) {
-          shift = this.chartW * 2 + this.middleW / 2 + this.padding;
-          x = shift;
-          barW = this.middleW / 2 / this.getRatioX();
-          let diff =
-            Math.log10(this.rangeXLog) -
-            Math.abs(Math.log10(Math.abs(d.partition[0])));
-
-          barW = barW + diff;
-          x = x - barW * this.getRatioX();
-        } else {
-          // partition is neg and pos
-          shift = this.chartW + this.padding;
-          x = shift - this.getRatioX() * barX;
-
-          barW =
-            Math.log10(Math.abs(d.partition[0])) +
-            this.middleW / this.getRatioX() +
-            this.chartW / this.getRatioX() +
-            this.chartW / this.getRatioX() +
-            Math.log10(Math.abs(d.partition[1]));
-        }
-      }
-    }
-    return [x, barW];
-  }
-
   drawRect(d: any, i: number) {
     var self = this;
     let x, barW;
-    [x, barW] = this.getBarDimensions(d);
+    [x, barW] = this.histogramService.getBarDimensions(
+      d,
+      this.type,
+      this.chartW,
+      this.padding,
+      this.middleW,
+      this.ratioX
+    );
 
     const onclickRect = function (e: any) {
       //@ts-ignore
@@ -267,11 +159,11 @@ export class HistogramComponent {
     const mousemove = function (e: any) {
       let logRange =
         '[' +
-        self.getSign(d.partition[0]) +
+        self.histogramService.getSign(d.partition[0]) +
         Math.abs(Math.round(Math.log10(Math.abs(d.partition[0])) * 100) / 100) +
         ', ';
       logRange +=
-        self.getSign(d.partition[1]) +
+        self.histogramService.getSign(d.partition[1]) +
         Math.abs(Math.round(Math.log10(Math.abs(d.partition[1])) * 100) / 100) +
         ']';
 
@@ -303,15 +195,15 @@ export class HistogramComponent {
       .append('rect')
       .attr('id', 'rect-' + i)
       .attr('x', x)
-      .attr('y', this.h - d.value * this.getRatioY())
+      .attr('y', this.h - d.value * this.ratioY)
       .attr('stroke', 'black')
       .attr('stroke-width', '0')
       .on('click', onclickRect)
       .on('mouseover', mouseover)
       .on('mousemove', mousemove)
       .on('mouseleave', mouseleave)
-      .attr('width', barW * this.getRatioX())
-      .attr('height', d.value * this.getRatioY())
+      .attr('width', barW * this.ratioX)
+      .attr('height', d.value * this.ratioY)
       .attr('fill', d.color);
   }
 
@@ -326,11 +218,6 @@ export class HistogramComponent {
     let parent = targetElement.parentNode;
     parent.appendChild(targetElement);
   }
-
-  getSign(input: number) {
-    return input > 0 ? '' : '-';
-  }
-
   drawXAxis(
     domain: any,
     shift: number,
@@ -339,7 +226,7 @@ export class HistogramComponent {
   ) {
     let x;
 
-    if (this.type === 'lin') {
+    if (this.type === HistogramType.LIN) {
       x = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
     } else {
       x = d3.scaleLog().base(10).domain(domain).range([0, width]);
@@ -353,7 +240,7 @@ export class HistogramComponent {
       .tickFormat((d, i) => {
         //@ts-ignore
         let val: any = d;
-        if (this.type === 'lin') {
+        if (this.type === HistogramType.LIN) {
           if (reverse) {
             if (d !== 0) {
               return '-' + val;
