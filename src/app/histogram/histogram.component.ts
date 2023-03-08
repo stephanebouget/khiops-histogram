@@ -40,6 +40,7 @@ export class HistogramComponent {
   rangeY = 0;
   ratioX = 0;
   ratioY = 0;
+  // zoom!: any;
 
   constructor(private histogramService: HistogramService) {}
 
@@ -116,11 +117,20 @@ export class HistogramComponent {
   }
 
   drawChart(chartW: number) {
+    // this.zoom = d3
+    //   .zoom()
+    //   .scaleExtent([1, 10]) // This control how much you can unzoom (x0.5) and zoom (x20)
+    //   .on('zoom', (e: any) => {
+    //     this.w = this.w * e.transform.k;
+    //     this.init();
+    //   });
+
     this.svg = d3
       .select(this.chart.nativeElement)
       .append('svg')
       .attr('width', chartW)
       .attr('height', this.h + this.padding);
+    // .call(this.zoom);
   }
 
   addTooltip() {
