@@ -60,14 +60,13 @@ export class HistogramComponent {
     if (this.chart) {
       this.chart.nativeElement.innerHTML = '';
 
-      this.w = this.w - this.cssPadding; // add padding
-      this.padding = this.w / 20;
-      [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
-        this.datas
-      );
-      this.rangeY = this.histogramService.getRangeY(this.datas);
-
       if (this.type === HistogramType.LOG) {
+        this.w = this.w - this.cssPadding; // add padding
+        this.padding = this.w / 20;
+        [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
+          this.datas
+        );
+        this.rangeY = this.histogramService.getRangeY(this.datas);
         this.chartW = this.w / 5;
         this.middleW = this.w / 10;
         this.tickSize = -(4 * this.chartW + this.middleW);
@@ -98,6 +97,12 @@ export class HistogramComponent {
           this.chartW * 3 + this.padding + this.middleW
         );
       } else {
+        this.w = this.w - this.cssPadding; // add padding
+        this.padding = this.w / 20;
+        [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
+          this.datas
+        );
+        this.rangeY = this.histogramService.getRangeY(this.datas);
         this.chartW = this.w / 2 - this.padding;
         this.tickSize = -(2 * this.chartW);
         this.ratioX = this.histogramService.getRatioX(this.type, this.chartW);
@@ -204,7 +209,7 @@ export class HistogramComponent {
       .on('mouseleave', mouseleave)
       .attr('width', barW * this.ratioX)
       .attr('height', d.value * this.ratioY)
-      .attr('fill', d.color);
+      .attr('fill', d.color ? d.color : '#123456');
   }
 
   drawHistogram(datasSet: any) {
