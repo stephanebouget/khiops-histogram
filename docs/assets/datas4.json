@@ -1,0 +1,36 @@
+[
+  {
+    "partition": [-200, -100],
+    "value": 70,
+    "color": "orange"
+  },
+  {
+    "partition": [-200, -1],
+    "value": 60
+  },
+
+  {
+    "partition": [-200, -0.1],
+    "value": 50
+  },
+
+  {
+    "partition": [-200, 0],
+    "value": 40
+  },
+
+  {
+    "partition": [-200, 0.1],
+    "value": 30
+  },
+
+  {
+    "partition": [-200, 1],
+    "value": 20
+  },
+
+  {
+    "partition": [-200, 200],
+    "value": 10
+  }
+]
