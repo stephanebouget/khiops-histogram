@@ -17,8 +17,11 @@ import { HistogramType } from './histogram.types';
 export class HistogramComponent {
   @ViewChild('chart', { static: false })
   chart!: ElementRef;
+  @ViewChild('tooltipEl', { static: false })
+  tooltipEl!: ElementRef;
+
   svg: any;
-  tooltip!: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
+  tooltip!: any;
 
   // Dynamic values
   @Input() datas: any;
@@ -134,11 +137,10 @@ export class HistogramComponent {
   }
 
   addTooltip() {
-    const tooltipElt = document.getElementById('tooltip');
-    tooltipElt!.innerHTML = '';
+    this.tooltipEl!.nativeElement.innerHTML = '';
 
     this.tooltip = d3
-      .select('#tooltip')
+      .select(this.tooltipEl!.nativeElement)
       .append('div')
       .style('display', 'none')
       .attr('class', 'tooltip')
