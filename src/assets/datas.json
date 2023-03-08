@@ -1,78 +1,65 @@
 [
   {
-    "name": "1",
     "partition": [-100, -20],
     "value": 20,
     "color": "#839192"
   },
   {
-    "name": "2",
     "partition": [-20, -2],
     "value": 50,
     "color": "#34495E"
   },
   {
-    "name": "3",
     "partition": [-2, -1.5],
     "value": 140,
     "color": "#ff6600"
   },
   {
-    "name": "4",
     "partition": [-1.5, -0.1],
     "value": 56,
     "color": "#ff9865"
   },
   {
-    "name": "infinite2",
     "partition": [-0.1, -0.01],
     "value": 80,
     "color": "#963258"
   },
   {
-    "name": "infinite2",
     "partition": [-0.01, 0],
     "value": 300,
     "color": "#000000"
   },
   {
-    "name": "special1",
     "partition": [0, 0.01],
     "value": 200,
     "color": "#986354"
   },
   {
-    "name": "special1",
     "partition": [0.01, 0.1],
     "value": 30,
     "color": "#123123"
   },
   {
-    "name": "special2",
     "partition": [0.1, 0.2],
     "value": 60,
     "color": "#655498"
   },
   {
-    "name": "special2",
     "partition": [0.2, 1],
     "value": 60,
     "color": "#ff6600"
   },
   {
-    "name": "1",
     "partition": [1, 1.2],
     "value": 80,
     "color": "#003f5c"
   },
   {
-    "name": "2",
     "partition": [1.2, 10],
     "value": 70,
     "color": "#58508d"
   },
   {
-    "name": "3",
     "partition": [10, 50],
     "value": 60,
     "color": "#bc5090"
