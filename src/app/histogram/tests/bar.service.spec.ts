@@ -23,14 +23,14 @@ describe('HistogramService', () => {
     let chartW = 200;
     let ratioX = service.getRatioX(HistogramType.LOG, chartW);
     let x, barW;
-    [x, barW] = service.getBarDimensions(
-      datas[0],
-      HistogramType.LOG,
-      chartW,
-      20, // padding
-      20, // middle width
-      ratioX
-    );
+    // [x, barW] = service.getBarDimensions(
+    //   datas[0],
+    //   HistogramType.LOG,
+    //   chartW,
+    //   20, // padding
+    //   20, // middle width
+    //   ratioX
+    // );
     const res = x === 20 && barW === 0.30102999566398125;
     expect(res).toBeTruthy();
   });
@@ -47,14 +47,14 @@ describe('HistogramService', () => {
     let chartW = 200;
     let ratioX = service.getRatioX(HistogramType.LOG, chartW);
     let x, barW;
-    [x, barW] = service.getBarDimensions(
-      datas[0],
-      HistogramType.LOG,
-      chartW,
-      20, // padding
-      20, // middle width
-      ratioX
-    );
+    // [x, barW] = service.getBarDimensions(
+    //   datas[0],
+    //   HistogramType.LOG,
+    //   chartW,
+    //   20, // padding
+    //   20, // middle width
+    //   ratioX
+    // );
     const res = x === 20 && barW === 2.3010299956639813;
     expect(res).toBeTruthy();
   });
@@ -70,14 +70,14 @@ describe('HistogramService', () => {
     let chartW = 200;
     let ratioX = service.getRatioX(HistogramType.LOG, chartW);
     let x, barW;
-    [x, barW] = service.getBarDimensions(
-      datas[0],
-      HistogramType.LOG,
-      chartW,
-      20, // padding
-      20, // middle width
-      ratioX
-    );
+    // [x, barW] = service.getBarDimensions(
+    //   datas[0],
+    //   HistogramType.LOG,
+    //   chartW,
+    //   20, // padding
+    //   20, // middle width
+    //   ratioX
+    // );
     const res = x === 20 && barW === 3.3010299956639813;
     expect(res).toBeTruthy();
   });
@@ -93,14 +93,14 @@ describe('HistogramService', () => {
     let chartW = 200;
     let ratioX = service.getRatioX(HistogramType.LOG, chartW);
     let x, barW;
-    [x, barW] = service.getBarDimensions(
-      datas[0],
-      HistogramType.LOG,
-      chartW,
-      20, // padding
-      20, // middle width
-      ratioX
-    );
+    // [x, barW] = service.getBarDimensions(
+    //   datas[0],
+    //   HistogramType.LOG,
+    //   chartW,
+    //   20, // padding
+    //   20, // middle width
+    //   ratioX
+    // );
     const res = x === 420 && barW === 0.11505149978319906;
     expect(res).toBeTruthy();
   });

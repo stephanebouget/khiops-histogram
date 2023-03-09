@@ -117,15 +117,12 @@ export class HistogramService {
     return true;
   }
 
-  getBarDimensions(
+  getLogBarDimensions(
     d: any,
-    type: HistogramType | string,
     chartW = 0,
     padding = 0,
     middleW = 0,
     ratioX = 0,
-    linPart1 = true,
-    linPart2 = true,
     logPart1 = true,
     logPart2 = true
   ) {
@@ -135,104 +132,117 @@ export class HistogramService {
     let x = 0;
     let barMin = 0;
 
-    if (type === HistogramType.LIN) {
-      barMin = Math.min(d.partition[1], d.partition[0]);
+    barMin = Math.min(d.partition[1], d.partition[0]);
+    barX = Math.log10(Math.abs(barMin));
 
-      let n = 0;
-      if (linPart1 && linPart2) {
-        barX = barMin;
-      } else if (linPart1) {
-        n = 1;
-        barX = barMin * 2;
-      } else {
-        n = -1;
-        barX = barMin * 2;
-      }
-
-      shift = chartW * (1 + n) + padding;
-      x = shift + ratioX * barX;
-      let barMax = Math.max(d.partition[1], d.partition[0]);
-
-      barW = barMax - barMin;
-      if (!(linPart1 && linPart2)) {
-        barW = 2 * barW;
-      }
+    let n = 0;
+    if (logPart1 && logPart2) {
+      n = 0;
+    } else if (logPart1) {
+      n = 1;
     } else {
-      barMin = Math.min(d.partition[1], d.partition[0]);
-      barX = Math.log10(Math.abs(barMin));
+      n = 1;
+    }
 
-      let n = 0;
-      if (logPart1 && logPart2) {
-        n = 0;
-      } else if (logPart1) {
-        n = 1;
-      } else {
-        n = 1;
-      }
+    if (d.partition[0] > 0) {
+      shift = chartW * (3 - n) + padding + middleW;
+      x = shift + ratioX * barX * (1 + n);
+      barW =
+        Math.log10(Math.abs(d.partition[1])) -
+        Math.log10(Math.abs(d.partition[0]));
+    } else if (d.partition[1] <= -1) {
+      shift = chartW * (1 + n) + padding;
+      x = shift - ratioX * barX * (1 + n);
+      barW =
+        Math.log10(Math.abs(d.partition[0])) -
+        Math.log10(Math.abs(d.partition[1]));
+    } else if (d.partition[1] < 0) {
+      shift = chartW * (1 + n) + padding;
+      x = shift - ratioX * barX * (1 + n);
+      barW =
+        Math.log10(Math.abs(d.partition[0])) -
+        Math.log10(Math.abs(d.partition[1]));
+    } else {
+      let isZeroP0 = d.partition[0] === 0;
+      let isZeroP1 = d.partition[1] === 0;
 
-      if (d.partition[0] > 0) {
-        shift = chartW * (3 - n) + padding + middleW;
-        x = shift + ratioX * barX * (1 + n);
-        barW =
-          Math.log10(Math.abs(d.partition[1])) -
-          Math.log10(Math.abs(d.partition[0]));
-      } else if (d.partition[1] <= -1) {
-        shift = chartW * (1 + n) + padding;
-        x = shift - ratioX * barX * (1 + n);
-        barW =
-          Math.log10(Math.abs(d.partition[0])) -
-          Math.log10(Math.abs(d.partition[1]));
-      } else if (d.partition[1] < 0) {
-        shift = chartW * (1 + n) + padding;
-        x = shift - ratioX * barX * (1 + n);
-        barW =
-          Math.log10(Math.abs(d.partition[0])) -
-          Math.log10(Math.abs(d.partition[1]));
-      } else {
-        let isZeroP0 = d.partition[0] === 0;
-        let isZeroP1 = d.partition[1] === 0;
-
-        if (isZeroP0) {
-          shift = chartW * (2 - 2 * n) + middleW / 2 + padding;
-          x = shift;
-          barW = middleW / (2 + 2 * n) / ratioX;
-          let diff = 0;
-          if (d.partition[1] > 1) {
-            // case P0 =0 and P1 >1
-            diff =
-              Math.log10(this.rangeXLog) + Math.abs(Math.log10(d.partition[1]));
-          } else {
-            diff =
-              Math.log10(this.rangeXLog) - Math.abs(Math.log10(d.partition[1]));
-          }
-          barW = barW + diff;
-        } else if (isZeroP1) {
-          shift = chartW * (2 + 2 * n) + middleW / 2 + padding / (2 - (1 - n));
-          x = shift;
-          barW = middleW / (2 + 2 * n) / ratioX;
-          let diff =
-            Math.log10(this.rangeXLog) -
-            Math.abs(Math.log10(Math.abs(d.partition[0])));
-
-          barW = barW + diff;
-          x = x - barW * ratioX;
+      if (isZeroP0) {
+        shift = chartW * (2 - 2 * n) + middleW / 2 + padding;
+        x = shift;
+        barW = middleW / (2 + 2 * n) / ratioX;
+        let diff = 0;
+        if (d.partition[1] > 1) {
+          // case P0 =0 and P1 >1
+          diff =
+            Math.log10(this.rangeXLog) + Math.abs(Math.log10(d.partition[1]));
         } else {
-          // partition is neg and pos
-          shift = chartW + padding;
-          x = shift - ratioX * barX;
-
-          barW =
-            Math.log10(Math.abs(d.partition[0])) +
-            middleW / ratioX +
-            chartW / ratioX +
-            chartW / ratioX +
-            Math.log10(Math.abs(d.partition[1]));
+          diff =
+            Math.log10(this.rangeXLog) - Math.abs(Math.log10(d.partition[1]));
         }
-      }
+        barW = barW + diff;
+      } else if (isZeroP1) {
+        shift = chartW * (2 + 2 * n) + middleW / 2 + padding / (2 - (1 - n));
+        x = shift;
+        barW = middleW / (2 + 2 * n) / ratioX;
+        let diff =
+          Math.log10(this.rangeXLog) -
+          Math.abs(Math.log10(Math.abs(d.partition[0])));
 
-      if (!(logPart1 && logPart2)) {
-        barW = 2 * barW;
+        barW = barW + diff;
+        x = x - barW * ratioX;
+      } else {
+        // partition is neg and pos
+        shift = chartW + padding;
+        x = shift - ratioX * barX;
+
+        barW =
+          Math.log10(Math.abs(d.partition[0])) +
+          middleW / ratioX +
+          chartW / ratioX +
+          chartW / ratioX +
+          Math.log10(Math.abs(d.partition[1]));
       }
+    }
+
+    if (!(logPart1 && logPart2)) {
+      barW = 2 * barW;
+    }
+    return [x, barW];
+  }
+  getLinBarDimensions(
+    d: any,
+    chartW = 0,
+    padding = 0,
+    ratioX = 0,
+    linPart1 = true,
+    linPart2 = true
+  ) {
+    let shift = 0;
+    let barW = 0;
+    let barX = 0;
+    let x = 0;
+    let barMin = 0;
+
+    barMin = Math.min(d.partition[1], d.partition[0]);
+
+    let n = 0;
+    if (linPart1 && linPart2) {
+      barX = barMin;
+    } else if (linPart1) {
+      n = 1;
+      barX = barMin * 2;
+    } else {
+      n = -1;
+      barX = barMin * 2;
+    }
+
+    shift = chartW * (1 + n) + padding;
+    x = shift + ratioX * barX;
+    let barMax = Math.max(d.partition[1], d.partition[0]);
+
+    barW = barMax - barMin;
+    if (!(linPart1 && linPart2)) {
+      barW = 2 * barW;
     }
     return [x, barW];
   }
