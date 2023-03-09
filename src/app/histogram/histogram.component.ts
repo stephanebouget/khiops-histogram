@@ -43,6 +43,10 @@ export class HistogramComponent {
   rangeY = 0;
   ratioX = 0;
   ratioY = 0;
+  linPart1 = true;
+  linPart2 = true;
+  logPart1 = true;
+  logPart2 = true;
   // zoom!: any;
 
   constructor(private histogramService: HistogramService) {}
@@ -76,57 +80,57 @@ export class HistogramComponent {
         this.ratioY = this.histogramService.getRatioY(this.h, this.padding);
         this.drawChart(this.chartW * 4 + this.padding * 2 + this.middleW);
 
-        const logPart1 = this.histogramService.isChartVisible(
+        this.logPart1 = this.histogramService.isChartVisible(
           this.datas,
           HistogramType.LOG,
           1
         );
-        const logPart2 = this.histogramService.isChartVisible(
+        this.logPart2 = this.histogramService.isChartVisible(
           this.datas,
           HistogramType.LOG,
           2
         );
 
-        logPart1 &&
+        this.logPart1 &&
           this.drawXAxis(
             [this.rangeXLog, 1],
             this.padding,
-            logPart2 ? this.chartW : this.chartW * 2
+            this.logPart2 ? this.chartW : this.chartW * 2
           );
-        logPart1 &&
+        this.logPart1 &&
           this.drawXAxis(
             [1, this.rangeXLog],
-            logPart2
+            this.logPart2
               ? this.chartW + this.padding
               : this.chartW * 2 + this.padding,
-            logPart2 ? this.chartW : this.chartW * 2,
+            this.logPart2 ? this.chartW : this.chartW * 2,
             true
           );
         let middleShift = this.chartW * 2 + this.padding;
 
-        if (logPart1 && logPart2) {
-        } else if (logPart1) {
+        if (this.logPart1 && this.logPart2) {
+        } else if (this.logPart1) {
           middleShift = this.padding + this.chartW * 3;
         } else {
           middleShift = this.padding;
         }
         this.drawXAxis([-1, 0, 1], middleShift, this.chartW / 4);
-        logPart2 &&
+        this.logPart2 &&
           this.drawXAxis(
             [this.rangeXLog, 1],
-            logPart1
+            this.logPart1
               ? this.chartW * 2 + this.padding + this.middleW
               : this.padding + this.middleW,
-            logPart1 ? this.chartW : this.chartW * 2,
+            this.logPart1 ? this.chartW : this.chartW * 2,
             true
           );
-        logPart2 &&
+        this.logPart2 &&
           this.drawXAxis(
             [1, this.rangeXLog],
-            logPart1
+            this.logPart1
               ? this.chartW * 3 + this.padding + this.middleW
               : this.chartW * 2 + this.padding + this.middleW,
-            logPart1 ? this.chartW : this.chartW * 2
+            this.logPart1 ? this.chartW : this.chartW * 2
           );
       } else {
         this.padding = this.w / 20;
@@ -140,29 +144,29 @@ export class HistogramComponent {
         this.ratioY = this.histogramService.getRatioY(this.h, this.padding);
         this.drawChart(this.chartW * 2 + this.padding * 2);
 
-        const linPart1 = this.histogramService.isChartVisible(
+        this.linPart1 = this.histogramService.isChartVisible(
           this.datas,
           HistogramType.LIN,
           1
         );
-        const linPart2 = this.histogramService.isChartVisible(
+        this.linPart2 = this.histogramService.isChartVisible(
           this.datas,
           HistogramType.LIN,
           2
         );
 
-        linPart1 &&
+        this.linPart1 &&
           this.drawXAxis(
             [this.rangeXLin, 0],
             this.padding,
-            linPart2 ? this.chartW : this.chartW * 2,
+            this.linPart2 ? this.chartW : this.chartW * 2,
             true
           );
-        linPart2 &&
+        this.linPart2 &&
           this.drawXAxis(
             [0, this.rangeXLin],
-            linPart1 ? this.chartW + this.padding : this.padding,
-            linPart1 ? this.chartW : this.chartW * 2
+            this.linPart1 ? this.chartW + this.padding : this.padding,
+            this.linPart1 ? this.chartW : this.chartW * 2
           );
       }
       this.drawYAxis();
@@ -206,13 +210,16 @@ export class HistogramComponent {
     var self = this;
     let x, barW;
     [x, barW] = this.histogramService.getBarDimensions(
-      this.datas,
       d,
       this.type,
       this.chartW,
       this.padding,
       this.middleW,
-      this.ratioX
+      this.ratioX,
+      this.linPart1,
+      this.linPart2,
+      this.logPart1,
+      this.logPart2
     );
 
     const onclickRect = function (e: any) {

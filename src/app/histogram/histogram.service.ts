@@ -70,7 +70,7 @@ export class HistogramService {
     return (h - padding / 2) / this.rangeY;
   }
 
-  isChartVisible(datas: any, type = HistogramType.LIN, part: number) {
+  isChartVisible(datas: any, type = HistogramType.LIN, part: any) {
     if (type === HistogramType.LIN) {
       if (part === 1) {
         return datas[0].partition[0] < 0;
@@ -80,20 +80,54 @@ export class HistogramService {
     } else {
       if (part === 1) {
         return datas[0].partition[0] < 0;
-      } else {
+      } else if (part === 2) {
         return datas[datas.length - 1].partition[1] > 0;
+      } else if (part === '1a') {
+        return (
+          datas.find((e: any) => {
+            return e.partition[0] <= -1 || e.partition[1] <= -1;
+          }) !== undefined
+        );
+      } else if (part === '1b') {
+        return (
+          datas.find((e: any) => {
+            return (
+              (e.partition[0] <= 0 && e.partition[0] > -1) ||
+              (e.partition[1] <= 0 && e.partition[1] > -1)
+            );
+          }) !== undefined
+        );
+      } else if (part === '2a') {
+        return (
+          datas.find((e: any) => {
+            return (
+              (e.partition[0] > 0 && e.partition[0] < 1) ||
+              (e.partition[1] > 0 && e.partition[1] < 1)
+            );
+          }) !== undefined
+        );
+      } else if (part === '2b') {
+        return (
+          datas.find((e: any) => {
+            return e.partition[0] >= 1 || e.partition[1] >= 1;
+          }) !== undefined
+        );
       }
     }
+    return true;
   }
 
   getBarDimensions(
-    datas: any,
     d: any,
     type: HistogramType | string,
     chartW = 0,
     padding = 0,
     middleW = 0,
-    ratioX = 0
+    ratioX = 0,
+    linPart1 = true,
+    linPart2 = true,
+    logPart1 = true,
+    logPart2 = true
   ) {
     let shift = 0;
     let barW = 0;
@@ -103,9 +137,6 @@ export class HistogramService {
 
     if (type === HistogramType.LIN) {
       barMin = Math.min(d.partition[1], d.partition[0]);
-
-      const linPart1 = this.isChartVisible(datas, HistogramType.LIN, 1);
-      const linPart2 = this.isChartVisible(datas, HistogramType.LIN, 2);
 
       let n = 0;
       if (linPart1 && linPart2) {
@@ -130,8 +161,6 @@ export class HistogramService {
       barMin = Math.min(d.partition[1], d.partition[0]);
       barX = Math.log10(Math.abs(barMin));
 
-      const logPart1 = this.isChartVisible(datas, HistogramType.LOG, 1);
-      const logPart2 = this.isChartVisible(datas, HistogramType.LOG, 2);
       let n = 0;
       if (logPart1 && logPart2) {
         n = 0;
