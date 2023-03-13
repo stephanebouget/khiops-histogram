@@ -49,6 +49,15 @@ export class HistogramComponent {
   logPart2 = true;
   // zoom!: any;
 
+  logView: any = {
+    p1N: true,
+    p0N: true,
+    p0: true,
+    p0P: true,
+    p1P: true,
+  };
+  isP0Visible = 1;
+
   constructor(private histogramService: HistogramService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -73,7 +82,7 @@ export class HistogramComponent {
       }
       this.drawYAxis();
       this.addTooltip();
-      this.drawHistogram(this.datas);
+      // this.drawHistogram(this.datas);
     }
   }
 
@@ -90,58 +99,64 @@ export class HistogramComponent {
     this.ratioY = this.histogramService.getRatioY(this.h, this.padding);
     this.drawChart(this.chartW * 4 + this.padding * 2 + this.middleW);
 
-    this.logPart1 = this.histogramService.isChartVisible(
-      this.datas,
-      HistogramType.LOG,
-      1
-    );
-    this.logPart2 = this.histogramService.isChartVisible(
-      this.datas,
-      HistogramType.LOG,
-      2
-    );
+    this.logView = this.histogramService.getLogChartVisibility(this.datas);
+    this.isP0Visible =
+      this.logView.p0N || this.logView.p0 || this.logView.p1N ? 1 : 0;
 
-    this.logPart1 &&
-      this.drawXAxis(
-        [this.rangeXLog, 1],
-        this.padding,
-        this.logPart2 ? this.chartW : this.chartW * 2
-      );
-    this.logPart1 &&
+    let visibleChartsCount = 0;
+    Object.keys(this.logView).forEach((key: any) => {
+      if (this.logView[key] === true && key !== 'p0') {
+        visibleChartsCount++;
+      }
+    });
+
+    console.log(
+      'file: histogram.component.ts:111 ~ HistogramComponent ~ drawLogChart ~ this.logView:',
+      this.logView
+    );
+    const p1NWidth = this.chartW * visibleChartsCount ;
+    this.logView.p1N &&
+      this.drawXAxis([this.rangeXLog, 1], this.padding, p1NWidth);
+
+    const p0NWidth = this.chartW * visibleChartsCount;
+    this.logView.p0N &&
       this.drawXAxis(
         [1, this.rangeXLog],
-        this.logPart2
-          ? this.chartW + this.padding
-          : this.chartW * 2 + this.padding,
-        this.logPart2 ? this.chartW : this.chartW * 2,
+        p1NWidth + this.padding,
+        p0NWidth,
         true
       );
-    let middleShift = this.chartW * 2 + this.padding;
 
-    if (this.logPart1 && this.logPart2) {
-    } else if (this.logPart1) {
-      middleShift = this.padding + this.chartW * 3;
-    } else {
-      middleShift = this.padding;
-    }
-    this.drawXAxis([-1, 0, 1], middleShift, this.chartW / 4);
-    this.logPart2 &&
-      this.drawXAxis(
-        [this.rangeXLog, 1],
-        this.logPart1
-          ? this.chartW * 2 + this.padding + this.middleW
-          : this.padding + this.middleW,
-        this.logPart1 ? this.chartW : this.chartW * 2,
-        true
-      );
-    this.logPart2 &&
-      this.drawXAxis(
-        [1, this.rangeXLog],
-        this.logPart1
-          ? this.chartW * 3 + this.padding + this.middleW
-          : this.chartW * 2 + this.padding + this.middleW,
-        this.logPart1 ? this.chartW : this.chartW * 2
-      );
+    // let middleShift = this.chartW * 2 + this.padding;
+
+    // if (this.logPart1 && this.logPart2) {
+    // } else if (this.logPart1) {
+    //   middleShift = this.padding + this.chartW * 3;
+    // } else {
+    //   middleShift = this.padding;
+    // }
+
+
+    this.isP0Visible && this.drawXAxis([-1, 0, 1], this.padding , this.chartW / 4);
+
+
+    // this.logPart2 &&
+    //   this.drawXAxis(
+    //     [this.rangeXLog, 1],
+    //     this.logPart1
+    //       ? this.chartW * 2 + this.padding + this.middleW
+    //       : this.padding + this.middleW,
+    //     this.logPart1 ? this.chartW : this.chartW * 2,
+    //     true
+    //   );
+    // this.logPart2 &&
+    //   this.drawXAxis(
+    //     [1, this.rangeXLog],
+    //     this.logPart1
+    //       ? this.chartW * 3 + this.padding + this.middleW
+    //       : this.chartW * 2 + this.padding + this.middleW,
+    //     this.logPart1 ? this.chartW : this.chartW * 2
+    //   );
   }
 
   drawLinChart() {

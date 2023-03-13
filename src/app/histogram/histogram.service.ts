@@ -70,6 +70,43 @@ export class HistogramService {
     return (h - padding / 2) / this.rangeY;
   }
 
+  getLogChartVisibility(datas: any) {
+    let logView = {
+      p1N: true,
+      p0N: true,
+      p0: true,
+      p0P: true,
+      p1P: true,
+    };
+    logView.p1N =
+      datas.find((e: any) => {
+        return e.partition[0] <= -1 || e.partition[1] <= -1;
+      }) !== undefined;
+    logView.p0N =
+      datas.find((e: any) => {
+        return (
+          (e.partition[0] < 0 && e.partition[0] > -1) ||
+          (e.partition[1] < 0 && e.partition[1] > -1)
+        );
+      }) !== undefined;
+    logView.p0 =
+      datas.find((e: any) => {
+        return e.partition[0] == 0 || e.partition[0] === 0;
+      }) !== undefined;
+    logView.p0P =
+      datas.find((e: any) => {
+        return (
+          (e.partition[0] >= 0 && e.partition[0] < 1) ||
+          (e.partition[1] >= 0 && e.partition[1] < 1)
+        );
+      }) !== undefined;
+    logView.p1P =
+      datas.find((e: any) => {
+        return e.partition[0] >= 1 || e.partition[1] >= 1;
+      }) !== undefined;
+    return logView;
+  }
+
   isChartVisible(datas: any, type = HistogramType.LIN, part: any) {
     if (type === HistogramType.LIN) {
       if (part === 1) {
