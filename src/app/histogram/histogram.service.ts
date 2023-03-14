@@ -243,11 +243,12 @@ export class HistogramService {
       barW = barW / visibleChartsCount;
       x = shift - (ratioX / visibleChartsCount) * barX;
     } else if (d.partition[1] < 0) {
-      // shift = chartW * (1 + n) + padding;
-      // x = shift - ratioX * barX * (1 + n);
+      shift = padding + logView.p0P * chartW.p0P;
       barW =
         Math.log10(Math.abs(d.partition[0])) -
         Math.log10(Math.abs(d.partition[1]));
+      barW = barW / visibleChartsCount;
+      x = shift - (ratioX / visibleChartsCount) * barX;
     } else {
       let isZeroP0 = d.partition[0] === 0;
       let isZeroP1 = d.partition[1] === 0;
