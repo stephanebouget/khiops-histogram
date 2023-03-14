@@ -236,14 +236,12 @@ export class HistogramService {
       barW = barW / visibleChartsCount;
       x = shift + (ratioX / visibleChartsCount) * barX;
     } else if (d.partition[1] <= -1) {
-      //  shift = padding
-      // x = shift - ratioX * barX * -1;
-      x = shift + ratioX * barX;
+      shift = padding;
       barW =
         Math.log10(Math.abs(d.partition[0])) -
         Math.log10(Math.abs(d.partition[1]));
-      // barW = barW * visibleChartsCount;
-      // x = shift + ratioX * barX * -1;
+      barW = barW / visibleChartsCount;
+      x = shift + (ratioX / visibleChartsCount) * barX - barW * ratioX;
     } else if (d.partition[1] < 0) {
       // shift = chartW * (1 + n) + padding;
       // x = shift - ratioX * barX * (1 + n);
@@ -282,7 +280,6 @@ export class HistogramService {
         // partition is neg and pos
         // shift = chartW + padding;
         // x = shift - ratioX * barX;
-        debugger;
         barW =
           Math.log10(Math.abs(d.partition[0])) +
           middleW / ratioX +
@@ -295,6 +292,11 @@ export class HistogramService {
     // if (!(logPart1 && logPart2)) {
     // barW =  visibleChartsCount * barW;
     // }
+    console.warn(
+      'file: histogram.service.ts:305 ~ HistogramService ~ x, barW:',
+      x,
+      barW
+    );
     return [x, barW];
   }
   getLinBarDimensions(
