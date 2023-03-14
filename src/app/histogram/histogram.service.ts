@@ -221,7 +221,7 @@ export class HistogramService {
       barW = barW / visibleChartsCount;
       x = shift + (ratioX / visibleChartsCount) * barX;
     } else if (d.partition[1] <= -1 || d.partition[1] < 0) {
-      shift = padding + logView.p0P * chartW.p0P;
+      shift = padding + logView.p1P * chartW.p1P;
       barW =
         Math.log10(Math.abs(d.partition[0])) -
         Math.log10(Math.abs(d.partition[1]));
