@@ -29,7 +29,8 @@ export class HistogramComponent {
   @Input() h: number = 220;
   @Input() w: number = 1000;
   padding = 0;
-  chartW = 0;
+  defaultChartW = 0;
+  // chartW = 0;
   middleW = 0;
 
   // Static config values
@@ -50,19 +51,30 @@ export class HistogramComponent {
   // zoom!: any;
 
   logView: any = {
-    p1N: true,
-    p0N: true,
-    p0: true,
-    p0P: true,
-    p1P: true,
+    p1N: 0,
+    p0N: 0,
+    p0: 0,
+    p0P: 0,
+    p1P: 0,
   };
-  isP0Visible = 1;
+  chartW: any = {
+    p1N: 0,
+    p0N: 0,
+    p0: 0,
+    p0P: 0,
+    p1P: 0,
+  };
+  isP0Visible = 0;
+  yPadding = 100;
 
   constructor(private histogramService: HistogramService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes?.['w']?.currentValue || changes?.['datas']?.currentValue) {
+      // setTimeout(() => {
+
       this.init();
+      // }, 100);
     }
   }
 
@@ -78,89 +90,127 @@ export class HistogramComponent {
       if (this.type === HistogramType.LOG) {
         this.drawLogChart();
       } else {
-        this.drawLinChart();
+        // this.drawLinChart();
       }
       this.drawYAxis();
       this.addTooltip();
-      // this.drawHistogram(this.datas);
+      this.drawHistogram(this.datas);
     }
   }
 
   drawLogChart() {
-    this.padding = this.w / 20;
+    // this.padding = this.w / 20;
     [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
       this.datas
     );
-    this.rangeY = this.histogramService.getRangeY(this.datas);
-    this.chartW = this.w / 5;
-    this.middleW = this.w / 10;
-    this.tickSize = -(4 * this.chartW + this.middleW);
-    this.ratioX = this.histogramService.getRatioX(this.type, this.chartW);
-    this.ratioY = this.histogramService.getRatioY(this.h, this.padding);
-    this.drawChart(this.chartW * 4 + this.padding * 2 + this.middleW);
-
     this.logView = this.histogramService.getLogChartVisibility(this.datas);
-    this.isP0Visible =
-      this.logView.p0N || this.logView.p0 || this.logView.p1N ? 1 : 0;
-
-    let visibleChartsCount = 0;
-    Object.keys(this.logView).forEach((key: any) => {
-      if (this.logView[key] === true && key !== 'p0') {
-        visibleChartsCount++;
-      }
-    });
-
-    console.log(
-      'file: histogram.component.ts:111 ~ HistogramComponent ~ drawLogChart ~ this.logView:',
+    let visibleChartsCount = this.histogramService.getVisibleChartsCount(
       this.logView
     );
-    const p1NWidth = this.chartW * visibleChartsCount ;
-    this.logView.p1N &&
-      this.drawXAxis([this.rangeXLog, 1], this.padding, p1NWidth);
+    console.log(
+      'file: histogram.component.ts:106 ~ HistogramComponent ~ drawLogChart ~ visibleChartsCount:',
+      visibleChartsCount
+    );
 
-    const p0NWidth = this.chartW * visibleChartsCount;
-    this.logView.p0N &&
-      this.drawXAxis(
-        [1, this.rangeXLog],
-        p1NWidth + this.padding,
-        p0NWidth,
-        true
-      );
+    this.rangeY = this.histogramService.getRangeY(this.datas);
+    this.defaultChartW = this.w / 5;
+    this.drawChart(
+      this.defaultChartW * 4 + this.padding * 2 + this.middleW * this.logView.p0
+    );
+    this.tickSize = -(4 * this.defaultChartW + this.middleW);
 
-    // let middleShift = this.chartW * 2 + this.padding;
+    // this.chartW = this.w / 5;
+    this.middleW = (this.w / 10) * this.logView.p0;
+    this.ratioY = this.histogramService.getRatioY(this.h, this.yPadding);
 
-    // if (this.logPart1 && this.logPart2) {
-    // } else if (this.logPart1) {
-    //   middleShift = this.padding + this.chartW * 3;
-    // } else {
-    //   middleShift = this.padding;
-    // }
+    let lastPadding = 0;
+    if (visibleChartsCount === 1) {
+      lastPadding = this.padding;
+    }
 
+    console.log(
+      'file: histogram.component.ts:105 ~ HistogramComponent ~ drawLogChart ~ this.logView:',
+      this.logView
+    );
+    this.isP0Visible =
+      this.logView.p0N || this.logView.p0 || this.logView.p1N ? 1 : 0;
+    console.log(
+      'file: histogram.component.ts:104 ~ HistogramComponent ~ drawLogChart ~ this.isP0Visible:',
+      this.isP0Visible
+    );
 
-    this.isP0Visible && this.drawXAxis([-1, 0, 1], this.padding , this.chartW / 4);
+    this.chartW.p1N =
+      ((4 * this.defaultChartW - this.middleW - lastPadding) /
+        visibleChartsCount) *
+      this.logView.p1N;
+    this.drawXAxis([this.rangeXLog, 1], this.padding, this.chartW.p1N);
 
+    this.chartW.p0N =
+      ((4 * this.defaultChartW - this.middleW - lastPadding) /
+        visibleChartsCount) *
+      this.logView.p0N;
+    this.drawXAxis(
+      [1, this.rangeXLog],
+      this.padding + this.chartW.p1N,
+      this.chartW.p0N,
+      true
+    );
 
-    // this.logPart2 &&
-    //   this.drawXAxis(
-    //     [this.rangeXLog, 1],
-    //     this.logPart1
-    //       ? this.chartW * 2 + this.padding + this.middleW
-    //       : this.padding + this.middleW,
-    //     this.logPart1 ? this.chartW : this.chartW * 2,
-    //     true
-    //   );
-    // this.logPart2 &&
-    //   this.drawXAxis(
-    //     [1, this.rangeXLog],
-    //     this.logPart1
-    //       ? this.chartW * 3 + this.padding + this.middleW
-    //       : this.chartW * 2 + this.padding + this.middleW,
-    //     this.logPart1 ? this.chartW : this.chartW * 2
-    //   );
+    this.chartW.p0 = this.middleW * this.logView.p0;
+
+    this.drawXAxis(
+      [-1, 0, 1],
+      this.padding + this.chartW.p0N + this.chartW.p1N - lastPadding,
+      this.chartW.p0
+    );
+
+    this.chartW.p0P =
+      ((4 * this.defaultChartW - this.middleW) / visibleChartsCount) *
+      this.logView.p0P;
+    this.drawXAxis(
+      [this.rangeXLog, 1],
+      this.chartW.p1N +
+        this.chartW.p0 +
+        this.chartW.p0N +
+        this.padding -
+        lastPadding,
+      this.chartW.p0P,
+      true
+    );
+
+    this.chartW.p1P =
+      ((4 * this.defaultChartW - this.middleW) / visibleChartsCount) *
+      this.logView.p1P;
+    this.drawXAxis(
+      [1, this.rangeXLog],
+      this.chartW.p1N +
+        this.chartW.p0N +
+        this.chartW.p0 +
+        this.chartW.p0P +
+        this.padding,
+      this.chartW.p1P
+    );
+
+    this.ratioX = this.histogramService.getLogRatioX(
+      this.type,
+      // this.defaultChartW,
+      this.chartW.p1N +
+        this.chartW.p0N +
+        this.chartW.p0 +
+        this.chartW.p0P +
+        this.chartW.p1P,
+      visibleChartsCount
+    );
+    // this.chartW =
+    //   (this.chartW.p1N +this. p0NChartW +this. p1NChartW + this.chartW.p1P) / visibleChartsCount;
+    // console.log(
+    //   'file: histogram.component.ts:161 ~ HistogramComponent ~ drawLogChart ~ this.chartW:',
+    //   this.chartW
+    // );
   }
 
   drawLinChart() {
-    this.padding = this.w / 20;
+    // this.padding = this.w / 20;
     [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
       this.datas
     );
@@ -210,7 +260,7 @@ export class HistogramComponent {
       .select(this.chart.nativeElement)
       .append('svg')
       .attr('width', chartW)
-      .attr('height', this.h + this.padding);
+      .attr('height', this.h + this.yPadding);
     // .call(this.zoom);
   }
 
@@ -246,10 +296,9 @@ export class HistogramComponent {
         d,
         this.chartW,
         this.padding,
-        this.middleW,
+        this.middleW * this.logView.p0,
         this.ratioX,
-        this.logPart1,
-        this.logPart2
+        this.logView
       );
     }
 
@@ -326,61 +375,58 @@ export class HistogramComponent {
     let parent = targetElement.parentNode;
     parent.appendChild(targetElement);
   }
-  drawXAxis(
-    domain: any,
-    shift: number,
-    width: number = this.chartW,
-    reverse = false
-  ) {
-    let x;
+  drawXAxis(domain: any, shift: number, width: number, reverse = false) {
+    if (width !== 0) {
+      let x;
 
-    if (this.type === HistogramType.LIN) {
-      x = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
-    } else {
-      x = d3.scaleLog().base(10).domain(domain).range([0, width]);
-    }
+      if (this.type === HistogramType.LIN) {
+        x = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
+      } else {
+        x = d3.scaleLog().base(10).domain(domain).range([0, width]);
+      }
 
-    const axis = d3
-      .axisBottom(x)
-      .ticks(this.xTickCount)
-      .tickSize(-this.h + this.padding / 2)
-      //@ts-ignore
-      .tickFormat((d, i) => {
+      const axis = d3
+        .axisBottom(x)
+        .ticks(this.xTickCount)
+        .tickSize(-this.h + this.yPadding / 2)
         //@ts-ignore
-        let val: any = d;
-        if (this.type === HistogramType.LIN) {
-          if (reverse) {
-            if (d !== 0) {
-              return '-' + val;
+        .tickFormat((d, i) => {
+          //@ts-ignore
+          let val: any = d;
+          if (this.type === HistogramType.LIN) {
+            if (reverse) {
+              if (d !== 0) {
+                return '-' + val;
+              }
+            } else {
+              return val;
             }
           } else {
-            return val;
-          }
-        } else {
-          if (i === 0) {
-            if (domain[0] < domain[1]) {
-              return 0;
-            }
-          } else if (i % 2) {
-            const tick = Math.round(Math.log10(val) * 100) / 100;
-            if (reverse) {
-              return tick !== 0 ? '-' + tick : '' + tick;
-            } else {
-              return tick;
+            if (i === 0) {
+              if (domain[0] < domain[1]) {
+                return 0;
+              }
+            } else if (i % 2) {
+              const tick = Math.round(Math.log10(val) * 100) / 100;
+              if (reverse) {
+                return tick !== 0 ? '-' + tick : '' + tick;
+              } else {
+                return tick;
+              }
             }
           }
-        }
-      });
-    this.svg
-      .append('g')
-      .attr('class', 'x axis-grid')
-      .attr('transform', 'translate(' + shift + ',' + this.h + ') ') // This controls the vertical position of the Axis
-      .call(axis)
-      .selectAll('text')
-      .style('text-anchor', 'end')
-      .attr('dx', '-.8em')
-      .attr('dy', '.15em')
-      .attr('transform', 'rotate(-65)');
+        });
+      this.svg
+        .append('g')
+        .attr('class', 'x axis-grid')
+        .attr('transform', 'translate(' + shift + ',' + this.h + ') ') // This controls the vertical position of the Axis
+        .call(axis)
+        .selectAll('text')
+        .style('text-anchor', 'end')
+        .attr('dx', '-.8em')
+        .attr('dy', '.15em')
+        .attr('transform', 'rotate(-65)');
+    }
   }
 
   drawYAxis() {
@@ -388,7 +434,7 @@ export class HistogramComponent {
     var y = d3
       .scaleLinear()
       .domain([0, this.rangeY]) // This is what is written on the Axis: from 0 to 100
-      .range([this.h - this.padding / 2, 0]); // Note it is reversed
+      .range([this.h - this.yPadding / 2, 0]); // Note it is reversed
 
     let shift = this.padding;
 
@@ -397,7 +443,7 @@ export class HistogramComponent {
     this.svg
       .append('g')
       .attr('class', 'y axis-grid')
-      .attr('transform', 'translate(' + shift + ',' + this.padding / 2 + ')') // This controls the vertical position of the Axis
+      .attr('transform', 'translate(' + shift + ',' + this.yPadding / 2 + ')') // This controls the vertical position of the Axis
       .call(axis);
   }
 }

@@ -1,13 +1,15 @@
-<ngx-codemirror
-  [(ngModel)]="datasSet"
-  (ngModelChange)="update()"
-  (drop)="onDropFile($event)"
-  [options]="{
-    lineNumbers: true,
-    theme: 'material',
-    mode: { name: 'javascript', json: true }
-  }"
-></ngx-codemirror>
+<div class="code-container">
+  <ngx-codemirror
+    [(ngModel)]="datasSet"
+    (ngModelChange)="update()"
+    (drop)="onDropFile($event)"
+    [options]="{
+      lineNumbers: true,
+      theme: 'material',
+      mode: { name: 'javascript', json: true }
+    }"
+  ></ngx-codemirror>
+</div>
 <button class="favorite styled" type="button" (click)="loadMock()">
   Load default dataSet
 </button>

@@ -66,44 +66,79 @@ export class HistogramService {
     return ratioX;
   }
 
+  getLogRatioX(type: string, chartW: number, chartCount: number) {
+    console.log('file: histogr---------artW:', chartW);
+    let ratioX = chartW / this.rangeXLog;
+    let maxVal = Math.log10(Math.abs(this.rangeXLog));
+    if (maxVal === -Infinity) {
+      maxVal = 1;
+    }
+    ratioX = chartW / maxVal;
+    console.log(
+      'file: histogram.service.ts:77 ~ HistogramService ~ getLogRatioX ~ ratioX:',
+      ratioX
+    );
+    return ratioX;
+  }
+
   getRatioY(h: number, padding: number) {
     return (h - padding / 2) / this.rangeY;
   }
 
+  getVisibleChartsCount(logView: any) {
+    let visibleChartsCount = 0;
+    Object.keys(logView).forEach((key: any) => {
+      if (logView[key] && key !== 'p0') {
+        visibleChartsCount++;
+      }
+    });
+    return visibleChartsCount;
+  }
+
   getLogChartVisibility(datas: any) {
     let logView = {
-      p1N: true,
-      p0N: true,
-      p0: true,
-      p0P: true,
-      p1P: true,
+      p1N: 1,
+      p0N: 1,
+      p0: 1,
+      p0P: 1,
+      p1P: 1,
     };
     logView.p1N =
       datas.find((e: any) => {
         return e.partition[0] <= -1 || e.partition[1] <= -1;
-      }) !== undefined;
+      }) !== undefined
+        ? 1
+        : 0;
     logView.p0N =
       datas.find((e: any) => {
         return (
           (e.partition[0] < 0 && e.partition[0] > -1) ||
           (e.partition[1] < 0 && e.partition[1] > -1)
         );
-      }) !== undefined;
+      }) !== undefined
+        ? 1
+        : 0;
     logView.p0 =
       datas.find((e: any) => {
-        return e.partition[0] == 0 || e.partition[0] === 0;
-      }) !== undefined;
+        return e.partition[0] == 0 || e.partition[1] === 0;
+      }) !== undefined
+        ? 1
+        : 0;
     logView.p0P =
       datas.find((e: any) => {
         return (
-          (e.partition[0] >= 0 && e.partition[0] < 1) ||
-          (e.partition[1] >= 0 && e.partition[1] < 1)
+          (e.partition[0] > 0 && e.partition[0] < 1) ||
+          (e.partition[1] > 0 && e.partition[1] < 1)
         );
-      }) !== undefined;
+      }) !== undefined
+        ? 1
+        : 0;
     logView.p1P =
       datas.find((e: any) => {
         return e.partition[0] >= 1 || e.partition[1] >= 1;
-      }) !== undefined;
+      }) !== undefined
+        ? 1
+        : 0;
     return logView;
   }
 
@@ -156,12 +191,11 @@ export class HistogramService {
 
   getLogBarDimensions(
     d: any,
-    chartW = 0,
+    chartW: any,
     padding = 0,
     middleW = 0,
     ratioX = 0,
-    logPart1 = true,
-    logPart2 = true
+    logView: any
   ) {
     let shift = 0;
     let barW = 0;
@@ -171,31 +205,48 @@ export class HistogramService {
 
     barMin = Math.min(d.partition[1], d.partition[0]);
     barX = Math.log10(Math.abs(barMin));
+    // barX = Math.abs(Math.log10(Math.abs(barMin)));
 
-    let n = 0;
-    if (logPart1 && logPart2) {
-      n = 0;
-    } else if (logPart1) {
-      n = 1;
-    } else {
-      n = 1;
-    }
+    let visibleChartsCount = this.getVisibleChartsCount(logView);
 
-    if (d.partition[0] > 0) {
-      shift = chartW * (3 - n) + padding + middleW;
-      x = shift + ratioX * barX * (1 + n);
+    let n = 1;
+
+    if (d.partition[0] >= 1) {
+      shift =
+        padding +
+        logView.p1N * chartW.p1N +
+        logView.p0N * chartW.p0N +
+        logView.p0 * chartW.p0 +
+        logView.p0P * chartW.p0P;
       barW =
         Math.log10(Math.abs(d.partition[1])) -
         Math.log10(Math.abs(d.partition[0]));
+      barW = barW / visibleChartsCount;
+      x = shift + (ratioX / visibleChartsCount) * barX;
+    } else if (d.partition[0] > 0) {
+      shift =
+        padding +
+        logView.p1N * chartW.p1N +
+        logView.p0N * chartW.p0N +
+        logView.p0 * chartW.p0 +
+        logView.p0P * chartW.p0P;
+      barW =
+        Math.log10(Math.abs(d.partition[1])) -
+        Math.log10(Math.abs(d.partition[0]));
+      barW = barW / visibleChartsCount;
+      x = shift + (ratioX / visibleChartsCount) * barX;
     } else if (d.partition[1] <= -1) {
-      shift = chartW * (1 + n) + padding;
-      x = shift - ratioX * barX * (1 + n);
+      //  shift = padding
+      // x = shift - ratioX * barX * -1;
+      x = shift + ratioX * barX;
       barW =
         Math.log10(Math.abs(d.partition[0])) -
         Math.log10(Math.abs(d.partition[1]));
+      // barW = barW * visibleChartsCount;
+      // x = shift + ratioX * barX * -1;
     } else if (d.partition[1] < 0) {
-      shift = chartW * (1 + n) + padding;
-      x = shift - ratioX * barX * (1 + n);
+      // shift = chartW * (1 + n) + padding;
+      // x = shift - ratioX * barX * (1 + n);
       barW =
         Math.log10(Math.abs(d.partition[0])) -
         Math.log10(Math.abs(d.partition[1]));
@@ -204,8 +255,8 @@ export class HistogramService {
       let isZeroP1 = d.partition[1] === 0;
 
       if (isZeroP0) {
-        shift = chartW * (2 - 2 * n) + middleW / 2 + padding;
-        x = shift;
+        // shift = chartW * (2 - 2 * n) + middleW / 2 + padding;
+        // x = shift;
         barW = middleW / (2 + 2 * n) / ratioX;
         let diff = 0;
         if (d.partition[1] > 1) {
@@ -218,8 +269,8 @@ export class HistogramService {
         }
         barW = barW + diff;
       } else if (isZeroP1) {
-        shift = chartW * (2 + 2 * n) + middleW / 2 + padding / (2 - (1 - n));
-        x = shift;
+        // shift = chartW * (2 + 2 * n) + middleW / 2 + padding / (2 - (1 - n));
+        // x = shift;
         barW = middleW / (2 + 2 * n) / ratioX;
         let diff =
           Math.log10(this.rangeXLog) -
@@ -229,9 +280,9 @@ export class HistogramService {
         x = x - barW * ratioX;
       } else {
         // partition is neg and pos
-        shift = chartW + padding;
-        x = shift - ratioX * barX;
-
+        // shift = chartW + padding;
+        // x = shift - ratioX * barX;
+        debugger;
         barW =
           Math.log10(Math.abs(d.partition[0])) +
           middleW / ratioX +
@@ -241,9 +292,9 @@ export class HistogramService {
       }
     }
 
-    if (!(logPart1 && logPart2)) {
-      barW = 2 * barW;
-    }
+    // if (!(logPart1 && logPart2)) {
+    // barW =  visibleChartsCount * barW;
+    // }
     return [x, barW];
   }
   getLinBarDimensions(
