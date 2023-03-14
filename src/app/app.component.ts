@@ -28,6 +28,11 @@ export class AppComponent {
       this.datasSet = previousDataSet;
       this.update();
     }
+    const previousVar = window.localStorage.getItem(this.ls_key + '_var');
+    if (previousVar) {
+      this.selectedVariable = previousVar;
+      this.update();
+    }
   }
 
   loadMock() {
@@ -81,6 +86,8 @@ export class AppComponent {
   onVariableChange(event: any) {
     setTimeout(() => {
       this.selectedVariable = event;
+      window.localStorage.setItem(this.ls_key + '_var', this.selectedVariable);
+
       this.update();
     });
   }
