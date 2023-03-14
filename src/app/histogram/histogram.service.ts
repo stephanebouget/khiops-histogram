@@ -206,13 +206,9 @@ export class HistogramService {
 
     barMin = Math.min(d.partition[1], d.partition[0]);
     barX = Math.log10(Math.abs(barMin));
-    // barX = Math.abs(Math.log10(Math.abs(barMin)));
-
     let visibleChartsCount = this.getVisibleChartsCount(logView);
 
-    // let n = 1;
-
-    if (d.partition[0] >= 1) {
+    if (d.partition[0] >= 1 || d.partition[0] > 0) {
       shift =
         padding +
         logView.p1N * chartW.p1N +
@@ -224,26 +220,7 @@ export class HistogramService {
         Math.log10(Math.abs(d.partition[0]));
       barW = barW / visibleChartsCount;
       x = shift + (ratioX / visibleChartsCount) * barX;
-    } else if (d.partition[0] > 0) {
-      shift =
-        padding +
-        logView.p1N * chartW.p1N +
-        logView.p0N * chartW.p0N +
-        logView.p0 * chartW.p0 +
-        logView.p0P * chartW.p0P;
-      barW =
-        Math.log10(Math.abs(d.partition[1])) -
-        Math.log10(Math.abs(d.partition[0]));
-      barW = barW / visibleChartsCount;
-      x = shift + (ratioX / visibleChartsCount) * barX;
-    } else if (d.partition[1] <= -1) {
-      shift = padding + logView.p0P * chartW.p0P;
-      barW =
-        Math.log10(Math.abs(d.partition[0])) -
-        Math.log10(Math.abs(d.partition[1]));
-      barW = barW / visibleChartsCount;
-      x = shift - (ratioX / visibleChartsCount) * barX;
-    } else if (d.partition[1] < 0) {
+    } else if (d.partition[1] <= -1 || d.partition[1] < 0) {
       shift = padding + logView.p0P * chartW.p0P;
       barW =
         Math.log10(Math.abs(d.partition[0])) -
@@ -288,10 +265,7 @@ export class HistogramService {
         shift = padding;
 
         if (d.partition[0] < -1) {
-          barW =
-            barW +
-            (logView.p1N * chartW.p1N) / ratioX +
-            (logView.p0N * chartW.p0N) / ratioX;
+          barW = barW + (logView.p0N * chartW.p0N) / ratioX;
           shift =
             padding +
             logView.p1N * chartW.p1N -
