@@ -70,7 +70,6 @@ export class HistogramComponent {
   constructor(private histogramService: HistogramService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('file: histogram.component.ts:73 ~ HistogramComponent ~ ngOnChanges ~ changes:', changes);
     if (changes?.['w']?.currentValue || changes?.['datas']?.currentValue) {
       // setTimeout(() => {
 
@@ -115,9 +114,7 @@ export class HistogramComponent {
 
     this.rangeY = this.histogramService.getRangeY(this.datas);
     this.defaultChartW = this.w / 5;
-    this.drawChart(
-      this.defaultChartW * 4 + this.padding * 2
-    );
+    this.drawChart(this.defaultChartW * 4 + this.padding * 2);
     this.tickSize = -(4 * this.defaultChartW + this.middleW);
 
     // this.chartW = this.w / 5;
@@ -196,12 +193,12 @@ export class HistogramComponent {
       // this.defaultChartW,
       this.chartW.p1N +
         this.chartW.p0N +
-      // this.chartW.p0 +
-      // this.middleW * this.logView.p0+
+        // this.chartW.p0 +
+        // this.middleW * this.logView.p0+
 
         this.chartW.p0P +
         this.chartW.p1P,
-        this.middleW * this.logView.p0
+      this.middleW * this.logView.p0
     );
     // this.chartW =
     //   (this.chartW.p1N +this. p0NChartW +this. p1NChartW + this.chartW.p1P) / visibleChartsCount;
@@ -411,9 +408,11 @@ export class HistogramComponent {
             } else if (i % 2) {
               const tick = Math.round(Math.log10(val) * 100) / 100;
               if (reverse) {
-                return tick !== 0 ? '-' + tick : '' + tick;
+                return tick !== 0
+                  ? val + ' (-' + tick + ')'
+                  : val + ' (' + tick + ')';
               } else {
-                return tick;
+                return val + ' (' + tick + ')';
               }
             }
           }

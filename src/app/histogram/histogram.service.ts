@@ -266,13 +266,17 @@ export class HistogramService {
           (logView.p0P * chartW.p0P) / ratioX +
           Math.log10(Math.abs(d.partition[1])) / visibleChartsCount;
       } else if (isZeroP1) {
-        shift = padding + middleW / 2;
-        x = shift - middleW / 2;
+        shift =
+          padding +
+          logView.p1N * chartW.p1N +
+          logView.p0N * chartW.p0N +
+          middleW / 2;
         barW = middleW / 2 / ratioX;
         barW =
           barW +
-          (logView.p0P * chartW.p0P) / ratioX +
+          (logView.p1P * chartW.p1P) / ratioX +
           Math.log10(Math.abs(d.partition[0])) / visibleChartsCount;
+        x = shift - barW * ratioX;
       } else {
         // partition is neg and pos
         barW = middleW / ratioX;
@@ -295,6 +299,7 @@ export class HistogramService {
         } else if (d.partition[0] < 0) {
           barW =
             barW +
+            (logView.p0P * chartW.p0P) / ratioX +
             (logView.p1N * chartW.p1N) / ratioX +
             (logView.p0N * chartW.p0N) / ratioX;
           shift =
