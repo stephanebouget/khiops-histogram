@@ -210,7 +210,7 @@ export class HistogramService {
 
     let visibleChartsCount = this.getVisibleChartsCount(logView);
 
-    let n = 1;
+    // let n = 1;
 
     if (d.partition[0] >= 1) {
       shift =
@@ -275,20 +275,39 @@ export class HistogramService {
           Math.log10(Math.abs(d.partition[0])) / visibleChartsCount;
       } else {
         // partition is neg and pos
-        // shift = chartW + padding;
-        // x = shift - ratioX * barX;
+        barW = middleW / ratioX;
         barW =
-          Math.log10(Math.abs(d.partition[0])) +
-          middleW / ratioX +
-          chartW / ratioX +
-          chartW / ratioX +
-          Math.log10(Math.abs(d.partition[1]));
+          barW +
+          Math.log10(Math.abs(d.partition[0])) / visibleChartsCount +
+          Math.log10(Math.abs(d.partition[1])) / visibleChartsCount;
+
+        shift = padding;
+
+        if (d.partition[0] < -1) {
+          barW =
+            barW +
+            (logView.p1N * chartW.p1N) / ratioX +
+            (logView.p0N * chartW.p0N) / ratioX;
+          shift =
+            padding +
+            logView.p1N * chartW.p1N -
+            (ratioX / visibleChartsCount) * barX;
+        } else if (d.partition[0] < 0) {
+          barW =
+            barW +
+            (logView.p1N * chartW.p1N) / ratioX +
+            (logView.p0N * chartW.p0N) / ratioX;
+          shift =
+            padding +
+            logView.p1N * chartW.p1N -
+            (Math.log10(Math.abs(d.partition[0])) / visibleChartsCount) *
+              ratioX;
+        }
+
+        x = shift;
       }
     }
 
-    // if (!(logPart1 && logPart2)) {
-    // barW =  visibleChartsCount * barW;
-    // }
     console.warn(
       'file: histogram.service.ts:305 ~ HistogramService ~ x, barW:',
       x,
