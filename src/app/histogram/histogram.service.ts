@@ -253,37 +253,26 @@ export class HistogramService {
     } else {
       let isZeroP0 = d.partition[0] === 0;
       let isZeroP1 = d.partition[1] === 0;
-
-      shift =
-        padding +
-        logView.p1N * chartW.p1N +
-        logView.p0N * chartW.p0N +
-        logView.p0 * chartW.p0;
-
       if (isZeroP0) {
-        // shift = chartW * (2 - 2 * n) + middleW / 2 + padding;
+        shift =
+          padding +
+          logView.p1N * chartW.p1N +
+          logView.p0N * chartW.p0N +
+          logView.p0 * chartW.p0;
         x = shift - middleW / 2;
         barW = middleW / 2 / ratioX;
-        let diff = 0;
-        if (d.partition[1] > 1) {
-          barW =
-            barW +
-            (logView.p0P * chartW.p0P) / ratioX +
-            Math.log10(Math.abs(d.partition[1])) / visibleChartsCount;
-        } else {
-          diff =
-            Math.log10(this.rangeXLog) - Math.abs(Math.log10(d.partition[1]));
-        }
+        barW =
+          barW +
+          (logView.p0P * chartW.p0P) / ratioX +
+          Math.log10(Math.abs(d.partition[1])) / visibleChartsCount;
       } else if (isZeroP1) {
-        // shift = chartW * (2 + 2 * n) + middleW / 2 + padding / (2 - (1 - n));
-        // x = shift;
-        barW = middleW / (2 + 2 * n) / ratioX;
-        let diff =
-          Math.log10(this.rangeXLog) -
-          Math.abs(Math.log10(Math.abs(d.partition[0])));
-
-        barW = barW + diff;
-        x = x - barW * ratioX;
+        shift = padding + middleW / 2;
+        x = shift - middleW / 2;
+        barW = middleW / 2 / ratioX;
+        barW =
+          barW +
+          (logView.p0P * chartW.p0P) / ratioX +
+          Math.log10(Math.abs(d.partition[0])) / visibleChartsCount;
       } else {
         // partition is neg and pos
         // shift = chartW + padding;
