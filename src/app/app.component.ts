@@ -76,7 +76,7 @@ export class AppComponent {
   }
 
   onResized(event: ResizedEvent) {
-    this.w = event.newRect.width - 40; // add some padding
+    this.w = event.newRect.width - 0; // add some padding
   }
   onVariableChange(event: any) {
     setTimeout(() => {

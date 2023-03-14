@@ -66,18 +66,16 @@ export class HistogramService {
     return ratioX;
   }
 
-  getLogRatioX(type: string, chartW: number, chartCount: number) {
+  getLogRatioX( chartW: number, middle: number) {
+    console.log('file: histogram.service.ts:70 ~ HistogramService ~ getLogRatioX ~ middle:', middle);
     console.log('file: histogr---------artW:', chartW);
-    let ratioX = chartW / this.rangeXLog;
+    let ratioX = (chartW + 0) / this.rangeXLog;
     let maxVal = Math.log10(Math.abs(this.rangeXLog));
     if (maxVal === -Infinity) {
       maxVal = 1;
     }
     ratioX = chartW / maxVal;
-    console.log(
-      'file: histogram.service.ts:77 ~ HistogramService ~ getLogRatioX ~ ratioX:',
-      ratioX
-    );
+
     return ratioX;
   }
 
