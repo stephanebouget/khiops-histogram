@@ -28,7 +28,7 @@ export class HistogramComponent {
   @Input() type: HistogramType | string = HistogramType.LIN;
   @Input() h: number = 220;
   @Input() w: number = 1000;
-  padding = 0;
+  padding = 40;
   defaultChartW = 0;
   // chartW = 0;
   middleW = 0;
