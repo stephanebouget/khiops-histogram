@@ -58,11 +58,11 @@ export class AppComponent {
 
   update() {
     if (this.datasSet) {
-      this.variables = UtilsService.getVariables(JSON.parse(this.datasSet));
-      if (!this.selectedVariable) {
-        this.selectedVariable = this.variables[0];
-      }
       try {
+        this.variables = UtilsService.getVariables(JSON.parse(this.datasSet));
+        if (!this.selectedVariable) {
+          this.selectedVariable = this.variables[0];
+        }
         this.badJson = '';
         this.datas = UtilsService.getDistributionGraphDatas(
           JSON.parse(this.datasSet),
@@ -76,6 +76,7 @@ export class AppComponent {
         );
         this.datas = undefined;
         this.badJson = e.toString();
+        this.loadMock();
       }
     }
   }
