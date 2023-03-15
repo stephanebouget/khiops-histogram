@@ -76,7 +76,7 @@ export class AppComponent {
         );
         this.datas = undefined;
         this.badJson = e.toString();
-        this.loadMock();
+        // this.loadMock();
       }
     }
   }
