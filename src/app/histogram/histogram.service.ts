@@ -67,11 +67,6 @@ export class HistogramService {
   }
 
   getLogRatioX(chartW: number, middle: number) {
-    console.log(
-      'file: histogram.service.ts:70 ~ HistogramService ~ getLogRatioX ~ middle:',
-      middle
-    );
-    console.log('file: histogr---------artW:', chartW);
     let ratioX = (chartW + 0) / this.rangeXLog;
     let maxVal = Math.log10(Math.abs(this.rangeXLog));
     if (maxVal === -Infinity) {
