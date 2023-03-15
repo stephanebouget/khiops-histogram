@@ -37,6 +37,7 @@ export class HistogramComponent {
   xTickCount = 10;
   yTicksCount = 5;
   tickSize = 0;
+  minBarHeight = 2;
 
   // Local variables
   rangeXLog = 0;
@@ -347,11 +348,16 @@ export class HistogramComponent {
         .style('margin-top', '0px');
     };
 
+    let barHeight = d.value * this.ratioY;
+    if (barHeight !== 0 && barHeight < this.minBarHeight) {
+      barHeight = this.minBarHeight;
+    }
+
     this.svg
       .append('rect')
       .attr('id', 'rect-' + i)
       .attr('x', x)
-      .attr('y', this.h - d.value * this.ratioY)
+      .attr('y', this.h - barHeight)
       .attr('stroke', 'black')
       .attr('stroke-width', '0')
       .on('click', onclickRect)
@@ -359,7 +365,7 @@ export class HistogramComponent {
       .on('mousemove', mousemove)
       .on('mouseleave', mouseleave)
       .attr('width', barW * this.ratioX)
-      .attr('height', d.value * this.ratioY)
+      .attr('height', barHeight)
       .attr('fill', d.color ? d.color : '#123456');
   }
 
