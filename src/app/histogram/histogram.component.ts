@@ -280,7 +280,7 @@ export class HistogramComponent {
 
   drawRect(d: any, i: number) {
     var self = this;
-    let x, barW;
+    let x, barW: any, color;
 
     if (this.type === HistogramType.LIN) {
       [x, barW] = this.histogramService.getLinBarDimensions(
@@ -292,7 +292,7 @@ export class HistogramComponent {
         this.linPart2
       );
     } else {
-      [x, barW] = this.histogramService.getLogBarDimensions(
+      [x, barW, color] = this.histogramService.getLogBarDimensions(
         d,
         this.chartW,
         this.padding,
@@ -366,7 +366,7 @@ export class HistogramComponent {
       .on('mouseleave', mouseleave)
       .attr('width', barW * this.ratioX)
       .attr('height', barHeight)
-      .attr('fill', d.color ? d.color : '#123456');
+      .attr('fill', color);
   }
 
   drawHistogram(datasSet: any) {
@@ -415,7 +415,7 @@ export class HistogramComponent {
               const tick = Math.round(Math.log10(val) * 100) / 100;
               if (reverse) {
                 return tick !== 0
-                  ? val + ' (-' + tick + ')'
+                  ? -val + ' (-' + tick + ')'
                   : val + ' (' + tick + ')';
               } else {
                 return val + ' (' + tick + ')';

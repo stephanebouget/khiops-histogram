@@ -119,12 +119,12 @@ export class HistogramService {
       }) !== undefined
         ? 1
         : 0;
-    logView.p0 =
-      datas.find((e: any) => {
-        return e.partition[0] == 0 || e.partition[1] === 0;
-      }) !== undefined
-        ? 1
-        : 0;
+    // logView.p0 =
+    //   datas.find((e: any) => {
+    //     return e.partition[0] == 0 || e.partition[1] === 0;
+    //   }) !== undefined
+    //     ? 1
+    //     : 0;
     logView.p0P =
       datas.find((e: any) => {
         return (
@@ -140,6 +140,9 @@ export class HistogramService {
       }) !== undefined
         ? 1
         : 0;
+
+    logView.p0 = logView.p0P || logView.p0N ? 1 : 0;
+
     return logView;
   }
 
@@ -203,6 +206,7 @@ export class HistogramService {
     let barX = 0;
     let x = 0;
     let barMin = 0;
+    let color = '#023047';
 
     barMin = Math.min(d.partition[1], d.partition[0]);
     barX = Math.log10(Math.abs(barMin));
@@ -221,6 +225,7 @@ export class HistogramService {
       barW = barW / visibleChartsCount;
       x = shift + (ratioX / visibleChartsCount) * barX;
     } else if (d.partition[1] <= -1 || d.partition[1] < 0) {
+      color = '#ffb703';
       shift = padding + logView.p1P * chartW.p1P;
       barW =
         Math.log10(Math.abs(d.partition[0])) -
@@ -243,6 +248,8 @@ export class HistogramService {
           (logView.p0P * chartW.p0P) / ratioX +
           Math.log10(Math.abs(d.partition[1])) / visibleChartsCount;
       } else if (isZeroP1) {
+        color = '#ffb703';
+
         shift =
           padding +
           logView.p1N * chartW.p1N +
@@ -255,6 +262,8 @@ export class HistogramService {
           Math.log10(Math.abs(d.partition[0])) / visibleChartsCount;
         x = shift - barW * ratioX;
       } else {
+        color = '#fb8500';
+
         // partition is neg and pos
         barW = middleW / ratioX;
         barW =
@@ -291,7 +300,7 @@ export class HistogramService {
     //   x,
     //   barW
     // );
-    return [x, barW];
+    return [x, barW, color];
   }
   getLinBarDimensions(
     d: any,
