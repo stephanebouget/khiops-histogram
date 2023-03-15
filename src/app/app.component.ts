@@ -86,6 +86,7 @@ export class AppComponent {
   }
   onVariableChange(event: any) {
     setTimeout(() => {
+      this.selectedVariable = undefined;
       this.selectedVariable = JSON.parse(JSON.stringify(event));
       window.localStorage.setItem(this.ls_key + '_var', this.selectedVariable);
       this.update();
