@@ -21,8 +21,7 @@
   </option>
 </select>
 <code *ngIf="badJson">{{ badJson }}</code>
-
-<section id="app-container" *ngIf="datas" (resized)="onResized($event)">
+<section id="app-container" (resized)="onResized($event)">
   <h1>Linear visualization</h1>
   <app-histogram [w]="w" [type]="'lin'" [datas]="datas"></app-histogram>
   <h1>Logarithmic visualization</h1>

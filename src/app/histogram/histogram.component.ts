@@ -22,6 +22,7 @@ export class HistogramComponent {
 
   svg: any;
   tooltip!: any;
+  errorMessage = false;
 
   // Dynamic values
   @Input() datas: any;
@@ -70,8 +71,13 @@ export class HistogramComponent {
   constructor(private histogramService: HistogramService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes?.['w']?.currentValue || changes?.['datas']?.currentValue) {
+    if (changes?.['w']?.currentValue || changes?.['datas']) {
       this.init();
+    }
+    if (changes?.['datas'] && !changes?.['datas']?.currentValue) {
+      this.errorMessage = true;
+    } else {
+      this.errorMessage = false;
     }
   }
 
@@ -84,14 +90,16 @@ export class HistogramComponent {
   init() {
     if (this.chart) {
       this.chart.nativeElement.innerHTML = '';
-      if (this.type === HistogramType.LOG) {
-        this.drawLogX();
-      } else {
-        this.drawLinX();
+      if (this.datas) {
+        if (this.type === HistogramType.LOG) {
+          this.drawLogX();
+        } else {
+          this.drawLinX();
+        }
+        this.drawYAxis();
+        this.addTooltip();
+        this.drawHistogram(this.datas);
       }
-      this.drawYAxis();
-      this.addTooltip();
-      this.drawHistogram(this.datas);
     }
   }
 
@@ -409,8 +417,8 @@ export class HistogramComponent {
                   return 0;
                 }
               } else if (i % 2) {
-                return this.formatTick(val, reverse);
-                // return this.formatTickDEBUG(val, reverse);
+                // return this.formatTick(val, reverse);
+                return this.formatTickDEBUG(val, reverse);
               }
             }
           }

@@ -85,12 +85,10 @@ export class AppComponent {
     this.w = event.newRect.width - 0; // add some padding
   }
   onVariableChange(event: any) {
-    setTimeout(() => {
-      this.selectedVariable = undefined;
-      this.selectedVariable = JSON.parse(JSON.stringify(event));
-      window.localStorage.setItem(this.ls_key + '_var', this.selectedVariable);
-      this.update();
-    });
+    this.selectedVariable = undefined;
+    this.selectedVariable = JSON.parse(JSON.stringify(event));
+    window.localStorage.setItem(this.ls_key + '_var', this.selectedVariable);
+    this.update();
   }
   onDropFile(event: any) {
     // clear previous datas
