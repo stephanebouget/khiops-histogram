@@ -1,15 +1,12 @@
 [
   {
-    "name": "2",
     "partition": [-2, 2],
     "value": 10,
     "color": "#ff6600"
   },
   {
-    "name": "2",
     "partition": [0, 0.001],
     "value": 100,
     "color": "#123456"
   }
-
 ]
