@@ -54,12 +54,10 @@ export class HistogramService {
     return input > 0 ? '' : '-';
   }
 
-  getRatioX(type: string, chartW: number) {
-    const currentRange =
-      type === HistogramType.LIN ? this.rangeXLin : this.rangeXLog;
-    let ratioX = chartW / currentRange;
+  getLinRatioX(type: string, chartW: number) {
+    let ratioX = chartW / this.rangeXLin;
     if (type === HistogramType.LOG) {
-      let maxVal = Math.log10(Math.abs(currentRange));
+      let maxVal = Math.log10(Math.abs(this.rangeXLin));
       if (maxVal === -Infinity) {
         maxVal = 1;
       }

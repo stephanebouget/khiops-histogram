@@ -30,7 +30,6 @@ export class HistogramComponent {
   @Input() w: number = 1000;
   padding = 40;
   defaultChartW = 0;
-  // chartW = 0;
   middleW = 0;
 
   // Static config values
@@ -188,11 +187,14 @@ export class HistogramComponent {
       this.datas
     );
     this.rangeY = this.histogramService.getRangeY(this.datas);
-    this.chartW = this.w / 2 - this.padding;
-    this.tickSize = -(2 * this.chartW);
-    this.ratioX = this.histogramService.getRatioX(this.type, this.chartW);
-    this.ratioY = this.histogramService.getRatioY(this.h, this.padding);
-    this.drawChart(this.chartW * 2 + this.padding * 2);
+    this.defaultChartW = this.w / 2 - this.w / 10; // w/10 = middlewidth
+    this.tickSize = -(2 * this.defaultChartW);
+    this.ratioX = this.histogramService.getLinRatioX(
+      this.type,
+      this.defaultChartW
+    );
+    this.ratioY = this.histogramService.getRatioY(this.h, this.yPadding);
+    this.drawChart(this.defaultChartW * 2 + this.padding * 2);
 
     this.linPart1 = this.histogramService.isChartVisible(
       this.datas,
@@ -210,15 +212,15 @@ export class HistogramComponent {
         'linPart1',
         [this.rangeXLin, 0],
         this.padding,
-        this.linPart2 ? this.chartW : this.chartW * 2,
+        this.linPart2 ? this.defaultChartW : this.defaultChartW * 2,
         true
       );
     this.linPart2 &&
       this.drawXAxis(
         'linPart2',
         [0, this.rangeXLin],
-        this.linPart1 ? this.chartW + this.padding : this.padding,
-        this.linPart1 ? this.chartW : this.chartW * 2
+        this.linPart1 ? this.defaultChartW + this.padding : this.padding,
+        this.linPart1 ? this.defaultChartW : this.defaultChartW * 2
       );
   }
 
@@ -260,7 +262,7 @@ export class HistogramComponent {
     if (this.type === HistogramType.LIN) {
       [x, barW, color] = this.histogramService.getLinBarDimensions(
         d,
-        this.chartW,
+        this.defaultChartW,
         this.padding,
         this.ratioX,
         this.linPart1,
