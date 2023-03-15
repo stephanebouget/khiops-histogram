@@ -9,6 +9,8 @@ export class HistogramService {
   rangeXLin: number = 0;
   rangeY: number = 0;
 
+  chartColors = ['#ffb703', '#fb8500', '#023047'];
+
   constructor() {}
 
   getRangeX(datas: any) {
@@ -201,7 +203,7 @@ export class HistogramService {
     let barX = 0;
     let x = 0;
     let barMin = 0;
-    let color = '#023047';
+    let color = this.chartColors[2];
 
     barMin = Math.min(d.partition[1], d.partition[0]);
     barX = Math.log10(Math.abs(barMin));
@@ -220,7 +222,7 @@ export class HistogramService {
       barW = barW / visibleChartsCount;
       x = shift + (ratioX / visibleChartsCount) * barX;
     } else if (d.partition[1] <= -1 || d.partition[1] < 0) {
-      color = '#ffb703';
+      color = this.chartColors[0];
       shift = padding + logView.p1P * chartW.p1P;
       barW =
         Math.log10(Math.abs(d.partition[0])) -
@@ -243,7 +245,7 @@ export class HistogramService {
           (logView.p0P * chartW.p0P) / ratioX +
           Math.log10(Math.abs(d.partition[1])) / visibleChartsCount;
       } else if (isZeroP1) {
-        color = '#ffb703';
+        color = this.chartColors[0];
 
         shift =
           padding +
@@ -257,7 +259,7 @@ export class HistogramService {
           Math.log10(Math.abs(d.partition[0])) / visibleChartsCount;
         x = shift - barW * ratioX;
       } else {
-        color = '#fb8500';
+        color = this.chartColors[1];
 
         // partition is neg and pos
         barW = middleW / ratioX;
@@ -269,7 +271,9 @@ export class HistogramService {
         shift = padding;
 
         if (d.partition[0] < -1) {
-          barW = barW + (logView.p0P * chartW.p0P) / ratioX;
+          barW =
+            barW +
+            (logView.p0N * chartW.p0N + logView.p0P * chartW.p0P) / ratioX;
           shift =
             padding +
             logView.p1N * chartW.p1N -
@@ -290,11 +294,6 @@ export class HistogramService {
       }
     }
 
-    // console.warn(
-    //   'file: histogram.service.ts:305 ~ HistogramService ~ x, barW:',
-    //   x,
-    //   barW
-    // );
     return [x, barW, color];
   }
   getLinBarDimensions(
@@ -332,6 +331,14 @@ export class HistogramService {
     if (!(linPart1 && linPart2)) {
       barW = 2 * barW;
     }
-    return [x, barW];
+
+    let color = this.chartColors[2];
+    if (d.partition[0] < 0 && d.partition[1] < 0) {
+      color = this.chartColors[0];
+    } else if (d.partition[0] < 0 && d.partition[1] > 0) {
+      color = this.chartColors[1];
+    }
+
+    return [x, barW, color];
   }
 }

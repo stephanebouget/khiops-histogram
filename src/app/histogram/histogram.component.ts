@@ -86,9 +86,9 @@ export class HistogramComponent {
     if (this.chart) {
       this.chart.nativeElement.innerHTML = '';
       if (this.type === HistogramType.LOG) {
-        this.drawLogChart();
+        this.drawLogX();
       } else {
-        // this.drawLinChart();
+        this.drawLinX();
       }
       this.drawYAxis();
       this.addTooltip();
@@ -96,8 +96,7 @@ export class HistogramComponent {
     }
   }
 
-  drawLogChart() {
-    // this.padding = this.w / 20;
+  drawLogX() {
     [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
       this.datas
     );
@@ -111,7 +110,6 @@ export class HistogramComponent {
     this.drawChart(this.defaultChartW * 4 + this.padding * 2);
     this.tickSize = -(4 * this.defaultChartW + this.middleW);
 
-    // this.chartW = this.w / 5;
     this.middleW = (this.w / 10) * this.logView.p0;
     this.ratioY = this.histogramService.getRatioY(this.h, this.yPadding);
 
@@ -180,26 +178,12 @@ export class HistogramComponent {
     );
 
     this.ratioX = this.histogramService.getLogRatioX(
-      // this.defaultChartW,
-      this.chartW.p1N +
-        this.chartW.p0N +
-        // this.chartW.p0 +
-        // this.middleW * this.logView.p0+
-
-        this.chartW.p0P +
-        this.chartW.p1P,
+      this.chartW.p1N + this.chartW.p0N + this.chartW.p0P + this.chartW.p1P,
       this.middleW * this.logView.p0
     );
-    // this.chartW =
-    //   (this.chartW.p1N +this. p0NChartW +this. p1NChartW + this.chartW.p1P) / visibleChartsCount;
-    // console.log(
-    //   'file: histogram.component.ts:161 ~ HistogramComponent ~ drawLogChart ~ this.chartW:',
-    //   this.chartW
-    // );
   }
 
-  drawLinChart() {
-    // this.padding = this.w / 20;
+  drawLinX() {
     [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
       this.datas
     );
@@ -274,7 +258,7 @@ export class HistogramComponent {
     let x, barW: any, color;
 
     if (this.type === HistogramType.LIN) {
-      [x, barW] = this.histogramService.getLinBarDimensions(
+      [x, barW, color] = this.histogramService.getLinBarDimensions(
         d,
         this.chartW,
         this.padding,
@@ -371,6 +355,7 @@ export class HistogramComponent {
     let parent = targetElement.parentNode;
     parent.appendChild(targetElement);
   }
+
   drawXAxis(
     part: string,
     domain: any,
@@ -423,6 +408,7 @@ export class HistogramComponent {
                 }
               } else if (i % 2) {
                 return this.formatTick(val, reverse);
+                // return this.formatTickDEBUG(val, reverse);
               }
             }
           }
