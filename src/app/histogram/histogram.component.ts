@@ -138,7 +138,7 @@ export class HistogramComponent {
     this.tickSize = -(4 * this.defaultChartW);
 
     let lastPadding = 0;
-    if (this.visibleChartsCount === 1) {
+    if (this.visibleChartsCount === 1 && !this.chartW.p0) {
       lastPadding = this.padding;
     }
 
