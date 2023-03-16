@@ -141,51 +141,12 @@ export class HistogramService {
     return logView;
   }
 
-  isChartVisible(datas: any, type = HistogramType.LIN, part: any) {
-    if (type === HistogramType.LIN) {
-      if (part === 1) {
-        return datas[0].partition[0] < 0;
-      } else {
-        return datas[datas.length - 1].partition[1] > 0;
-      }
+  getLinChartVisibility(datas: any, type = HistogramType.LIN, part: any) {
+    if (part === 1) {
+      return datas[0].partition[0] < 0;
     } else {
-      if (part === 1) {
-        return datas[0].partition[0] < 0;
-      } else if (part === 2) {
-        return datas[datas.length - 1].partition[1] > 0;
-      } else if (part === '1a') {
-        return (
-          datas.find((e: any) => {
-            return e.partition[0] <= -1 || e.partition[1] <= -1;
-          }) !== undefined
-        );
-      } else if (part === '1b') {
-        return (
-          datas.find((e: any) => {
-            return (
-              (e.partition[0] <= 0 && e.partition[0] > -1) ||
-              (e.partition[1] <= 0 && e.partition[1] > -1)
-            );
-          }) !== undefined
-        );
-      } else if (part === '2a') {
-        return (
-          datas.find((e: any) => {
-            return (
-              (e.partition[0] > 0 && e.partition[0] < 1) ||
-              (e.partition[1] > 0 && e.partition[1] < 1)
-            );
-          }) !== undefined
-        );
-      } else if (part === '2b') {
-        return (
-          datas.find((e: any) => {
-            return e.partition[0] >= 1 || e.partition[1] >= 1;
-          }) !== undefined
-        );
-      }
+      return datas[datas.length - 1].partition[1] > 0;
     }
-    return true;
   }
 
   getLogBarDimensions(

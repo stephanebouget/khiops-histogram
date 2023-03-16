@@ -208,12 +208,12 @@ export class HistogramComponent {
     this.ratioY = this.histogramService.getRatioY(this.h, this.yPadding);
     this.drawChart(this.defaultChartW * 2 + this.padding * 2);
 
-    this.linPart1 = this.histogramService.isChartVisible(
+    this.linPart1 = this.histogramService.getLinChartVisibility(
       this.datas,
       HistogramType.LIN,
       1
     );
-    this.linPart2 = this.histogramService.isChartVisible(
+    this.linPart2 = this.histogramService.getLinChartVisibility(
       this.datas,
       HistogramType.LIN,
       2
