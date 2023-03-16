@@ -22,26 +22,28 @@
 </select>
 <code *ngIf="badJson">{{ badJson }}</code>
 <section id="app-container" (resized)="onResized($event)">
-  <h1>Linear X visualization</h1>
+  <h1>Lin / Lin</h1>
   <app-histogram
     [w]="w"
     [xType]="'lin'"
     [yType]="'lin'"
     [datas]="datas"
   ></app-histogram>
+  <h1>Lin / Log</h1>
   <app-histogram
     [w]="w"
     [xType]="'lin'"
     [yType]="'log'"
     [datas]="datas"
   ></app-histogram>
-  <h1>Logarithmic X visualization</h1>
+  <h1>Log / Lin</h1>
   <app-histogram
     [w]="w"
     [xType]="'log'"
     [yType]="'lin'"
     [datas]="datas"
   ></app-histogram>
+  <h1>Log / Log</h1>
   <app-histogram
     [w]="w"
     [xType]="'log'"

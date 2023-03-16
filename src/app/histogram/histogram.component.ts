@@ -70,6 +70,7 @@ export class HistogramComponent {
   isP0Visible = 0;
   yPadding = 100;
   formatOpts = { lowerExp: -2, upperExp: 2 };
+  visibleChartsCount = 0;
 
   constructor(private histogramService: HistogramService) {}
 
@@ -126,7 +127,7 @@ export class HistogramComponent {
       this.datas
     );
     this.logView = this.histogramService.getLogChartVisibility(this.datas);
-    let visibleChartsCount = this.histogramService.getVisibleChartsCount(
+    this.visibleChartsCount = this.histogramService.getVisibleChartsCount(
       this.logView
     );
 
@@ -137,7 +138,7 @@ export class HistogramComponent {
     this.tickSize = -(4 * this.defaultChartW);
 
     let lastPadding = 0;
-    if (visibleChartsCount === 1) {
+    if (this.visibleChartsCount === 1) {
       lastPadding = this.padding;
     }
 
@@ -146,13 +147,13 @@ export class HistogramComponent {
 
     this.chartW.p1N =
       ((4 * this.defaultChartW - this.middleW - lastPadding) /
-        visibleChartsCount) *
+        this.visibleChartsCount) *
       this.logView.p1N;
     this.drawXAxis('p1N', [this.rangeXLog, 1], this.padding, this.chartW.p1N);
 
     this.chartW.p0N =
       ((4 * this.defaultChartW - this.middleW - lastPadding) /
-        visibleChartsCount) *
+        this.visibleChartsCount) *
       this.logView.p0N;
     this.drawXAxis(
       'p0N',
@@ -172,7 +173,7 @@ export class HistogramComponent {
     );
 
     this.chartW.p0P =
-      ((4 * this.defaultChartW - this.middleW) / visibleChartsCount) *
+      ((4 * this.defaultChartW - this.middleW) / this.visibleChartsCount) *
       this.logView.p0P;
     this.drawXAxis(
       'p0P',
@@ -187,7 +188,7 @@ export class HistogramComponent {
     );
 
     this.chartW.p1P =
-      ((4 * this.defaultChartW - this.middleW) / visibleChartsCount) *
+      ((4 * this.defaultChartW - this.middleW) / this.visibleChartsCount) *
       this.logView.p1P;
     this.drawXAxis(
       'p1P',
@@ -423,7 +424,13 @@ export class HistogramComponent {
                 return 'Infinity';
               }
             } else {
-              const xTicksValuesCount = Math.ceil((1 / this.w) * 1000 * 3);
+              let xTicksValuesCount = Math.ceil((1 / this.w) * 1000 * 3);
+
+              // Adjust according to charts number
+              xTicksValuesCount = Math.ceil(
+                (xTicksValuesCount / 4) * this.visibleChartsCount
+              );
+
               if (i === 0) {
                 if (part === 'p0N' || part === 'p1P') {
                   return;
