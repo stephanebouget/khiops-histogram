@@ -71,13 +71,15 @@ export class HistogramComponent {
   constructor(private histogramService: HistogramService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes?.['datas']) {
+      if (!changes?.['datas']?.currentValue) {
+        this.errorMessage = true;
+      } else {
+        this.errorMessage = false;
+      }
+    }
     if (changes?.['w']?.currentValue || changes?.['datas']) {
       this.init();
-    }
-    if (changes?.['datas'] && !changes?.['datas']?.currentValue) {
-      this.errorMessage = true;
-    } else {
-      this.errorMessage = false;
     }
   }
 
