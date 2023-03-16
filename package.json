@@ -23,6 +23,7 @@
     "angular-resize-event": "^3.2.0",
     "codemirror": "5",
     "d3": "^7.8.2",
+    "mathjs": "^11.7.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.12.0"

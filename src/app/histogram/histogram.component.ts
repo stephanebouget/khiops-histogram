@@ -8,6 +8,7 @@ import {
 import * as d3 from 'd3';
 import { HistogramService } from './histogram.service';
 import { HistogramType } from './histogram.types';
+import { format } from 'mathjs';
 
 @Component({
   selector: 'app-histogram',
@@ -67,6 +68,7 @@ export class HistogramComponent {
   };
   isP0Visible = 0;
   yPadding = 100;
+  formatOpts = { lowerExp: -2, upperExp: 2 };
 
   constructor(private histogramService: HistogramService) {}
 
@@ -400,10 +402,10 @@ export class HistogramComponent {
           if (this.type === HistogramType.LIN) {
             if (reverse) {
               if (d !== 0) {
-                return '-' + val;
+                return '-' + format(val);
               }
             } else {
-              return val;
+              return '' + format(val);
             }
           } else {
             if (part === 'p0') {
@@ -418,7 +420,7 @@ export class HistogramComponent {
                 if (domain[0] < domain[1]) {
                   return 0;
                 }
-              } else if (i % 2) {
+              } else if (i % 2 === 0) {
                 // return this.formatTick(val, reverse);
                 return this.formatTickDEBUG(val, reverse);
               }
@@ -441,9 +443,11 @@ export class HistogramComponent {
   formatTickDEBUG(val: number, reverse: boolean) {
     const tick = Math.round(Math.log10(val) * 100) / 100;
     if (reverse) {
-      return tick !== 0 ? -val + ' (-' + tick + ')' : val + ' (' + tick + ')';
+      return tick !== 0
+        ? '-' + format(val, this.formatOpts) + ' (-' + tick + ')'
+        : '' + format(val, this.formatOpts) + ' (' + tick + ')';
     } else {
-      return val + ' (' + tick + ')';
+      return '' + format(val, this.formatOpts) + ' (' + tick + ')';
     }
   }
 
