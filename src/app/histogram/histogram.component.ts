@@ -119,9 +119,9 @@ export class HistogramComponent {
     this.rangeY = this.histogramService.getRangeY(this.datas);
     this.defaultChartW = this.w / 5;
     this.drawChart(this.defaultChartW * 4 + this.padding * 2);
-    this.tickSize = -(4 * this.defaultChartW + this.middleW);
 
     this.middleW = (this.w / 10) * this.logView.p0;
+    this.tickSize = -(4 * this.defaultChartW);
     this.ratioY = this.histogramService.getRatioY(this.h, this.yPadding);
 
     let lastPadding = 0;
