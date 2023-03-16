@@ -27,7 +27,8 @@ export class HistogramComponent {
 
   // Dynamic values
   @Input() datas: any;
-  @Input() type: HistogramType | string = HistogramType.LIN;
+  @Input() xType: HistogramType | string = HistogramType.LIN;
+  @Input() yType: HistogramType | string = HistogramType.LIN;
   @Input() h: number = 220;
   @Input() w: number = 1000;
   padding = 40;
@@ -95,7 +96,20 @@ export class HistogramComponent {
     if (this.chart) {
       this.chart.nativeElement.innerHTML = '';
       if (this.datas) {
-        if (this.type === HistogramType.LOG) {
+        if (this.yType === HistogramType.LOG) {
+          this.rangeY = Math.log10(this.histogramService.getRangeY(this.datas));
+          this.ratioY = this.histogramService.getLogRatioY(
+            this.h,
+            this.yPadding
+          );
+        } else {
+          this.rangeY = this.histogramService.getRangeY(this.datas);
+          this.ratioY = this.histogramService.getLinRatioY(
+            this.h,
+            this.yPadding
+          );
+        }
+        if (this.xType === HistogramType.LOG) {
           this.drawLogX();
         } else {
           this.drawLinX();
@@ -116,13 +130,11 @@ export class HistogramComponent {
       this.logView
     );
 
-    this.rangeY = this.histogramService.getRangeY(this.datas);
     this.defaultChartW = this.w / 5;
     this.drawChart(this.defaultChartW * 4 + this.padding * 2);
 
     this.middleW = (this.w / 10) * this.logView.p0;
     this.tickSize = -(4 * this.defaultChartW);
-    this.ratioY = this.histogramService.getRatioY(this.h, this.yPadding);
 
     let lastPadding = 0;
     if (visibleChartsCount === 1) {
@@ -189,8 +201,7 @@ export class HistogramComponent {
     );
 
     this.ratioX = this.histogramService.getLogRatioX(
-      this.chartW.p1N + this.chartW.p0N + this.chartW.p0P + this.chartW.p1P,
-      this.middleW * this.logView.p0
+      this.chartW.p1N + this.chartW.p0N + this.chartW.p0P + this.chartW.p1P
     );
   }
 
@@ -198,14 +209,9 @@ export class HistogramComponent {
     [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
       this.datas
     );
-    this.rangeY = this.histogramService.getRangeY(this.datas);
     this.defaultChartW = this.w / 2 - this.w / 10; // w/10 = middlewidth
     this.tickSize = -(2 * this.defaultChartW);
-    this.ratioX = this.histogramService.getLinRatioX(
-      this.type,
-      this.defaultChartW
-    );
-    this.ratioY = this.histogramService.getRatioY(this.h, this.yPadding);
+    this.ratioX = this.histogramService.getLinRatioX(this.defaultChartW);
     this.drawChart(this.defaultChartW * 2 + this.padding * 2);
 
     this.linPart1 = this.histogramService.getLinChartVisibility(
@@ -269,10 +275,10 @@ export class HistogramComponent {
 
   drawRect(d: any, i: number) {
     var self = this;
-    let x, barW: any, color;
+    let x, barH, barW: any, color;
 
-    if (this.type === HistogramType.LIN) {
-      [x, barW, color] = this.histogramService.getLinBarDimensions(
+    if (this.xType === HistogramType.LIN) {
+      [x, barW, color] = this.histogramService.getLinBarXDimensions(
         d,
         this.defaultChartW,
         this.padding,
@@ -281,7 +287,7 @@ export class HistogramComponent {
         this.linPart2
       );
     } else {
-      [x, barW, color] = this.histogramService.getLogBarDimensions(
+      [x, barW, color] = this.histogramService.getLogBarXDimensions(
         d,
         this.chartW,
         this.padding,
@@ -337,16 +343,20 @@ export class HistogramComponent {
         .style('margin-top', '0px');
     };
 
-    let barHeight = d.value * this.ratioY;
-    if (barHeight !== 0 && barHeight < this.minBarHeight) {
-      barHeight = this.minBarHeight;
+    if (this.yType === HistogramType.LIN) {
+      barH = d.value * this.ratioY;
+    } else {
+      barH = (Math.log10(d.value) - 1) * this.ratioY; // -1 because start at 1
+    }
+    if (barH !== 0 && barH < this.minBarHeight) {
+      barH = this.minBarHeight;
     }
 
     this.svg
       .append('rect')
       .attr('id', 'rect-' + i)
       .attr('x', x)
-      .attr('y', this.h - barHeight)
+      .attr('y', this.h - barH)
       .attr('stroke', 'black')
       .attr('stroke-width', '0')
       .on('click', onclickRect)
@@ -354,7 +364,7 @@ export class HistogramComponent {
       .on('mousemove', mousemove)
       .on('mouseleave', mouseleave)
       .attr('width', barW * this.ratioX)
-      .attr('height', barHeight)
+      .attr('height', barH)
       .attr('fill', color);
   }
 
@@ -381,7 +391,7 @@ export class HistogramComponent {
       let x;
       let tickCount = this.xTickCount;
 
-      if (this.type === HistogramType.LIN) {
+      if (this.xType === HistogramType.LIN) {
         x = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
       } else {
         x = d3.scaleLog().base(10).domain(domain).range([0, width]);
@@ -399,7 +409,7 @@ export class HistogramComponent {
         .tickFormat((d, i) => {
           //@ts-ignore
           let val: any = d;
-          if (this.type === HistogramType.LIN) {
+          if (this.xType === HistogramType.LIN) {
             if (reverse) {
               if (d !== 0) {
                 return '-' + format(val);
@@ -465,11 +475,20 @@ export class HistogramComponent {
   }
 
   drawYAxis() {
+    let y;
     // Create the scale
-    var y = d3
-      .scaleLinear()
-      .domain([0, this.rangeY]) // This is what is written on the Axis: from 0 to 100
-      .range([this.h - this.yPadding / 2, 0]); // Note it is reversed
+    if (this.yType === HistogramType.LIN) {
+      y = d3
+        .scaleLinear()
+        .domain([0, this.rangeY]) // This is what is written on the Axis: from 0 to 100
+        .range([this.h - this.yPadding / 2, 0]); // Note it is reversed
+    } else {
+      y = d3
+        .scaleLog()
+        .base(10)
+        .domain([this.rangeY, 1]) // This is what is written on the Axis: from 0 to 100
+        .range([0, this.h - this.yPadding / 2]); // Note it is reversed
+    }
 
     let shift = this.padding;
 

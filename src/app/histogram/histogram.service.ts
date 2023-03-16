@@ -54,31 +54,34 @@ export class HistogramService {
     return input > 0 ? '' : '-';
   }
 
-  getLinRatioX(type: string, chartW: number) {
-    let ratioX = chartW / this.rangeXLin;
-    if (type === HistogramType.LOG) {
-      let maxVal = Math.log10(Math.abs(this.rangeXLin));
-      if (maxVal === -Infinity) {
-        maxVal = 1;
-      }
-      ratioX = chartW / maxVal;
-    }
+  getLinRatioX(w: number) {
+    let ratioX = w / this.rangeXLin;
     return ratioX;
   }
 
-  getLogRatioX(chartW: number, middle: number) {
-    let ratioX = (chartW + 0) / this.rangeXLog;
+  getLogRatioX(w: number) {
+    let ratioX = w / this.rangeXLog;
     let maxVal = Math.log10(Math.abs(this.rangeXLog));
     if (maxVal === -Infinity) {
       maxVal = 1;
     }
-    ratioX = chartW / maxVal;
-
+    ratioX = w / maxVal;
     return ratioX;
   }
 
-  getRatioY(h: number, padding: number) {
-    return (h - padding / 2) / this.rangeY;
+  getLinRatioY(h: number, padding: number) {
+    let ratioY = (h - padding / 2) / this.rangeY;
+    return ratioY;
+  }
+
+  getLogRatioY(h: number, padding: number) {
+    let ratioY = (h - padding / 2) / this.rangeY;
+    let maxVal = Math.log10(Math.abs(this.rangeY));
+    if (maxVal === -Infinity) {
+      maxVal = 1;
+    }
+    ratioY = h / maxVal;
+    return ratioY;
   }
 
   getVisibleChartsCount(logView: any) {
@@ -149,7 +152,7 @@ export class HistogramService {
     }
   }
 
-  getLogBarDimensions(
+  getLogBarXDimensions(
     d: any,
     chartW: any,
     padding = 0,
@@ -255,7 +258,7 @@ export class HistogramService {
 
     return [x, barW, color];
   }
-  getLinBarDimensions(
+  getLinBarXDimensions(
     d: any,
     chartW = 0,
     padding = 0,
