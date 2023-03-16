@@ -410,17 +410,21 @@ export class HistogramComponent {
           } else {
             if (part === 'p0') {
               if (i === 1) {
-                return 0;
+                return 'Infinity';
               }
             } else {
+              const xTicksValuesCount = Math.ceil((1 / this.w) * 1000 * 3);
               if (i === 0) {
                 if (part === 'p0N' || part === 'p1P') {
                   return;
                 }
                 if (domain[0] < domain[1]) {
-                  return 0;
+                  return this.formatTickDEBUG(0, false);
                 }
-              } else if (i % 2 === 0) {
+              } else if (val === 1) {
+                // always show 1
+                return this.formatTickDEBUG(val, reverse);
+              } else if (i % xTicksValuesCount === 0) {
                 // return this.formatTick(val, reverse);
                 return this.formatTickDEBUG(val, reverse);
               }
