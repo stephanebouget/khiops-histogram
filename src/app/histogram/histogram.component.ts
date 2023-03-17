@@ -39,12 +39,19 @@ export class HistogramComponent {
   xTickCount = 10;
   yTicksCount = 5;
   tickSize = 0;
-  minBarHeight = 2;
+  minBarHeight = 4;
 
   // Local variables
   rangeXLog = 0;
   rangeXLin = 0;
-  rangeY = 0;
+  rangeYLin = 0;
+  rangeYLog = {
+    min: 0,
+    max: 0,
+    realMin: 0,
+    realMax: 0,
+  };
+
   ratioX = 0;
   ratioY = 0;
   linPart1 = true;
@@ -98,13 +105,13 @@ export class HistogramComponent {
       this.chart.nativeElement.innerHTML = '';
       if (this.datas) {
         if (this.yType === HistogramType.LOG) {
-          this.rangeY = Math.log10(this.histogramService.getRangeY(this.datas));
+          this.rangeYLog = this.histogramService.getLogRangeY(this.datas);
           this.ratioY = this.histogramService.getLogRatioY(
             this.h,
             this.yPadding
           );
         } else {
-          this.rangeY = this.histogramService.getRangeY(this.datas);
+          this.rangeYLin = this.histogramService.getLinRangeY(this.datas);
           this.ratioY = this.histogramService.getLinRatioY(
             this.h,
             this.yPadding
@@ -323,7 +330,10 @@ export class HistogramComponent {
       //@ts-ignore
       self.tooltip.html(
         'Value: ' +
-          d.value +
+          d.value.toFixed(6) +
+          '<br>' +
+          'log value: ' +
+          d.logValue.toFixed(6) +
           '<br>' +
           'Range: ' +
           JSON.stringify(d.partition) +
@@ -347,7 +357,7 @@ export class HistogramComponent {
     if (this.yType === HistogramType.LIN) {
       barH = d.value * this.ratioY;
     } else {
-      barH = (Math.log10(d.value) - 1) * this.ratioY; // -1 because start at 1
+      barH = Math.log10(Math.abs(d.logValue)) * this.ratioY;
     }
     if (barH !== 0 && barH < this.minBarHeight) {
       barH = this.minBarHeight;
@@ -487,13 +497,14 @@ export class HistogramComponent {
     if (this.yType === HistogramType.LIN) {
       y = d3
         .scaleLinear()
-        .domain([0, this.rangeY]) // This is what is written on the Axis: from 0 to 100
+        .domain([0, this.rangeYLin]) // This is what is written on the Axis: from 0 to 100
         .range([this.h - this.yPadding / 2, 0]); // Note it is reversed
     } else {
       y = d3
         .scaleLog()
         .base(10)
-        .domain([this.rangeY, 1]) // This is what is written on the Axis: from 0 to 100
+        .domain([this.rangeYLog.min, this.rangeYLog.max]) // This is what is written on the Axis: from 0 to 100
+        // .domain([this.rangeYLog.max, this.rangeYLog.min]) // This is what is written on the Axis: from 0 to 100
         .range([0, this.h - this.yPadding / 2]); // Note it is reversed
     }
 

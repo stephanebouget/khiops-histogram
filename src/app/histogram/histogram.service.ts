@@ -7,7 +7,13 @@ import { HistogramType } from './histogram.types';
 export class HistogramService {
   rangeXLog: number = 0;
   rangeXLin: number = 0;
-  rangeY: number = 0;
+  rangeYLin: number = 0;
+  rangeYLog = {
+    min: 0,
+    max: 0,
+    realMin: 0,
+    realMax: 0,
+  };
 
   chartColors = ['#ffb703', '#fb8500', '#023047'];
 
@@ -44,10 +50,26 @@ export class HistogramService {
     return [this.rangeXLin, this.rangeXLog];
   }
 
-  getRangeY(datas: any) {
+  getLinRangeY(datas: any) {
     const dataValues = datas.map((e: any) => e.value);
-    this.rangeY = Math.max(...dataValues);
-    return this.rangeY;
+    this.rangeYLin = Math.max(...dataValues);
+    return this.rangeYLin;
+  }
+
+  getLogRangeY(datas: any) {
+    const dataValues = datas.map((e: any) => e.logValue);
+    this.rangeYLog.max = Math.ceil(Math.max(...dataValues));
+    this.rangeYLog.min = Math.floor(Math.min(...dataValues));
+    this.rangeYLog.realMax = Math.max(...dataValues);
+    this.rangeYLog.realMin = Math.min(...dataValues);
+    // this.rangeYLog.max = (Math.max(...dataValues));
+    // this.rangeYLog.min = (Math.min(...dataValues));
+    return this.rangeYLog;
+  }
+
+  getLogMinY(datas: any) {
+    const dataValues = datas.map((e: any) => e.logValue);
+    return Math.min(...dataValues);
   }
 
   getSign(input: number) {
@@ -60,27 +82,27 @@ export class HistogramService {
   }
 
   getLogRatioX(w: number) {
-    let ratioX = w / this.rangeXLog;
     let maxVal = Math.log10(Math.abs(this.rangeXLog));
     if (maxVal === -Infinity) {
       maxVal = 1;
     }
-    ratioX = w / maxVal;
+    let ratioX = w / maxVal;
     return ratioX;
   }
 
   getLinRatioY(h: number, padding: number) {
-    let ratioY = (h - padding / 2) / this.rangeY;
+    let ratioY = (h - padding / 2) / this.rangeYLin;
     return ratioY;
   }
 
   getLogRatioY(h: number, padding: number) {
-    let ratioY = (h - padding / 2) / this.rangeY;
-    let maxVal = Math.log10(Math.abs(this.rangeY));
-    if (maxVal === -Infinity) {
-      maxVal = 1;
-    }
-    ratioY = h / maxVal;
+    let ratioY;
+    let maxVal = Math.log10(Math.abs(this.rangeYLog.min));
+    // if (maxVal === -Infinity) {
+    //   maxVal = 1;
+    // }
+    ratioY = (h - padding / 2) / maxVal;
+
     return ratioY;
   }
 
