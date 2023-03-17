@@ -97,12 +97,11 @@ export class HistogramService {
 
   getLogRatioY(h: number, padding: number) {
     let ratioY;
-    let maxVal = Math.log10(Math.abs(this.rangeYLog.min));
+    let diff = Math.log10(Math.abs(this.rangeYLog.min));
     // if (maxVal === -Infinity) {
     //   maxVal = 1;
     // }
-    ratioY = (h - padding / 2) / maxVal;
-
+    ratioY = (h - padding / 2) / diff;
     return ratioY;
   }
 

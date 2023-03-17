@@ -357,7 +357,14 @@ export class HistogramComponent {
     if (this.yType === HistogramType.LIN) {
       barH = d.value * this.ratioY;
     } else {
+      /*
+      barH = (-this.rangeYLog.min + d.logValue) * this.ratioY; // OK !!!!!
+      const minRealVal = Math.min(...this.datas.map((e: any) => e.logValue));
+      const diffRange = -this.rangeYLog.min - -minRealVal;
+      barH = -diffRange * this.ratioY + barH;*/
+
       barH = Math.log10(Math.abs(d.logValue)) * this.ratioY;
+      barH = this.h - this.yPadding / 2 - barH;
     }
     if (barH !== 0 && barH < this.minBarHeight) {
       barH = this.minBarHeight;
@@ -503,8 +510,8 @@ export class HistogramComponent {
       y = d3
         .scaleLog()
         .base(10)
-        .domain([this.rangeYLog.min, this.rangeYLog.max]) // This is what is written on the Axis: from 0 to 100
-        // .domain([this.rangeYLog.max, this.rangeYLog.min]) // This is what is written on the Axis: from 0 to 100
+        // .domain([this.rangeYLog.min, -1]) // This is what is written on the Axis: from 0 to 100
+        .domain([-1, this.rangeYLog.min]) // This is what is written on the Axis: from 0 to 100
         .range([0, this.h - this.yPadding / 2]); // Note it is reversed
     }
 
