@@ -24,7 +24,10 @@ export class UtilsService {
         throw 'incompatible variable ' + variable;
       }
 
-      const totalFreq = 99;
+      const totalFreq = varDatas.frequencies.reduce(
+        (partialSum: any, a: any) => partialSum + a,
+        0
+      );
 
       varDatas.dimensions[0].partition.forEach((partition: any, i: number) => {
         if (partition.length !== 0) {
