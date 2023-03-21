@@ -21,6 +21,8 @@ export class AppComponent {
   ls_key = 'Khiops-histogram-dataset';
   variables: any[] = [];
   selectedVariable: any;
+  xType = 'lin';
+  yType = 'lin';
 
   constructor() {
     const previousDataSet = window.localStorage.getItem(this.ls_key);
@@ -95,5 +97,13 @@ export class AppComponent {
     this.selectedVariable = undefined;
     this.datasSet = '';
     this.update();
+  }
+  changeAxis(axis: string, type: string) {
+    if (axis === 'x') {
+      this.xType = type;
+    }
+    if (axis === 'y') {
+      this.yType = type;
+    }
   }
 }

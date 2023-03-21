@@ -90,7 +90,12 @@ export class HistogramComponent {
         this.errorMessage = false;
       }
     }
-    if (changes?.['w']?.currentValue || changes?.['datas']) {
+    if (
+      changes?.['w']?.currentValue ||
+      changes?.['datas'] ||
+      changes?.['xType'] ||
+      changes?.['yType']
+    ) {
       this.init();
     }
   }

@@ -10,7 +10,7 @@
     }"
   ></ngx-codemirror>
 </div>
-<button class="favorite styled" type="button" (click)="loadMock()">
+<button class="load-mock-btn" type="button" (click)="loadMock()">
   Load default dataSet
 </button>
 <br />
@@ -20,34 +20,27 @@
     {{ variable }}
   </option>
 </select>
+<div class="btn-container">
+  <button (click)="changeAxis('x', 'lin')" [class.active]="xType === 'lin'">
+    lin X
+  </button>
+  <button (click)="changeAxis('x', 'log')" [class.active]="xType === 'log'">
+    log X
+  </button>
+  &nbsp;
+  <button (click)="changeAxis('y', 'lin')" [class.active]="yType === 'lin'">
+    lin Y
+  </button>
+  <button (click)="changeAxis('y', 'log')" [class.active]="yType === 'log'">
+    log Y
+  </button>
+</div>
 <code *ngIf="badJson">{{ badJson }}</code>
 <section id="app-container" (resized)="onResized($event)">
-  <h1>Lin / Lin</h1>
   <app-histogram
     [w]="w"
-    [xType]="'lin'"
-    [yType]="'lin'"
-    [datas]="datas"
-  ></app-histogram>
-  <h1>Lin / Log</h1>
-  <app-histogram
-    [w]="w"
-    [xType]="'lin'"
-    [yType]="'log'"
-    [datas]="datas"
-  ></app-histogram>
-  <h1>Log / Lin</h1>
-  <app-histogram
-    [w]="w"
-    [xType]="'log'"
-    [yType]="'lin'"
-    [datas]="datas"
-  ></app-histogram>
-  <h1>Log / Log</h1>
-  <app-histogram
-    [w]="w"
-    [xType]="'log'"
-    [yType]="'log'"
+    [xType]="xType"
+    [yType]="yType"
     [datas]="datas"
   ></app-histogram>
 </section>
