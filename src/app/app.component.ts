@@ -35,6 +35,16 @@ export class AppComponent {
       this.selectedVariable = previousVar;
       this.update();
     }
+    const previousXType = window.localStorage.getItem(this.ls_key + '_xType');
+    if (previousXType) {
+      this.xType = previousXType;
+      this.update();
+    }
+    const previousYType = window.localStorage.getItem(this.ls_key + '_yType');
+    if (previousYType) {
+      this.yType = previousYType;
+      this.update();
+    }
   }
 
   loadMock() {
@@ -101,9 +111,11 @@ export class AppComponent {
   changeAxis(axis: string, type: string) {
     if (axis === 'x') {
       this.xType = type;
+      window.localStorage.setItem(this.ls_key + '_xType', this.xType);
     }
     if (axis === 'y') {
       this.yType = type;
+      window.localStorage.setItem(this.ls_key + '_yType', this.yType);
     }
   }
 }
