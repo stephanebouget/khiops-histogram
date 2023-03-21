@@ -40,6 +40,7 @@ export class HistogramComponent {
   yTicksCount = 15;
   tickSize = 0;
   minBarHeight = 4;
+  minBarWidth = 1;
 
   // Local variables
   rangeXLog = 0;
@@ -359,9 +360,8 @@ export class HistogramComponent {
     } else {
       if (d.logValue !== 0) {
         let shift = Math.abs(this.rangeYLog.max);
-
         barH = Math.abs(d.logValue) * this.ratioY - shift * this.ratioY;
-        // barH = this.h - this.yPadding / 2 - barH;
+        barH = this.h - this.yPadding / 2 - barH;
       } else {
         barH = 0;
       }
@@ -369,7 +369,10 @@ export class HistogramComponent {
     if (barH !== 0 && barH < this.minBarHeight) {
       barH = this.minBarHeight;
     }
-
+    barW = barW * this.ratioX;
+    if (barW !== 0 && barW < this.minBarWidth) {
+      barW = this.minBarWidth;
+    }
     this.svg
       .append('rect')
       .attr('id', 'rect-' + i)
@@ -381,7 +384,7 @@ export class HistogramComponent {
       .on('mouseover', mouseover)
       .on('mousemove', mousemove)
       .on('mouseleave', mouseleave)
-      .attr('width', barW * this.ratioX)
+      .attr('width', barW)
       .attr('height', barH)
       .attr('fill', color);
   }
@@ -511,8 +514,8 @@ export class HistogramComponent {
         .scaleLinear()
         // .base(10)
         // .domain([this.rangeYLog.min, -1]) // This is what is written on the Axis: from 0 to 100
-        .domain([this.rangeYLog.min, this.rangeYLog.max]) // This is what is written on the Axis: from 0 to 100
-        // .domain([this.rangeYLog.max, this.rangeYLog.min]) // This is what is written on the Axis: from 0 to 100
+        // .domain([this.rangeYLog.min, this.rangeYLog.max]) // This is what is written on the Axis: from 0 to 100
+        .domain([this.rangeYLog.max, this.rangeYLog.min]) // This is what is written on the Axis: from 0 to 100
         // .domain([0, this.rangeYLog.min]) // This is what is written on the Axis: from 0 to 100
         .range([0, this.h - this.yPadding / 2]); // Note it is reversed
     }
