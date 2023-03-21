@@ -37,7 +37,7 @@ export class HistogramComponent {
 
   // Static config values
   xTickCount = 10;
-  yTicksCount = 5;
+  yTicksCount = 15;
   tickSize = 0;
   minBarHeight = 4;
 
@@ -357,14 +357,14 @@ export class HistogramComponent {
     if (this.yType === HistogramType.LIN) {
       barH = d.value * this.ratioY;
     } else {
-      /*
-      barH = (-this.rangeYLog.min + d.logValue) * this.ratioY; // OK !!!!!
-      const minRealVal = Math.min(...this.datas.map((e: any) => e.logValue));
-      const diffRange = -this.rangeYLog.min - -minRealVal;
-      barH = -diffRange * this.ratioY + barH;*/
+      if (d.logValue !== 0) {
+        let shift = Math.abs(this.rangeYLog.max);
 
-      barH = Math.log10(Math.abs(d.logValue)) * this.ratioY;
-      barH = this.h - this.yPadding / 2 - barH;
+        barH = Math.abs(d.logValue) * this.ratioY - shift * this.ratioY;
+        // barH = this.h - this.yPadding / 2 - barH;
+      } else {
+        barH = 0;
+      }
     }
     if (barH !== 0 && barH < this.minBarHeight) {
       barH = this.minBarHeight;
@@ -508,10 +508,12 @@ export class HistogramComponent {
         .range([this.h - this.yPadding / 2, 0]); // Note it is reversed
     } else {
       y = d3
-        .scaleLog()
-        .base(10)
+        .scaleLinear()
+        // .base(10)
         // .domain([this.rangeYLog.min, -1]) // This is what is written on the Axis: from 0 to 100
-        .domain([-1, this.rangeYLog.min]) // This is what is written on the Axis: from 0 to 100
+        .domain([this.rangeYLog.min, this.rangeYLog.max]) // This is what is written on the Axis: from 0 to 100
+        // .domain([this.rangeYLog.max, this.rangeYLog.min]) // This is what is written on the Axis: from 0 to 100
+        // .domain([0, this.rangeYLog.min]) // This is what is written on the Axis: from 0 to 100
         .range([0, this.h - this.yPadding / 2]); // Note it is reversed
     }
 

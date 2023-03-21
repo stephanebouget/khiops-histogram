@@ -57,13 +57,34 @@ export class HistogramService {
   }
 
   getLogRangeY(datas: any) {
-    const dataValues = datas.map((e: any) => e.logValue);
+    const dataValues = datas
+      .filter((e: any) => {
+        return e.logValue !== 0;
+      })
+      .map((e: any) => {
+        return e.logValue;
+      });
+
     this.rangeYLog.max = Math.ceil(Math.max(...dataValues));
     this.rangeYLog.min = Math.floor(Math.min(...dataValues));
     this.rangeYLog.realMax = Math.max(...dataValues);
     this.rangeYLog.realMin = Math.min(...dataValues);
     // this.rangeYLog.max = (Math.max(...dataValues));
     // this.rangeYLog.min = (Math.min(...dataValues));
+
+    // if (this.rangeYLog.max === -Infinity) {
+    //   this.rangeYLog.max = -1;
+    // }
+    // if (this.rangeYLog.realMax === -Infinity) {
+    //   this.rangeYLog.realMax = -1;
+    // }
+    // if (this.rangeYLog.min === -Infinity) {
+    //   this.rangeYLog.min = -1;
+    // }
+    // if (this.rangeYLog.realMin === -Infinity) {
+    //   this.rangeYLog.realMin = -12;
+    // }
+
     return this.rangeYLog;
   }
 
@@ -97,11 +118,8 @@ export class HistogramService {
 
   getLogRatioY(h: number, padding: number) {
     let ratioY;
-    let diff = Math.log10(Math.abs(this.rangeYLog.min));
-    // if (maxVal === -Infinity) {
-    //   maxVal = 1;
-    // }
-    ratioY = (h - padding / 2) / diff;
+    let shift = Math.abs(this.rangeYLog.min) - Math.abs(this.rangeYLog.max);
+    ratioY = (h - padding / 2) / shift;
     return ratioY;
   }
 

@@ -33,10 +33,14 @@ export class UtilsService {
         if (partition.length !== 0) {
           const delta = partition[1] - partition[0];
           let value = varDatas.frequencies[i] / totalFreq / delta;
+          let logValue = Math.log10(value / totalFreq);
+          if (logValue === -Infinity) {
+            logValue = 0;
+          }
           dataSet.push({
             partition: partition,
             value: value,
-            logValue: Math.log10(value / totalFreq),
+            logValue: logValue,
           });
         }
       });
