@@ -31,9 +31,11 @@ export class UtilsService {
 
       varDatas.dimensions[0].partition.forEach((partition: any, i: number) => {
         if (partition.length !== 0) {
-          const delta = partition[1] - partition[0];
-          let value = varDatas.frequencies[i] / totalFreq / delta;
-          let logValue = Math.log10(value / totalFreq);
+          // const delta = partition[1] - partition[0];
+          // let value = varDatas.frequencies[i] / totalFreq / delta;
+          let value = varDatas.frequencies[i] / totalFreq;
+          // let logValue = Math.log10(value / totalFreq);
+          let logValue = Math.log10(value);
           if (logValue === -Infinity) {
             logValue = 0;
           }
