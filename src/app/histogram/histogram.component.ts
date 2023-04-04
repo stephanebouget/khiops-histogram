@@ -9,6 +9,7 @@ import * as d3 from 'd3';
 import { HistogramService } from './histogram.service';
 import { HistogramType } from './histogram.types';
 import { format } from 'mathjs';
+import { HistogramUIService } from './histogram.ui.service';
 
 @Component({
   selector: 'app-histogram',
@@ -18,8 +19,8 @@ import { format } from 'mathjs';
 export class HistogramComponent {
   @ViewChild('chart', { static: false })
   chart!: ElementRef;
-  @ViewChild('tooltipEl', { static: false })
-  tooltipEl!: ElementRef;
+  @ViewChild('chartTooltip', { static: false })
+  chartTooltip!: ElementRef;
 
   svg: any;
   tooltip!: any;
@@ -80,7 +81,10 @@ export class HistogramComponent {
   formatOpts = { lowerExp: -2, upperExp: 2 };
   visibleChartsCount = 0;
 
-  constructor(private histogramService: HistogramService) {}
+  constructor(
+    private histogramService: HistogramService,
+    private histogramUIService: HistogramUIService
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes?.['datas']) {
@@ -274,17 +278,11 @@ export class HistogramComponent {
   }
 
   addTooltip() {
-    this.tooltipEl!.nativeElement.innerHTML = '';
-
+    this.chartTooltip!.nativeElement.innerHTML = '';
     this.tooltip = d3
-      .select(this.tooltipEl!.nativeElement)
+      .select(this.chartTooltip!.nativeElement)
       .append('div')
-      .style('display', 'none')
-      .attr('class', 'tooltip')
-      .style('background-color', 'white')
-      .style('border', 'solid')
-      .style('border-width', '2px')
-      .style('padding', '5px');
+      .attr('class', 'tooltip');
   }
 
   drawRect(d: any, i: number) {
@@ -323,30 +321,9 @@ export class HistogramComponent {
       self.tooltip.style('display', 'block').style('width', '140px');
     };
     const mousemove = function (e: any) {
-      let logRange =
-        '[' +
-        self.histogramService.getSign(d.partition[0]) +
-        Math.abs(Math.round(Math.log10(Math.abs(d.partition[0])) * 100) / 100) +
-        ', ';
-      logRange +=
-        self.histogramService.getSign(d.partition[1]) +
-        Math.abs(Math.round(Math.log10(Math.abs(d.partition[1])) * 100) / 100) +
-        ']';
-
+      const tooltipText = self.histogramUIService.generateTooltip(d);
       //@ts-ignore
-      self.tooltip.html(
-        'Value: ' +
-          d.value.toFixed(6) +
-          '<br>' +
-          'log value: ' +
-          d.logValue.toFixed(6) +
-          '<br>' +
-          'Range: ' +
-          JSON.stringify(d.partition) +
-          '<br>' +
-          'Log: ' +
-          logRange
-      );
+      self.tooltip.html(tooltipText);
       //@ts-ignore
       self.tooltip.style('margin-left', e.clientX - 70 + 'px');
       //@ts-ignore
