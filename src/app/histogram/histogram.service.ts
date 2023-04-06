@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HistogramType } from './histogram.types';
+import { HistogramUIService } from './histogram.ui.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,9 +16,7 @@ export class HistogramService {
     realMax: 0,
   };
 
-  chartColors = ['#ffb703', '#fb8500', '#023047'];
-
-  constructor() {}
+  constructor(private histogramUIService: HistogramUIService) {}
 
   getRangeX(datas: any) {
     this.rangeXLog = 0;
@@ -91,10 +90,6 @@ export class HistogramService {
   getLogMinY(datas: any) {
     const dataValues = datas.map((e: any) => e.logValue);
     return Math.min(...dataValues);
-  }
-
-  getSign(input: number) {
-    return input > 0 ? '' : '-';
   }
 
   getLinRatioX(w: number) {
@@ -204,7 +199,7 @@ export class HistogramService {
     let barX = 0;
     let x = 0;
     let barMin = 0;
-    let color = this.chartColors[2];
+    let color = this.histogramUIService.getColor(2);
 
     barMin = Math.min(d.partition[1], d.partition[0]);
     barX = Math.log10(Math.abs(barMin));
@@ -223,7 +218,7 @@ export class HistogramService {
       barW = barW / visibleChartsCount;
       x = shift + (ratioX / visibleChartsCount) * barX;
     } else if (d.partition[1] <= -1 || d.partition[1] < 0) {
-      color = this.chartColors[0];
+      color = this.histogramUIService.getColor(0);
       shift = padding + logView.p1P * chartW.p1P;
       barW =
         Math.log10(Math.abs(d.partition[0])) -
@@ -246,7 +241,7 @@ export class HistogramService {
           (logView.p0P * chartW.p0P) / ratioX +
           Math.log10(Math.abs(d.partition[1])) / visibleChartsCount;
       } else if (isZeroP1) {
-        color = this.chartColors[0];
+        color = this.histogramUIService.getColor(0);
 
         shift =
           padding +
@@ -260,7 +255,7 @@ export class HistogramService {
           Math.log10(Math.abs(d.partition[0])) / visibleChartsCount;
         x = shift - barW * ratioX;
       } else {
-        color = this.chartColors[1];
+        color = this.histogramUIService.getColor(1);
 
         // partition is neg and pos
         barW = middleW / ratioX;
@@ -333,11 +328,11 @@ export class HistogramService {
       barW = 2 * barW;
     }
 
-    let color = this.chartColors[2];
+    let color = this.histogramUIService.getColor(2);
     if (d.partition[0] < 0 && d.partition[1] < 0) {
-      color = this.chartColors[0];
+      color = this.histogramUIService.getColor(0);
     } else if (d.partition[0] < 0 && d.partition[1] > 0) {
-      color = this.chartColors[1];
+      color = this.histogramUIService.getColor(1);
     }
 
     return [x, barW, color];
