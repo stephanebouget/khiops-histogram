@@ -423,7 +423,7 @@ export class HistogramComponent {
           } else {
             if (part === 'p0') {
               if (i === 1) {
-                return 'Infinity';
+                return '-Infinity';
               }
             } else {
               let xTicksValuesCount = Math.ceil((1 / this.w) * 1000 * 3);
