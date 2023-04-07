@@ -36,11 +36,20 @@
   </button>
 </div>
 <code *ngIf="badJson">{{ badJson }}</code>
-<section id="app-container" (resized)="onResized($event)">
+<!-- <section id="app-container" (resized)="onResized($event)">
   <app-histogram
     [w]="w"
     [xType]="xType"
     [yType]="yType"
     [datas]="datas"
   ></app-histogram>
+</section> -->
+
+<section id="app-container" (resized)="onResized($event)">
+  <app-histogram-2
+    [w]="w"
+    [xType]="xType"
+    [yType]="yType"
+    [datas]="datas"
+  ></app-histogram-2>
 </section>

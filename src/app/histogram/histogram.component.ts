@@ -37,7 +37,7 @@ export class HistogramComponent {
   middleW = 0;
 
   // Static config values
-  xTickCount = 10;
+  xTickCount = 20;
   yTicksCount = 15;
   tickSize = 0;
   minBarHeight = 4;
@@ -45,6 +45,7 @@ export class HistogramComponent {
 
   // Local variables
   rangeXLog = 0;
+  rangeXLogMin = 0;
   rangeXLin = 0;
   rangeYLin = 0;
   rangeYLog = {
@@ -140,9 +141,8 @@ export class HistogramComponent {
   }
 
   drawLogX() {
-    [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
-      this.datas
-    );
+    [this.rangeXLin, this.rangeXLog, this.rangeXLogMin] =
+      this.histogramService.getRangeX(this.datas);
     this.logView = this.histogramService.getLogChartVisibility(this.datas);
     this.visibleChartsCount = this.histogramService.getVisibleChartsCount(
       this.logView
@@ -207,9 +207,10 @@ export class HistogramComponent {
     this.chartW.p1P =
       ((4 * this.defaultChartW - this.middleW) / this.visibleChartsCount) *
       this.logView.p1P;
+
     this.drawXAxis(
       'p1P',
-      [1, this.rangeXLog],
+      [this.rangeXLogMin, this.rangeXLog],
       this.chartW.p1N +
         this.chartW.p0N +
         this.chartW.p0 +
@@ -390,6 +391,10 @@ export class HistogramComponent {
     width: number,
     reverse = false
   ) {
+    console.log(
+      'file: histogram.component.ts:394 ~ HistogramComponent ~ domain:',
+      domain
+    );
     if (width !== 0) {
       let x;
       let tickCount = this.xTickCount;

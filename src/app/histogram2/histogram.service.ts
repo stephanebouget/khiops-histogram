@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HistogramType } from './histogram.types';
-import { HistogramUIService } from './histogram.ui.service';
+import { Histogram2Type as HistogramType } from './histogram.types';
+import { Histogram2UIService as HistogramUIService } from './histogram.ui.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class HistogramService {
+export class Histogram2Service {
   rangeXLog: number = 0;
   rangeXLogMin: number = 0;
   rangeXLin: number = 0;
@@ -16,6 +16,7 @@ export class HistogramService {
     realMin: 0,
     realMax: 0,
   };
+  barWs: any[] = [];
 
   constructor(private histogramUIService: HistogramUIService) {}
 
@@ -49,11 +50,11 @@ export class HistogramService {
         }
       }
     });
-    console.log(
-      'file: histogram.service.ts:23 ~ HistogramService ~ getRangeX ~ this.rangeXLog:',
-      this.rangeXLogMin,
-      this.rangeXLog
-    );
+    // console.log(
+    //   'file: histogram.service.ts:23 ~ HistogramService ~ getRangeX ~ this.rangeXLog:',
+    //   this.rangeXLogMin,
+    //   this.rangeXLog
+    // );
     // this.rangeXLogMin = 10
     return [this.rangeXLin, this.rangeXLog, this.rangeXLogMin];
   }
@@ -197,12 +198,13 @@ export class HistogramService {
   }
 
   getLogBarXDimensions(
+    i: number,
     d: any,
-    chartW: any,
-    padding = 0,
-    middleW = 0,
-    ratioX = 0,
-    logView: any
+    chartW: any
+    // padding = 0,
+    // middleW = 0,
+    // ratioX = 0,
+    // logView: any
   ) {
     let shift = 0;
     let barW = 0;
@@ -211,98 +213,130 @@ export class HistogramService {
     let barMin = 0;
     let color = this.histogramUIService.getColor(2);
 
-    barMin = Math.min(d.partition[1], d.partition[0]);
-    barMin = barMin - this.rangeXLogMin
-    console.log('file: histogram.service.ts:214 ~ HistogramService ~ barMin:', barMin);
-    barX = Math.log10(Math.abs(barMin)) ;
-    console.log('file: histogram.service.ts:216 ~ HistogramService ~ barX:', barX);
-    let visibleChartsCount = this.getVisibleChartsCount(logView);
-
-    if (d.partition[0] >= 1 || d.partition[0] > 0) {
-
-      shift =
-        padding +
-        logView.p1N * chartW.p1N +
-        logView.p0N * chartW.p0N +
-        logView.p0 * chartW.p0 +
-        logView.p0P * chartW.p0P
-      barW =
-        Math.log10(Math.abs(d.partition[1])) -
-        Math.log10(Math.abs(d.partition[0]));
-      barW = barW / visibleChartsCount;
-      x = shift + (ratioX / visibleChartsCount) * barX;
-    } else if (d.partition[1] <= -1 || d.partition[1] < 0) {
-      color = this.histogramUIService.getColor(0);
-      shift = padding + logView.p1P * chartW.p1P;
-      barW =
-        Math.log10(Math.abs(d.partition[0])) -
-        Math.log10(Math.abs(d.partition[1]));
-      barW = barW / visibleChartsCount;
-      x = shift - (ratioX / visibleChartsCount) * barX;
-    } else {
-      let isZeroP0 = d.partition[0] === 0;
-      let isZeroP1 = d.partition[1] === 0;
-      if (isZeroP0) {
-        shift =
-          padding +
-          logView.p1N * chartW.p1N +
-          logView.p0N * chartW.p0N +
-          logView.p0 * chartW.p0;
-        x = shift - middleW / 2;
-        barW = middleW / 2 / ratioX;
-        barW =
-          barW +
-          (logView.p0P * chartW.p0P) / ratioX +
-          Math.log10(Math.abs(d.partition[1])) / visibleChartsCount;
-      } else if (isZeroP1) {
-        color = this.histogramUIService.getColor(0);
-
-        shift =
-          padding +
-          logView.p1N * chartW.p1N +
-          logView.p0N * chartW.p0N +
-          middleW / 2;
-        barW = middleW / 2 / ratioX;
-        barW =
-          barW +
-          (logView.p1P * chartW.p1P) / ratioX +
-          Math.log10(Math.abs(d.partition[0])) / visibleChartsCount;
-        x = shift - barW * ratioX;
-      } else {
-        color = this.histogramUIService.getColor(1);
-
-        // partition is neg and pos
-        barW = middleW / ratioX;
-        barW =
-          barW +
-          Math.log10(Math.abs(d.partition[0])) / visibleChartsCount +
-          Math.log10(Math.abs(d.partition[1])) / visibleChartsCount;
-
-        shift = padding;
-
-        if (d.partition[0] < -1) {
-          barW =
-            barW +
-            (logView.p0N * chartW.p0N + logView.p0P * chartW.p0P) / ratioX;
-          shift =
-            padding +
-            logView.p1N * chartW.p1N -
-            (ratioX / visibleChartsCount) * barX;
-        } else if (d.partition[0] < 0) {
-          barW =
-            barW +
-            (logView.p0N * chartW.p0N + logView.p0P * chartW.p0P) / ratioX;
-
-          shift =
-            padding +
-            logView.p1N * chartW.p1N -
-            (Math.log10(Math.abs(d.partition[0])) / visibleChartsCount) *
-              ratioX;
-        }
-
-        x = shift;
-      }
+    if (i === 0) {
+      this.barWs = [];
     }
+
+    // chartW = Math.log10(chartW)
+    // console.log('file: histogram.service.ts:217 ~ Histogram2Service ~ chartW:', chartW);
+    // console.log('file: histogram.service.ts:217 ~ Histogram2Service ~ chartW:', chartW);
+
+    barMin = Math.min(d.partition[1], d.partition[0]);
+    barMin = barMin - this.rangeXLogMin;
+    x = 0;
+    // barW = 50
+    barW =
+      Math.log10(Math.abs(d.partition[1])) -
+      Math.log10(Math.abs(d.partition[0]));
+
+    // console.log(
+    //   'file: histogram.service.ts:219 ~ Histogram2Service ~ barW:',
+    //   barW
+    // );
+
+    const sum = this.barWs.reduce(
+      (partialSum: any, a: any) => Math.abs(partialSum) + Math.abs(a),
+      0
+    );
+    this.barWs.push(barW);
+    x = sum || 0;
+
+    // widthLg =
+
+    // let factor = 570
+    // factor=chartW-100
+    // console.log('file: histogram.service.ts:242 ~ Histogram2Service ~ chartW:', chartW);
+
+    // chartW=chartW*factor
+    // barW=barW*factor
+    // x=x*factor
+
+    // let visibleChartsCount = this.getVisibleChartsCount(logView);
+
+    // if (d.partition[0] >= 1 || d.partition[0] > 0) {
+    //   shift =
+    //     padding +
+    //     logView.p1N * chartW.p1N +
+    //     logView.p0N * chartW.p0N +
+    //     logView.p0 * chartW.p0 +
+    //     logView.p0P * chartW.p0P;
+    //   barW =
+    //     Math.log10(Math.abs(d.partition[1])) -
+    //     Math.log10(Math.abs(d.partition[0]));
+    //   barW = barW / visibleChartsCount;
+    //   x = shift + (ratioX / visibleChartsCount) * barX;
+    // } else if (d.partition[1] <= -1 || d.partition[1] < 0) {
+    //   color = this.histogramUIService.getColor(0);
+    //   shift = padding + logView.p1P * chartW.p1P;
+    //   barW =
+    //     Math.log10(Math.abs(d.partition[0])) -
+    //     Math.log10(Math.abs(d.partition[1]));
+    //   barW = barW / visibleChartsCount;
+    //   x = shift - (ratioX / visibleChartsCount) * barX;
+    // } else {
+    //   let isZeroP0 = d.partition[0] === 0;
+    //   let isZeroP1 = d.partition[1] === 0;
+    //   if (isZeroP0) {
+    //     shift =
+    //       padding +
+    //       logView.p1N * chartW.p1N +
+    //       logView.p0N * chartW.p0N +
+    //       logView.p0 * chartW.p0;
+    //     x = shift - middleW / 2;
+    //     barW = middleW / 2 / ratioX;
+    //     barW =
+    //       barW +
+    //       (logView.p0P * chartW.p0P) / ratioX +
+    //       Math.log10(Math.abs(d.partition[1])) / visibleChartsCount;
+    //   } else if (isZeroP1) {
+    //     color = this.histogramUIService.getColor(0);
+
+    //     shift =
+    //       padding +
+    //       logView.p1N * chartW.p1N +
+    //       logView.p0N * chartW.p0N +
+    //       middleW / 2;
+    //     barW = middleW / 2 / ratioX;
+    //     barW =
+    //       barW +
+    //       (logView.p1P * chartW.p1P) / ratioX +
+    //       Math.log10(Math.abs(d.partition[0])) / visibleChartsCount;
+    //     x = shift - barW * ratioX;
+    //   } else {
+    //     color = this.histogramUIService.getColor(1);
+
+    //     // partition is neg and pos
+    //     barW = middleW / ratioX;
+    //     barW =
+    //       barW +
+    //       Math.log10(Math.abs(d.partition[0])) / visibleChartsCount +
+    //       Math.log10(Math.abs(d.partition[1])) / visibleChartsCount;
+
+    //     shift = padding;
+
+    //     if (d.partition[0] < -1) {
+    //       barW =
+    //         barW +
+    //         (logView.p0N * chartW.p0N + logView.p0P * chartW.p0P) / ratioX;
+    //       shift =
+    //         padding +
+    //         logView.p1N * chartW.p1N -
+    //         (ratioX / visibleChartsCount) * barX;
+    //     } else if (d.partition[0] < 0) {
+    //       barW =
+    //         barW +
+    //         (logView.p0N * chartW.p0N + logView.p0P * chartW.p0P) / ratioX;
+
+    //       shift =
+    //         padding +
+    //         logView.p1N * chartW.p1N -
+    //         (Math.log10(Math.abs(d.partition[0])) / visibleChartsCount) *
+    //           ratioX;
+    //     }
+
+    //     x = shift;
+    //   }
+    // }
 
     return [x, barW, color];
   }
