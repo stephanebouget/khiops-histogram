@@ -62,20 +62,6 @@ export class Histogram2Component {
   logPart2 = true;
   // zoom!: any;
 
-  logView: any = {
-    p1N: 0,
-    p0N: 0,
-    p0: 0,
-    p0P: 0,
-    p1P: 0,
-  };
-  chartW: any = {
-    p1N: 0,
-    p0N: 0,
-    p0: 0,
-    p0P: 0,
-    p1P: 0,
-  };
   isP0Visible = 0;
   yPadding = 100;
   formatOpts = { lowerExp: -2, upperExp: 2 };
@@ -129,25 +115,34 @@ export class Histogram2Component {
           );
         }
 
-        if (this.xType === HistogramType.LOG) {
-          this.drawLogX();
-        } else {
-          this.drawLinX();
-        }
+        // if (this.xType === HistogramType.LOG) {
+        //   this.drawLogX();
+        // } else {
+        //   this.drawLinX();
+        // }
         this.drawChart(this.w);
         this.drawYAxis();
         this.addTooltip();
+        let logW;
 
         [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
-          'p1P',
           this.datas
         );
-        const logW =
-          Math.log10(this.rangeXLog.p1P.max) - Math.log10(this.rangeXLog.p1P.min);
-        this.ratio = this.w / logW;
+
+        //  let logWn =
+        //     Math.log10(Math.abs(this.rangeXLog.pP.max)) + Math.log10(Math.abs(this.rangeXLog.pP.min));
+        //     let logWp =
+        //     Math.log10(Math.abs(this.rangeXLog.pP.max));
+        let log =
+          Math.log10(Math.abs(this.rangeXLog.max)) +
+          Math.log10(Math.abs(this.rangeXLog.min)) -
+          Math.log10(Math.abs(this.rangeXLog.negInf)) -
+          Math.log10(Math.abs(this.rangeXLog.posInf));
+
+        this.ratio = this.w / log;
         this.drawXAxis(
-          'p1P',
-          [this.rangeXLog.p1P.min, this.rangeXLog.p1P.max],
+          'pP',
+          [this.rangeXLog.min, this.rangeXLog.max],
           this.padding,
           this.w
         );
@@ -156,131 +151,12 @@ export class Histogram2Component {
     }
   }
 
-  drawLogX() {
-    // [this.rangeXLin, this.rangeXLog, this.rangeXLogMin] =
-    //   this.histogramService.getRangeX(this.datas);
-    // this.logView = this.histogramService.getLogChartVisibility(this.datas);
-    // this.visibleChartsCount = this.histogramService.getVisibleChartsCount(
-    //   this.logView
-    // );
-    // this.defaultChartW = this.w / 5;
-    // this.drawChart(this.defaultChartW * 4 + this.padding * 2);
-    // this.middleW = (this.w / 10) * this.logView.p0;
-    // this.tickSize = -(4 * this.defaultChartW);
-    // let lastPadding = 0;
-    // if (this.visibleChartsCount === 1 && !this.logView.p0) {
-    //   lastPadding = this.padding;
-    // }
-    // this.isP0Visible =
-    //   this.logView.p0N || this.logView.p0 || this.logView.p1N ? 1 : 0;
-    // this.chartW.p1N =
-    //   ((4 * this.defaultChartW - this.middleW - lastPadding) /
-    //     this.visibleChartsCount) *
-    //   this.logView.p1N;
-    // this.drawXAxis('p1N', [this.rangeXLog, 1], this.padding, this.chartW.p1N);
-    // this.chartW.p0N =
-    //   ((4 * this.defaultChartW - this.middleW - lastPadding) /
-    //     this.visibleChartsCount) *
-    //   this.logView.p0N;
-    // this.drawXAxis(
-    //   'p0N',
-    //   [1, this.rangeXLog],
-    //   this.padding + this.chartW.p1N,
-    //   this.chartW.p0N,
-    //   true
-    // );
-    // this.chartW.p0 = this.middleW * this.logView.p0;
-    // this.drawXAxis(
-    //   'p0',
-    //   [-1, 0, 1],
-    //   this.padding + this.chartW.p0N + this.chartW.p1N - lastPadding,
-    //   this.chartW.p0
-    // );
-    // this.chartW.p0P =
-    //   ((4 * this.defaultChartW - this.middleW) / this.visibleChartsCount) *
-    //   this.logView.p0P;
-    // this.drawXAxis(
-    //   'p0P',
-    //   [this.rangeXLog, 1],
-    //   this.chartW.p1N +
-    //     this.chartW.p0 +
-    //     this.chartW.p0N +
-    //     this.padding -
-    //     lastPadding,
-    //   this.chartW.p0P,
-    //   true
-    // );
-    // this.chartW.p1P =
-    //   ((4 * this.defaultChartW - this.middleW) / this.visibleChartsCount) *
-    //   this.logView.p1P;
-    // this.drawXAxis(
-    //   'p1P',
-    //   [this.rangeXLogMin, this.rangeXLog],
-    //   this.chartW.p1N +
-    //     this.chartW.p0N +
-    //     this.chartW.p0 +
-    //     this.chartW.p0P +
-    //     this.padding,
-    //   this.chartW.p1P
-    // );
-    // this.ratioX = this.histogramService.getLogRatioX(
-    //   this.chartW.p1N + this.chartW.p0N + this.chartW.p0P + this.chartW.p1P
-    // );
-  }
-
-  drawLinX() {
-    [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
-      '',
-      this.datas
-    );
-    this.defaultChartW = this.w / 2 - this.w / 10; // w/10 = middlewidth
-    this.tickSize = -(2 * this.defaultChartW);
-    this.ratioX = this.histogramService.getLinRatioX(this.defaultChartW);
-    this.drawChart(this.defaultChartW * 2 + this.padding * 2);
-
-    this.linPart1 = this.histogramService.getLinChartVisibility(
-      this.datas,
-      HistogramType.LIN,
-      1
-    );
-    this.linPart2 = this.histogramService.getLinChartVisibility(
-      this.datas,
-      HistogramType.LIN,
-      2
-    );
-
-    this.linPart1 &&
-      this.drawXAxis(
-        'linPart1',
-        [this.rangeXLin, 0],
-        this.padding,
-        this.linPart2 ? this.defaultChartW : this.defaultChartW * 2,
-        true
-      );
-    this.linPart2 &&
-      this.drawXAxis(
-        'linPart2',
-        [0, this.rangeXLin],
-        this.linPart1 ? this.defaultChartW + this.padding : this.padding,
-        this.linPart1 ? this.defaultChartW : this.defaultChartW * 2
-      );
-  }
-
   drawChart(chartW: number) {
-    // this.zoom = d3
-    //   .zoom()
-    //   .scaleExtent([1, 10]) // This control how much you can unzoom (x0.5) and zoom (x20)
-    //   .on('zoom', (e: any) => {
-    //     this.w = this.w * e.transform.k;
-    //     this.init();
-    //   });
-
     this.svg = d3
       .select(this.chart.nativeElement)
       .append('svg')
       .attr('width', chartW)
       .attr('height', this.h + this.yPadding);
-    // .call(this.zoom);
   }
 
   addTooltip() {
@@ -296,30 +172,13 @@ export class Histogram2Component {
     let x: any, barH, barW: any, color;
 
     if (this.xType === HistogramType.LIN) {
-      [x, barW, color] = this.histogramService.getLinBarXDimensions(
-        d,
-        this.defaultChartW,
-        this.padding,
-        this.ratioX,
-        this.linPart1,
-        this.linPart2
-      );
     } else {
       [x, barW, color] = this.histogramService.getLogBarXDimensions(
         i,
         d,
         this.w
-        // this.padding,
-        // this.middleW * this.logView.p0,
-        // this.ratioX,
-        // this.logView
       );
-      // console.log(
-      //   'file: histogram.component.ts:311 ~ Histogram2Component ~ drawRect ~ x, barW, color:',
-      //   x,
-      //   barW,
-      //   color
-      // );
+
       x = this.ratio * x;
       barW = this.ratio * barW;
     }
@@ -410,10 +269,11 @@ export class Histogram2Component {
     width: number,
     reverse = false
   ) {
-    // console.log(
-    //   'file: histogram.component.ts:394 ~ HistogramComponent ~ domain:',
-    //   domain
-    // );
+    console.log(
+      'file: histogram.component.ts:394 ~ HistogramComponent ~ domain:',
+      domain,
+      width
+    );
     if (width !== 0) {
       let x;
       let tickCount = this.xTickCount;
