@@ -131,7 +131,7 @@ export class Histogram2Component {
 
         let log = Math.log10(Math.abs(this.rangeXLog.max));
 
-        if (this.rangeXLog.min > 0) {
+        if (this.rangeXLog.min > 1) {
           log = log - Math.log10(Math.abs(this.rangeXLog.min));
         } else {
           log = log + Math.log10(Math.abs(this.rangeXLog.min));
