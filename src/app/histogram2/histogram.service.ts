@@ -30,12 +30,14 @@ export class Histogram2Service {
     // this.rangeXLog.pP.max = Math.abs(datas[datas.length - 1].partition[1]);
     this.rangeXLog.min = datas[0].partition[0];
     this.rangeXLog.max = datas[datas.length - 1].partition[1];
-    this.rangeXLog.negInf = datas.findLast(function (d: any) {
-      return d.partition[1] < 0 && d.partition[1] > -1;
-    }).partition[1];
-    this.rangeXLog.posInf = datas.find(function (d: any) {
-      return d.partition[0] > 0 && d.partition[0] < 1;
-    }).partition[0];
+    this.rangeXLog.negInf =
+      datas.findLast(function (d: any) {
+        return d.partition[1] < 0 && d.partition[1] > -1;
+      })?.partition[1] || 0;
+    this.rangeXLog.posInf =
+      datas.find(function (d: any) {
+        return d.partition[0] > 0 && d.partition[0] < 1;
+      })?.partition[0] || 0;
     this.rangeXLin = 0;
 
     console.log(

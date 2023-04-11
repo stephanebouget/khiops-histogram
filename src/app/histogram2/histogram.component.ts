@@ -129,15 +129,19 @@ export class Histogram2Component {
           this.datas
         );
 
-        //  let logWn =
-        //     Math.log10(Math.abs(this.rangeXLog.pP.max)) + Math.log10(Math.abs(this.rangeXLog.pP.min));
-        //     let logWp =
-        //     Math.log10(Math.abs(this.rangeXLog.pP.max));
-        let log =
-          Math.log10(Math.abs(this.rangeXLog.max)) +
-          Math.log10(Math.abs(this.rangeXLog.min)) -
-          Math.log10(Math.abs(this.rangeXLog.negInf)) -
-          Math.log10(Math.abs(this.rangeXLog.posInf));
+        let log = Math.log10(Math.abs(this.rangeXLog.max));
+
+        if (this.rangeXLog.min > 0) {
+          log = log - Math.log10(Math.abs(this.rangeXLog.min));
+        } else {
+          log = log + Math.log10(Math.abs(this.rangeXLog.min));
+        }
+        if (this.rangeXLog.negInf) {
+          log = log - Math.log10(Math.abs(this.rangeXLog.negInf));
+        }
+        if (this.rangeXLog.posInf) {
+          log = log - Math.log10(Math.abs(this.rangeXLog.posInf));
+        }
 
         this.ratio = this.w / log;
         this.drawXAxis(
