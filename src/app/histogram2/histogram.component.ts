@@ -44,9 +44,8 @@ export class Histogram2Component {
   minBarWidth = 1;
 
   // Local variables
-  rangeXLog = 0;
-  rangeXLogMin = 0;
-  rangeXLin = 0;
+  rangeXLog: any;
+  rangeXLin: any;
   rangeYLin = 0;
   rangeYLog = {
     min: 0,
@@ -135,18 +134,20 @@ export class Histogram2Component {
         } else {
           this.drawLinX();
         }
-        console.log('file: histogram.component.ts:139 ~ Histogram2Component ~ init ~ this:', this.w);
         this.drawChart(this.w);
         this.drawYAxis();
         this.addTooltip();
 
-        [this.rangeXLin, this.rangeXLog, this.rangeXLogMin] =
-          this.histogramService.getRangeX(this.datas);
-        const logW = Math.log10(this.rangeXLog) - Math.log10(this.rangeXLogMin);
+        [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
+          'p1P',
+          this.datas
+        );
+        const logW =
+          Math.log10(this.rangeXLog.p1P.max) - Math.log10(this.rangeXLog.p1P.min);
         this.ratio = this.w / logW;
         this.drawXAxis(
           'p1P',
-          [this.rangeXLogMin, this.rangeXLog],
+          [this.rangeXLog.p1P.min, this.rangeXLog.p1P.max],
           this.padding,
           this.w
         );
@@ -229,6 +230,7 @@ export class Histogram2Component {
 
   drawLinX() {
     [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
+      '',
       this.datas
     );
     this.defaultChartW = this.w / 2 - this.w / 10; // w/10 = middlewidth
@@ -368,7 +370,10 @@ export class Histogram2Component {
     // if (barW !== 0 && barW < this.minBarWidth) {
     //   barW = this.minBarWidth;
     // }
-    console.log('file: histogram.component.ts:392 ~ Histogram2Component ~ drawRect ~ barW:', barW);
+    console.log(
+      'file: histogram.component.ts:392 ~ Histogram2Component ~ drawRect ~ barW:',
+      barW
+    );
 
     this.svg
       .append('rect')

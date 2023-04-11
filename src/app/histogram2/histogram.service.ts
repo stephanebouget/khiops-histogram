@@ -6,8 +6,8 @@ import { Histogram2UIService as HistogramUIService } from './histogram.ui.servic
   providedIn: 'root',
 })
 export class Histogram2Service {
-  rangeXLog: number = 0;
-  rangeXLogMin: number = 0;
+  // rangeXLog: number = 0;
+  // rangeXLogMin: number = 0;
   rangeXLin: number = 0;
   rangeYLin: number = 0;
   rangeYLog = {
@@ -16,47 +16,88 @@ export class Histogram2Service {
     realMin: 0,
     realMax: 0,
   };
+  rangeXLog = {
+    p0P: {
+      min: 0,
+      max: 0,
+    },
+    p0N: {
+      min: 0,
+      max: 0,
+    },
+    p0: {
+      min: 0,
+      max: 0,
+    },
+    p1N: {
+      min: 0,
+      max: 0,
+    },
+    p1P: {
+      min: 0,
+      max: 0,
+    },
+  };
   barWs: any[] = [];
 
   constructor(private histogramUIService: HistogramUIService) {}
 
-  getRangeX(datas: any) {
-    this.rangeXLog = 0;
-    this.rangeXLogMin = Math.abs(datas[0].partition[0]);
+  getRangeX(part: string, datas: any) {
+    if (part === 'p1P') {
+      var filtered = datas;
+      // var filtered = datas.filter(function (d: any) {
+      //   return d.partition[0] >= 1;
+      // });
+      console.log(
+        'file: histogram.service.ts:50 ~ Histogram2Service ~ filtered ~ filtered:',
+        filtered
+      );
+      this.rangeXLog.p1P.min = Math.abs(filtered[0].partition[0]);
+      this.rangeXLog.p1P.max = Math.abs(
+        filtered[filtered.length - 1].partition[1]
+      );
+    }
+
+    // this.rangeXLog.p1P.min = Math.abs(datas[0].partition[0]);
 
     this.rangeXLin = 0;
-    datas.forEach((d: any, i: number) => {
-      if (d.partition[0] !== 0) {
-        if (Math.abs(d.partition[0]) > this.rangeXLog) {
-          this.rangeXLog = Math.abs(d.partition[0]);
-        }
+    // datas.forEach((d: any, i: number) => {
+    //   if (d.partition[0] !== 0) {
+    //     if (Math.abs(d.partition[0]) > this.rangeXLog.p1P.max) {
+    //       this.rangeXLog.p1P.max = Math.abs(d.partition[0]);
+    //     }
 
-        if (Math.abs(1 / d.partition[0]) > this.rangeXLog) {
-          this.rangeXLog = Math.abs(1 / d.partition[0]);
-        }
-        if (Math.abs(d.partition[0]) > this.rangeXLin) {
-          this.rangeXLin = Math.abs(d.partition[0]);
-        }
-      }
-      if (d.partition[1] !== 0) {
-        if (Math.abs(d.partition[1]) > this.rangeXLog) {
-          this.rangeXLog = Math.abs(d.partition[1]);
-        }
-        if (Math.abs(1 / d.partition[1]) > this.rangeXLog) {
-          this.rangeXLog = Math.abs(1 / d.partition[1]);
-        }
-        if (Math.abs(d.partition[1]) > this.rangeXLin) {
-          this.rangeXLin = Math.abs(d.partition[1]);
-        }
-      }
-    });
+    //     // if (Math.abs(1 / d.partition[0]) > this.rangeXLog) {
+    //     //   this.rangeXLog = Math.abs(1 / d.partition[0]);
+    //     // }
+    //     if (Math.abs(d.partition[0]) > this.rangeXLin) {
+    //       this.rangeXLin = Math.abs(d.partition[0]);
+    //     }
+    //   }
+    //   if (d.partition[1] !== 0) {
+    //     if (Math.abs(d.partition[1]) > this.rangeXLog.p1P.max) {
+    //       this.rangeXLog.p1P.max = Math.abs(d.partition[1]);
+    //     }
+    //     // if (Math.abs(1 / d.partition[1]) > this.rangeXLog) {
+    //     //   this.rangeXLog = Math.abs(1 / d.partition[1]);
+    //     // }
+    //     if (Math.abs(d.partition[1]) > this.rangeXLin) {
+    //       this.rangeXLin = Math.abs(d.partition[1]);
+    //     }
+    //   }
+    // });
     // console.log(
     //   'file: histogram.service.ts:23 ~ HistogramService ~ getRangeX ~ this.rangeXLog:',
     //   this.rangeXLogMin,
     //   this.rangeXLog
     // );
     // this.rangeXLogMin = 10
-    return [this.rangeXLin, this.rangeXLog, this.rangeXLogMin];
+    console.log(
+      'file: histogram.service.ts:84 ~ Histogram2Service ~ getRangeX ~ this.rangeXLin, this.rangeXLog:',
+      this.rangeXLin,
+      this.rangeXLog
+    );
+    return [this.rangeXLin, this.rangeXLog];
   }
 
   getLinRangeY(datas: any) {
@@ -107,15 +148,15 @@ export class Histogram2Service {
     return ratioX;
   }
 
-  getLogRatioX(w: number) {
-    let maxVal = Math.log10(Math.abs(this.rangeXLog));
-    let minVal = Math.log10(Math.abs(this.rangeXLogMin));
-    if (maxVal === -Infinity) {
-      maxVal = 1;
-    }
-    let ratioX = w / (maxVal + minVal);
-    return ratioX;
-  }
+  // getLogRatioX(w: number) {
+  //   let maxVal = Math.log10(Math.abs(this.rangeXLog));
+  //   let minVal = Math.log10(Math.abs(this.rangeXLogMin));
+  //   if (maxVal === -Infinity) {
+  //     maxVal = 1;
+  //   }
+  //   let ratioX = w / (maxVal + minVal);
+  //   return ratioX;
+  // }
 
   getLinRatioY(h: number, padding: number) {
     let ratioY = (h - padding / 2) / this.rangeYLin;
@@ -216,30 +257,24 @@ export class Histogram2Service {
     if (i === 0) {
       this.barWs = [];
     }
+    // if (d.partition[0] >= 1 ) {
+      barMin = Math.min(d.partition[1], d.partition[0]);
+      barMin = barMin - this.rangeXLog.p1P.min;
+      x = 0;
+      barW =
+        Math.log10(Math.abs(d.partition[1])) -
+        Math.log10(Math.abs(d.partition[0]));
 
-    // chartW = Math.log10(chartW)
-    // console.log('file: histogram.service.ts:217 ~ Histogram2Service ~ chartW:', chartW);
-    // console.log('file: histogram.service.ts:217 ~ Histogram2Service ~ chartW:', chartW);
-
-    barMin = Math.min(d.partition[1], d.partition[0]);
-    barMin = barMin - this.rangeXLogMin;
-    x = 0;
-    // barW = 50
-    barW =
-      Math.log10(Math.abs(d.partition[1])) -
-      Math.log10(Math.abs(d.partition[0]));
-
-    // console.log(
-    //   'file: histogram.service.ts:219 ~ Histogram2Service ~ barW:',
-    //   barW
-    // );
-
-    const sum = this.barWs.reduce(
-      (partialSum: any, a: any) => Math.abs(partialSum) + Math.abs(a),
-      0
-    );
-    this.barWs.push(barW);
-    x = sum || 0;
+      const sum = this.barWs.reduce(
+        (partialSum: any, a: any) => Math.abs(partialSum) + Math.abs(a),
+        0
+      );
+      this.barWs.push(barW);
+      x = sum || 0;
+    // } else {
+    //   x = 0;
+    //   barW = 0;
+    // }
 
     // widthLg =
 
