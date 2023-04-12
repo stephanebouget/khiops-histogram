@@ -151,7 +151,7 @@ export class Histogram2Component {
         this.ratio = this.w / log;
         this.drawXAxis(
           'pP',
-          [this.rangeXLog.min, this.rangeXLog.max],
+          [this.rangeXLog.firstmin, this.rangeXLog.max],
           this.padding,
           this.w
         );
@@ -290,12 +290,17 @@ export class Histogram2Component {
       if (this.xType === HistogramType.LIN) {
         x = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
       } else {
+        if (part === 'pP') {
+          shift = (Math.log10(this.rangeXLog.diff) / 20) * this.ratio;
+          width = width - (Math.log10(this.rangeXLog.diff) / 20) * this.ratio;
+        }
+
         x = d3.scaleLog().base(10).domain(domain).range([0, width]);
       }
-      if (part === 'p0') {
-        x = d3.scaleLinear().domain(domain).range([0, width]);
-        tickCount = 3;
-      }
+      // if (part === 'p0') {
+      //   x = d3.scaleLinear().domain(domain).range([0, width]);
+      //   tickCount = 3;
+      // }
 
       const axis = d3
         .axisBottom(x)
