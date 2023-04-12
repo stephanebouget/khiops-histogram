@@ -31,10 +31,18 @@ export class Histogram2Service {
     this.rangeXLog.min = datas[0].partition[0];
     this.rangeXLog.firstmin =
       datas.find(function (d: any) {
-        return d.partition[0] > 0;
+        return d.partition[0] > 0 && d.partition[1] > 0;
       })?.partition[0] || 0;
+    this.rangeXLog.firstminNeg =
+      datas.find(function (d: any) {
+        return d.partition[0] < 0 && d.partition[1] < 0;
+      })?.partition[1] || 0;
     this.rangeXLog.max = datas[datas.length - 1].partition[1];
-    this.rangeXLog.diff = this.rangeXLog.max - this.rangeXLog.firstmin;
+    if (this.rangeXLog.min >= 0) {
+      this.rangeXLog.diff = this.rangeXLog.max - this.rangeXLog.firstmin;
+    } else {
+      this.rangeXLog.diff = this.rangeXLog.max - this.rangeXLog.min;
+    }
     this.rangeXLog.negInf =
       datas.findLast(function (d: any) {
         return d.partition[1] < 0 && d.partition[1] > -1;
@@ -72,7 +80,10 @@ export class Histogram2Service {
     this.rangeYLog.min = Math.floor(Math.min(...dataValues));
     this.rangeYLog.realMax = Math.max(...dataValues);
     this.rangeYLog.realMin = Math.min(...dataValues);
-    console.log('file: histogram.service.ts:75 ~ getLogRangeY ~ this.rangeYLog:', this.rangeYLog);
+    console.log(
+      'file: histogram.service.ts:75 ~ getLogRangeY ~ this.rangeYLog:',
+      this.rangeYLog
+    );
 
     return this.rangeYLog;
   }
@@ -103,7 +114,7 @@ export class Histogram2Service {
     // ratioX = 0,
     // logView: any
   ) {
-    console.log('file: histogram.service.ts:248 ~ Histogram2Service ~ d:', d);
+    // console.log('d:', d);
     let barW = 0;
     let x = 0;
     let color = this.histogramUIService.getColor(2);
@@ -116,18 +127,20 @@ export class Histogram2Service {
     // barMin = barMin - this.rangeXLog.pP.min;
     x = 0;
 
-    if (d.partition[0] === 0) {
-      barW = Math.log10(this.rangeXLog.diff) / 20; // 20 = 1/10 /2
+    if (d.partition[0] === 0 || d.partition[1] === 0) {
+      barW = Math.log10(this.rangeXLog.max) / 20; // 20 = 1/10 /2
+// barW = Math.log10(2)
+// barW = 0.5
+      // barW = 1 / Math.pow(w / 20, 10)
       color = this.histogramUIService.getColor(1);
     } else {
-      if (d.partition[1] < d.partition[0]) {
-        barW =
-          Math.log10(Math.abs(d.partition[1])) -
-          Math.log10(Math.abs(d.partition[0]));
-      } else {
-        barW =
-          Math.log10(Math.abs(d.partition[0])) -
-          Math.log10(Math.abs(d.partition[1]));
+      barW =
+        Math.log10(Math.abs(d.partition[0])) -
+        Math.log10(Math.abs(d.partition[1]));
+
+      if (d.partition[0] < 0 && d.partition[1] > 0) {
+        barW =  Math.log10(this.rangeXLog.max) / 20;
+         color = this.histogramUIService.getColor(0);
       }
     }
 
@@ -139,7 +152,7 @@ export class Histogram2Service {
     //   Math.log10((d.partition[0]));
 
     barW = Math.abs(barW);
-    console.log('file: histogram.service.ts:135 ~ barW:', barW);
+    // console.log('file: histogram.service.ts:135 ~ barW:', barW);
 
     const sum = this.barWs.reduce(
       (partialSum: any, a: any) => Math.abs(partialSum) + Math.abs(a),
