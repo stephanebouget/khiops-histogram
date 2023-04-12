@@ -72,6 +72,7 @@ export class Histogram2Service {
     this.rangeYLog.min = Math.floor(Math.min(...dataValues));
     this.rangeYLog.realMax = Math.max(...dataValues);
     this.rangeYLog.realMin = Math.min(...dataValues);
+    console.log('file: histogram.service.ts:75 ~ getLogRangeY ~ this.rangeYLog:', this.rangeYLog);
 
     return this.rangeYLog;
   }
@@ -117,6 +118,7 @@ export class Histogram2Service {
 
     if (d.partition[0] === 0) {
       barW = Math.log10(this.rangeXLog.diff) / 20; // 20 = 1/10 /2
+      color = this.histogramUIService.getColor(1);
     } else {
       if (d.partition[1] < d.partition[0]) {
         barW =

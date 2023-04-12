@@ -38,7 +38,7 @@ export class Histogram2Component {
 
   // Static config values
   xTickCount = 26;
-  yTicksCount = 15;
+  yTicksCount = 25;
   tickSize = 0;
   minBarHeight = 4;
   minBarWidth = 1;
@@ -379,6 +379,7 @@ export class Histogram2Component {
 
   drawYAxis() {
     let y;
+
     // Create the scale
     if (this.yType === HistogramType.LIN) {
       y = d3
@@ -397,6 +398,7 @@ export class Histogram2Component {
     }
 
     let shift = this.padding;
+    this.tickSize = -this.w;
 
     // Draw the axis
     const axis = d3.axisLeft(y).tickSize(this.tickSize).ticks(this.yTicksCount);
