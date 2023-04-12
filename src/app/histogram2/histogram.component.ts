@@ -133,8 +133,13 @@ export class Histogram2Component {
 
         if (this.rangeXLog.min > 0) {
           log = log - Math.log10(Math.abs(this.rangeXLog.min));
-        } else {
+        } else if (this.rangeXLog.min !== 0) {
           log = log + Math.log10(Math.abs(this.rangeXLog.min));
+        } else {
+          log =
+            log -
+            Math.log10(this.rangeXLog.firstmin) +
+            Math.log10(this.rangeXLog.diff) / 20;
         }
         if (this.rangeXLog.posInf && this.rangeXLog.negInf) {
           log = log - Math.log10(Math.abs(this.rangeXLog.negInf));

@@ -29,7 +29,12 @@ export class Histogram2Service {
     // this.rangeXLog.pP.min = Math.abs(datas[0].partition[0]);
     // this.rangeXLog.pP.max = Math.abs(datas[datas.length - 1].partition[1]);
     this.rangeXLog.min = datas[0].partition[0];
+    this.rangeXLog.firstmin =
+      datas.find(function (d: any) {
+        return d.partition[0] > 0;
+      })?.partition[0] || 0;
     this.rangeXLog.max = datas[datas.length - 1].partition[1];
+    this.rangeXLog.diff = this.rangeXLog.max - this.rangeXLog.firstmin;
     this.rangeXLog.negInf =
       datas.findLast(function (d: any) {
         return d.partition[1] < 0 && d.partition[1] > -1;
@@ -91,7 +96,7 @@ export class Histogram2Service {
   getLogBarXDimensions(
     i: number,
     d: any,
-    chartW: any
+    w: any
     // padding = 0,
     // middleW = 0,
     // ratioX = 0,
@@ -110,14 +115,18 @@ export class Histogram2Service {
     // barMin = barMin - this.rangeXLog.pP.min;
     x = 0;
 
-    if (d.partition[1] < d.partition[0]) {
-      barW =
-        Math.log10(Math.abs(d.partition[1])) -
-        Math.log10(Math.abs(d.partition[0]));
+    if (d.partition[0] === 0) {
+      barW = Math.log10(this.rangeXLog.diff) / 20; // 20 = 1/10 /2
     } else {
-      barW =
-        Math.log10(Math.abs(d.partition[0])) -
-        Math.log10(Math.abs(d.partition[1]));
+      if (d.partition[1] < d.partition[0]) {
+        barW =
+          Math.log10(Math.abs(d.partition[1])) -
+          Math.log10(Math.abs(d.partition[0]));
+      } else {
+        barW =
+          Math.log10(Math.abs(d.partition[0])) -
+          Math.log10(Math.abs(d.partition[1]));
+      }
     }
 
     // barW =
@@ -128,6 +137,7 @@ export class Histogram2Service {
     //   Math.log10((d.partition[0]));
 
     barW = Math.abs(barW);
+    console.log('file: histogram.service.ts:135 ~ barW:', barW);
 
     const sum = this.barWs.reduce(
       (partialSum: any, a: any) => Math.abs(partialSum) + Math.abs(a),
