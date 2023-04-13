@@ -12,6 +12,9 @@ export class AppComponent {
   codemirror!: ElementRef;
 
   datas: any;
+  datas1: any;
+  datas2: any;
+  datas3: any;
   partition: any;
   datasSet!: any;
   range!: number;
@@ -45,6 +48,20 @@ export class AppComponent {
       this.yType = previousYType;
       this.update();
     }
+
+    // this.datas1 = UtilsService.getDistributionGraphDatas(
+    //   JSON.parse(this.datasSet),
+    //   'R01'
+    // );
+    // this.datas2 = UtilsService.getDistributionGraphDatas(
+    //   JSON.parse(this.datasSet),
+    //   'R02'
+    // );
+    // this.datas3 = UtilsService.getDistributionGraphDatas(
+    //   JSON.parse(this.datasSet),
+    //   'R03'
+    // );
+
   }
 
   loadMock() {

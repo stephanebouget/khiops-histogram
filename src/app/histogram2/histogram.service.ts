@@ -20,65 +20,86 @@ export class Histogram2Service {
   constructor(private histogramUIService: HistogramUIService) {}
 
   getRangeX(datas: any) {
-    this.rangeXLog.min = datas[0].partition[0];
-    this.rangeXLog.firstmin =
+    this.rangeXLog.min =
       datas.find(function (d: any) {
-        return d.partition[0] > 0 && d.partition[1] > 0;
-      })?.partition[0] || 0;
-    this.rangeXLog.firstminNeg =
-      datas.findLast(function (d: any) {
-        return d.partition[0] < 0 && d.partition[1] < 0;
-      })?.partition[0] || 0;
-    this.rangeXLog.max = datas[datas.length - 1].partition[1];
-    if (this.rangeXLog.min >= 0) {
-      this.rangeXLog.diff = this.rangeXLog.max - this.rangeXLog.firstmin;
-    } else {
-      this.rangeXLog.diff = this.rangeXLog.max - this.rangeXLog.min;
-    }
-    this.rangeXLog.negInf =
-      datas.findLast(function (d: any) {
-        return d.partition[1] < 0 && d.partition[1] > -1;
-      })?.partition[1] || 0;
-    this.rangeXLog.posInf =
-      datas.find(function (d: any) {
-        return d.partition[0] > 0 && d.partition[0] < 1;
-      })?.partition[0] || 0;
-    this.rangeXLin = 0;
-    this.rangeXLog.negPart =
-      datas.filter(function (d: any) {
         return d.partition[0] < 0;
-      })?.length > 1 || false;
+      })?.partition[0] || 0;
+    this.rangeXLog.posStart =
+      datas.find(function (d: any) {
+        return d.partition[0] >= 0 && d.partition[1] > 0;
+      })?.partition[1] || 0;
 
-    this.rangeXLog.posPart =
-      datas.filter(function (d: any) {
+    this.rangeXLog.negStart =
+      datas.findLast(function (d: any) {
+        return d.partition[0] < 0 && d.partition[1] <= 0;
+      })?.partition[0] || 0;
+    this.rangeXLog.max =
+      datas.findLast(function (d: any) {
         return d.partition[1] > 0;
-      })?.length > 1 || false;
+      })?.partition[1] || 0;
 
-    this.rangeXLog.totwidth =
-      Math.abs(this.rangeXLog.max) -
-      Math.abs(this.rangeXLog.firstmin) +
-      Math.abs(this.rangeXLog.min) -
-      Math.abs(this.rangeXLog.firstminNeg);
-    // this.rangeXLog.middlewidth = this.rangeXLog.totwidth / 20;
-    this.rangeXLog.middlewidth = 1.3;
+    this.rangeXLog.inf = datas.find(function (d: any) {
+      return d.partition[0] === 0 || d.partition[1] === 0;
+    });
 
-    this.rangeXLog.logtotwidth =
-      Math.log10(Math.abs(this.rangeXLog.max)) -
-      Math.log10(Math.abs(this.rangeXLog.firstmin));
+    // if (this.rangeXLog.min >= 0) {
+    //   this.rangeXLog.diff = this.rangeXLog.max - this.rangeXLog.posStart;
+    // } else {
+    //   this.rangeXLog.diff = this.rangeXLog.max - this.rangeXLog.min;
+    // }
+    // this.rangeXLog.negInf =
+    //   datas.findLast(function (d: any) {
+    //     return d.partition[1] < 0 && d.partition[1] > -1;
+    //   })?.partition[1] || 0;
+    // this.rangeXLog.posInf =
+    //   datas.find(function (d: any) {
+    //     return d.partition[0] > 0 && d.partition[0] < 1;
+    //   })?.partition[0] || 0;
+    this.rangeXLin = 0;
+    // this.rangeXLog.negPart =
+    //   datas.filter(function (d: any) {
+    //     return d.partition[0] < 0;
+    //   })?.length > 1 || false;
+
+    // this.rangeXLog.posPart =
+    //   datas.filter(function (d: any) {
+    //     return d.partition[1] > 0;
+    //   })?.length > 1 || false;
+
+    // this.rangeXLog.totwidth =
+    //   Math.abs(this.rangeXLog.max) -
+    //   Math.abs(this.rangeXLog.posStart) +
+    //   Math.abs(this.rangeXLog.min) -
+    //   Math.abs(this.rangeXLog.negStart);
+
+    // this.rangeXLog.logtotwidth = Math.log10(
+    //   Math.abs(this.rangeXLog.max) + Math.abs(this.rangeXLog.posStart)
+    // );
     // this.rangeXLog.totwidth =
     //   Math.log10(Math.abs(this.rangeXLog.max)) -
-    //   Math.log10(Math.abs(this.rangeXLog.firstmin)) +
+    //   Math.log10(Math.abs(this.rangeXLog.posStart)) +
     //   Math.log10(Math.abs(this.rangeXLog.min)) -
-    //   Math.log10(Math.abs(this.rangeXLog.firstminNeg));
+    //   Math.log10(Math.abs(this.rangeXLog.negStart));
 
-    if (this.rangeXLog.min !== 0 && this.rangeXLog.firstminNeg !== 0) {
-      this.rangeXLog.logtotwidth =
-        this.rangeXLog.logtotwidth +
-        Math.log10(Math.abs(this.rangeXLog.min)) -
-        Math.log10(Math.abs(this.rangeXLog.firstminNeg));
-    }
-    this.rangeXLog.logtotwidth =
-      this.rangeXLog.logtotwidth + Math.log10(this.rangeXLog.middlewidth);
+    // this.rangeXLog.middlewidth = this.rangeXLog.logtotwidth
+    // this.rangeXLog.middlewidth = Math.log10(Math.pow(10,   this.rangeXLog.logtotwidth))
+    this.rangeXLog.middlewidth = 1.1;
+    // if (this.rangeXLog.min && this.rangeXLog.negStart) {
+    //   this.rangeXLog.logtotwidth =
+    //     this.rangeXLog.logtotwidth +
+    //     Math.log10(Math.abs(this.rangeXLog.min)) -
+    //     Math.log10(Math.abs(this.rangeXLog.negStart));
+    //   // this.rangeXLog.logtotwidth =
+    //   //   this.rangeXLog.logtotwidth + Math.log10(this.rangeXLog.middlewidth);
+    // }
+    // if (this.rangeXLog.negStart === 0 || this.rangeXLog.posStart === 0) {
+    //   // this.rangeXLog.logtotwidth =
+    //   //   this.rangeXLog.logtotwidth + Math.log10(this.rangeXLog.middlewidth);
+    // }
+    // console.log(
+    //   'file: histogram.service.ts:76 ~ Histogram2Service ~ getRangeX ~ this.rangeXLog.logtotwidth:',
+    //   this.rangeXLog.logtotwidth
+    // );
 
     console.log(
       'file: histogram.service.ts:84 ~ Histogram2Service ~ getRangeX ~ this.rangeXLin, this.rangeXLog:',
@@ -163,8 +184,12 @@ export class Histogram2Service {
       }
     }
 
+    // barW =
+    // Math.log10(Math.abs(d.partition[0])) -
+    // Math.log10(Math.abs(d.partition[1]))
+
     barW = Math.abs(barW);
-    // console.log('file: histogram.service.ts:135 ~ barW:', barW);
+    console.log('file: histogram.service.ts:135 ~ barW:', barW);
 
     const sum = this.barWs.reduce(
       (partialSum: any, a: any) => Math.abs(partialSum) + Math.abs(a),
@@ -172,7 +197,53 @@ export class Histogram2Service {
     );
     this.barWs.push(barW);
     x = sum || 0;
+    console.log(
+      'file: histogram.service.ts:200 ~ Histogram2Service ~ getLogBarXDimensions ~ sum:',
+      sum
+    );
 
-    return [x, barW, color];
+    return [x, barW, color, sum];
+  }
+  computeLogBarXDimensions(datas: any) {
+    let barWs: any = [];
+    let barXs: any = [];
+
+    datas.forEach((d: any, i: number) => {
+      let barW = 0;
+      let x = 0;
+      let color = this.histogramUIService.getColor(2);
+      let sum;
+
+      if (d.partition[0] === 0 || d.partition[1] === 0) {
+        barW = Math.log10(this.rangeXLog.middlewidth);
+        color = this.histogramUIService.getColor(1);
+      } else {
+        barW =
+          Math.log10(Math.abs(d.partition[0])) -
+          Math.log10(Math.abs(d.partition[1]));
+
+        if (d.partition[0] < 0 && d.partition[1] > 0) {
+          barW = Math.log10(this.rangeXLog.middlewidth);
+          color = this.histogramUIService.getColor(0);
+        }
+      }
+
+      barW = Math.abs(barW);
+
+      sum = barWs.reduce(
+        (partialSum: any, a: any) => Math.abs(partialSum) + Math.abs(a),
+        0
+      );
+      barWs.push(barW);
+      x = sum || 0;
+      barXs.push(x);
+    });
+
+    console.log(
+      'file: histogram.service.ts:242 ~ Histogram2Service ~ computeLogBarXDimensions ~ barW:',
+      barWs,
+      barXs
+    );
+    return [barWs, barXs];
   }
 }
