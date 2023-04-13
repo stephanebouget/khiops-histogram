@@ -272,22 +272,17 @@ export class Histogram2Component {
 
     if (this.xType === HistogramType.LIN) {
     } else {
-      // [x, barW, color, ratio] = this.histogramService.getLogBarXDimensions(
-      //   i,
-      //   d,
-      //   this.w
-      // );
       ratio = barXs[barXs.length - 1] + barWs[barWs.length - 1];
-      console.log(
-        'file: histogram.component.ts:281 ~ Histogram2Component ~ drawRect2 ~ ratio:',
-        ratio
-      );
       x = (this.w / ratio) * barXs[i];
       barW = (this.w / ratio) * barWs[i];
-      console.log(
-        'file: histogram.component.ts:198 ~ Histogram2Component ~ drawRect ~ barW:',
-        barW
-      );
+      color = this.histogramUIService.getColor(2);
+
+      if (d.partition[0] < 0 && d.partition[1] > 0) {
+        color = this.histogramUIService.getColor(0);
+      }
+      if (d.partition[0] === 0 || d.partition[1] === 0) {
+        color = this.histogramUIService.getColor(1);
+      }
     }
 
     const onclickRect = function (e: any) {
