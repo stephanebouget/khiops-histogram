@@ -160,7 +160,8 @@ export class Histogram2Component {
             // log = log - Math.log10(Math.abs(this.rangeXLog.firstminNeg));
             // log = log + Math.log10(this.rangeXLog.max) / 20;
             // log = log + Math.log10(this.rangeXLog.max) / 20;
-            log =  Math.log10(Math.abs(this.rangeXLog.totwidth));
+            // log =  Math.log10(Math.abs(this.rangeXLog.totwidth));
+            log =    this.rangeXLog.logtotwidth
 
             // if (
             //   this.rangeXLog.firstminNeg !== 0 &&
@@ -194,11 +195,12 @@ export class Histogram2Component {
           // Math.log10(2) -
           // Math.log10(2);
         } else {
-          log = Math.log10(Math.abs(this.rangeXLog.max));
-          log =
-            log -
-            Math.log10(this.rangeXLog.firstmin) +
-            Math.log10(this.rangeXLog.max) / 20;
+          // log = Math.log10(Math.abs(this.rangeXLog.max));
+          // log =
+          //   log -
+          //   Math.log10(this.rangeXLog.firstmin) +
+          //   Math.log10(this.rangeXLog.middlewidth)
+            log =    this.rangeXLog.logtotwidth
           //  0.1
 
           // +
@@ -392,8 +394,8 @@ export class Histogram2Component {
       } else {
         if (part === 'pP') {
           if (this.rangeXLog.min <= 0) {
-            shift = (Math.log10(this.rangeXLog.diff) / 20) * this.ratio;
-            width = width - (Math.log10(this.rangeXLog.diff) / 20) * this.ratio;
+            shift = Math.log10( this.rangeXLog.middlewidth)* this.ratio;
+            width = width - Math.log10( this.rangeXLog.middlewidth)* this.ratio;
 
             if (this.rangeXLog.negPart) {
               shift =
