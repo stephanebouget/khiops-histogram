@@ -9,12 +9,13 @@ export class UtilsService {
     return datas.preparationReport.variablesStatistics.map((e: any) => e.rank);
   }
   static getDistributionGraphDatas(datas: any, variable: string) {
-    console.log(
-      'file: utils.service.ts:10 ~ UtilsService ~ getDistributionGraphDatas ~ datas:',
-      datas
-    );
+    // console.log(
+    //   'file: utils.service.ts:10 ~ UtilsService ~ getDistributionGraphDatas ~ datas:',
+    //   datas
+    // );
     const varDatas =
-      datas.preparationReport.variablesDetailedStatistics[variable]?.dataGrid;
+    datas.preparationReport.variablesDetailedStatistics[variable]?.dataGrid;
+    console.log('file: utils.service.ts:17 ~ UtilsService ~ getDistributionGraphDatas ~ varDatas:', varDatas);
     let dataSet: any = [];
     if (varDatas) {
       if (!varDatas.frequencies) {

@@ -151,13 +151,28 @@ export class Histogram2Component {
           // }
 
           log = Math.log10(Math.abs(this.rangeXLog.max));
-          // log = log + Math.log10(Math.abs(this.rangeXLog.min));
           log = log - Math.log10(Math.abs(this.rangeXLog.firstmin));
-          log = log + Math.log10(this.rangeXLog.max) / 20;
+          // log = log - Math.log10(Math.abs(this.rangeXLog.firstmin));
+          // log = log + Math.log10(this.rangeXLog.max) / 20;
 
-          if (this.rangeXLog.firstminNeg  !== 0 && this.rangeXLog.firstminNeg !== this.datas[0].partition[0]) {
+          if (this.rangeXLog.negPart) {
+            // log = log + Math.log10(Math.abs(this.rangeXLog.min));
+            // log = log - Math.log10(Math.abs(this.rangeXLog.firstminNeg));
+            // log = log + Math.log10(this.rangeXLog.max) / 20;
+            // log = log + Math.log10(this.rangeXLog.max) / 20;
+            log =  Math.log10(Math.abs(this.rangeXLog.totwidth));
+
+            // if (
+            //   this.rangeXLog.firstminNeg !== 0 &&
+            //   this.rangeXLog.firstminNeg !== this.datas[0].partition[0]
+            // ) {
             // alors on a un graph vers la droite il faut le diminuer d'autant
-            log = log + Math.log10(Math.abs(this.rangeXLog.min)-Math.abs(this.rangeXLog.firstminNeg)  );
+            // log =
+            //   log +
+            //   Math.log10(
+            //     // Math.abs(this.rangeXLog.min) -
+            //       Math.abs(6)
+            //   );
             // log = log + Math.log10(Math.abs(Math.log10(this.rangeXLog.diff) ));
           }
 
@@ -376,8 +391,22 @@ export class Histogram2Component {
         x = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
       } else {
         if (part === 'pP') {
-          shift = (Math.log10(this.rangeXLog.diff) / 20) * this.ratio;
-          width = width - (Math.log10(this.rangeXLog.diff) / 20) * this.ratio;
+          if (this.rangeXLog.min <= 0) {
+            shift = (Math.log10(this.rangeXLog.diff) / 20) * this.ratio;
+            width = width - (Math.log10(this.rangeXLog.diff) / 20) * this.ratio;
+
+            if (this.rangeXLog.negPart) {
+              shift =
+                shift +
+                (Math.log10(Math.abs(this.rangeXLog.min)) -
+                  Math.log10(Math.abs(this.rangeXLog.firstminNeg))) *
+                  this.ratio;
+              // shift =                shift + (Math.log10(this.rangeXLog.diff) / 20) * this.ratio;
+              width =
+                width /
+                (Math.abs(this.rangeXLog.diff) / Math.abs(this.rangeXLog.min));
+            }
+          }
         }
 
         x = d3.scaleLog().base(10).domain(domain).range([0, width]);

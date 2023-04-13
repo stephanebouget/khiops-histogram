@@ -36,7 +36,7 @@ export class Histogram2Service {
     this.rangeXLog.firstminNeg =
       datas.find(function (d: any) {
         return d.partition[0] < 0 && d.partition[1] < 0;
-      })?.partition[1] || 0;
+      })?.partition[0] || 0;
     this.rangeXLog.max = datas[datas.length - 1].partition[1];
     if (this.rangeXLog.min >= 0) {
       this.rangeXLog.diff = this.rangeXLog.max - this.rangeXLog.firstmin;
@@ -52,6 +52,21 @@ export class Histogram2Service {
         return d.partition[0] > 0 && d.partition[0] < 1;
       })?.partition[0] || 0;
     this.rangeXLin = 0;
+    this.rangeXLog.negPart =
+      datas.filter(function (d: any) {
+        return d.partition[0] < 0;
+      })?.length > 1 || false;
+
+    this.rangeXLog.posPart =
+      datas.filter(function (d: any) {
+        return d.partition[1] > 0;
+      })?.length > 1 || false;
+
+    this.rangeXLog.totwidth =
+      Math.abs(this.rangeXLog.max) -
+      Math.abs(this.rangeXLog.firstmin) +
+      Math.abs(this.rangeXLog.min) -
+      Math.abs(this.rangeXLog.firstminNeg);
 
     console.log(
       'file: histogram.service.ts:84 ~ Histogram2Service ~ getRangeX ~ this.rangeXLin, this.rangeXLog:',
@@ -129,8 +144,8 @@ export class Histogram2Service {
 
     if (d.partition[0] === 0 || d.partition[1] === 0) {
       barW = Math.log10(this.rangeXLog.max) / 20; // 20 = 1/10 /2
-// barW = Math.log10(2)
-// barW = 0.5
+      // barW = Math.log10(2)
+      // barW = 0.5
       // barW = 1 / Math.pow(w / 20, 10)
       color = this.histogramUIService.getColor(1);
     } else {
@@ -139,10 +154,14 @@ export class Histogram2Service {
         Math.log10(Math.abs(d.partition[1]));
 
       if (d.partition[0] < 0 && d.partition[1] > 0) {
-        barW =  Math.log10(this.rangeXLog.max) / 20;
-         color = this.histogramUIService.getColor(0);
+        barW = Math.log10(this.rangeXLog.max) / 20;
+        color = this.histogramUIService.getColor(0);
       }
     }
+
+    // if (d.partition[0] <1) {
+    //   barW = 0
+    // }
 
     // barW =
     //   Math.log10(Math.abs(d.partition[1])) -
