@@ -134,98 +134,20 @@ export class Histogram2Component {
         if (this.rangeXLog.min > 0) {
           log = Math.log10(Math.abs(this.rangeXLog.max));
           log = log - Math.log10(Math.abs(this.rangeXLog.min));
-          // log = log - Math.log10(10)
         } else if (this.rangeXLog.min !== 0) {
-          // log = Math.log10(Math.abs(this.rangeXLog.max));
-          // log = log + Math.log10(Math.abs(this.rangeXLog.min));
-          // log = log - Math.log10(Math.abs(this.rangeXLog.firstmin));
-          // log = log - Math.log10(Math.abs(this.rangeXLog.firstminNeg));
-          // log = log + Math.log10(4)
-          // log = log + Math.log10(2);
-
-          // if (this.rangeXLog.firstmin === 1) {
-          //   log =log-1
-          // }
-          // if (this.rangeXLog.firstminNeg === -1) {
-          //   log =log-1
-          // }
-
           log = Math.log10(Math.abs(this.rangeXLog.max));
           log = log - Math.log10(Math.abs(this.rangeXLog.firstmin));
-          // log = log - Math.log10(Math.abs(this.rangeXLog.firstmin));
-          // log = log + Math.log10(this.rangeXLog.max) / 20;
 
           if (this.rangeXLog.negPart) {
-            // log = log + Math.log10(Math.abs(this.rangeXLog.min));
-            // log = log - Math.log10(Math.abs(this.rangeXLog.firstminNeg));
-            // log = log + Math.log10(this.rangeXLog.max) / 20;
-            // log = log + Math.log10(this.rangeXLog.max) / 20;
-            // log =  Math.log10(Math.abs(this.rangeXLog.totwidth));
-            log =    this.rangeXLog.logtotwidth
-
-            // if (
-            //   this.rangeXLog.firstminNeg !== 0 &&
-            //   this.rangeXLog.firstminNeg !== this.datas[0].partition[0]
-            // ) {
-            // alors on a un graph vers la droite il faut le diminuer d'autant
-            // log =
-            //   log +
-            //   Math.log10(
-            //     // Math.abs(this.rangeXLog.min) -
-            //       Math.abs(6)
-            //   );
-            // log = log + Math.log10(Math.abs(Math.log10(this.rangeXLog.diff) ));
+            log = this.rangeXLog.logtotwidth;
           }
-
-          // log = log - Math.log10(Math.abs(this.rangeXLog.firstminNeg));
-          // log = log - Math.log10(2);
-          // log = log + 2* Math.log10(2);
-          // if (this.rangeXLog.firstminNeg !== 0) {
-          //   log = log + Math.log10(Math.abs(this.rangeXLog.firstminNeg));
-          // }
-          // if (this.rangeXLog.firstmin !== 0) {
-          //   log = log + Math.log10(Math.abs(this.rangeXLog.firstmin));
-          // }
-
-          // log =
-          // Math.log10(this.rangeXLog.max) -
-          // Math.log10(this.rangeXLog.firstmin) +
-          // Math.log10(Math.abs(this.rangeXLog.min)) -
-          // Math.log10(Math.abs(this.rangeXLog.firstminNeg)) -
-          // Math.log10(2) -
-          // Math.log10(2);
         } else {
-          // log = Math.log10(Math.abs(this.rangeXLog.max));
-          // log =
-          //   log -
-          //   Math.log10(this.rangeXLog.firstmin) +
-          //   Math.log10(this.rangeXLog.middlewidth)
-            log =    this.rangeXLog.logtotwidth
-          //  0.1
-
-          // +
-          // Math.log10(2)
+          log = this.rangeXLog.logtotwidth;
         }
 
-        // if (this.rangeXLog.posInf && this.rangeXLog.negInf) {
-        //   log = log - Math.log10(Math.abs(this.rangeXLog.negInf));
-        // }
-        // if (this.rangeXLog.negInf && this.rangeXLog.posInf) {
-        //   log = log - Math.log10(Math.abs(this.rangeXLog.posInf));
-        // }
-
-        // log = 5.68
-        console.log(
-          'file: histogram.component.ts:176 ~ Histogram2Component ~ init ~ log:',
-          log
-        );
-        // log = 5.74
         this.ratio = this.w / log;
-        console.log(
-          'file: histogram.component.ts:156 ~ Histogram2Component ~ init ~  this.ratio:',
-          this.ratio
-        );
-        // this.drawZeroXAxis();
+        console.log('file: histogram.component.ts:149 ~ Histogram2Component ~ init ~ this.ratio:', this.ratio);
+
         this.drawXAxis(
           'pP',
           [this.rangeXLog.firstmin, this.rangeXLog.max],
@@ -348,31 +270,6 @@ export class Histogram2Component {
     parent.appendChild(targetElement);
   }
 
-  // drawZeroXAxis() {
-  //   let width = (Math.log10(this.rangeXLog.diff) / 20) * this.ratio;
-  //   console.log('file: histogram.component.ts:277 ~ Histogram2Component ~ drawZeroXAxis ~ width:', width);
-
-  //   let x = d3
-  //     .scaleLinear()
-  //     .domain([0, this.rangeXLog.firstmin])
-  //     .range([0, width]);
-
-  //   const axis = d3
-  //     .axisBottom(x)
-  //     .ticks(1)
-  //     .tickSize(-this.h + this.yPadding / 2);
-  //   this.svg
-  //     .append('g')
-  //     .attr('class', 'x axis-grid')
-  //     .attr('transform', 'translate(' + 0 + ',' + this.h + ') ') // This controls the vertical position of the Axis
-  //     .call(axis)
-  //     .selectAll('text')
-  //     .style('text-anchor', 'end')
-  //     .attr('dx', '-.8em')
-  //     .attr('dy', '.15em')
-  //     .attr('transform', 'rotate(-65)');
-  // }
-
   drawXAxis(
     part: string,
     domain: any,
@@ -394,8 +291,8 @@ export class Histogram2Component {
       } else {
         if (part === 'pP') {
           if (this.rangeXLog.min <= 0) {
-            shift = Math.log10( this.rangeXLog.middlewidth)* this.ratio;
-            width = width - Math.log10( this.rangeXLog.middlewidth)* this.ratio;
+            shift = Math.log10(this.rangeXLog.middlewidth) * this.ratio;
+            width = width - Math.log10(this.rangeXLog.middlewidth) * this.ratio;
 
             if (this.rangeXLog.negPart) {
               shift =

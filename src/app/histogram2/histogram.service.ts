@@ -20,21 +20,13 @@ export class Histogram2Service {
   constructor(private histogramUIService: HistogramUIService) {}
 
   getRangeX(datas: any) {
-    // if (part === 'pN') {
-    //   var filtered = datas;
-    //   var filtered = datas.filter(function (d: any) {
-    //     return d.partition[0] < 1;
-    //   });
-
-    // this.rangeXLog.pP.min = Math.abs(datas[0].partition[0]);
-    // this.rangeXLog.pP.max = Math.abs(datas[datas.length - 1].partition[1]);
     this.rangeXLog.min = datas[0].partition[0];
     this.rangeXLog.firstmin =
       datas.find(function (d: any) {
         return d.partition[0] > 0 && d.partition[1] > 0;
       })?.partition[0] || 0;
     this.rangeXLog.firstminNeg =
-      datas.find(function (d: any) {
+      datas.findLast(function (d: any) {
         return d.partition[0] < 0 && d.partition[1] < 0;
       })?.partition[0] || 0;
     this.rangeXLog.max = datas[datas.length - 1].partition[1];
@@ -73,13 +65,17 @@ export class Histogram2Service {
     this.rangeXLog.logtotwidth =
       Math.log10(Math.abs(this.rangeXLog.max)) -
       Math.log10(Math.abs(this.rangeXLog.firstmin));
+    // this.rangeXLog.totwidth =
+    //   Math.log10(Math.abs(this.rangeXLog.max)) -
+    //   Math.log10(Math.abs(this.rangeXLog.firstmin)) +
+    //   Math.log10(Math.abs(this.rangeXLog.min)) -
+    //   Math.log10(Math.abs(this.rangeXLog.firstminNeg));
 
     if (this.rangeXLog.min !== 0 && this.rangeXLog.firstminNeg !== 0) {
       this.rangeXLog.logtotwidth =
         this.rangeXLog.logtotwidth +
-          Math.log10(Math.abs(this.rangeXLog.min)) -
-            Math.log10(Math.abs(this.rangeXLog.firstminNeg))
-        ;
+        Math.log10(Math.abs(this.rangeXLog.min)) -
+        Math.log10(Math.abs(this.rangeXLog.firstminNeg));
     }
     this.rangeXLog.logtotwidth =
       this.rangeXLog.logtotwidth + Math.log10(this.rangeXLog.middlewidth);
@@ -136,16 +132,7 @@ export class Histogram2Service {
     return ratioY;
   }
 
-  getLogBarXDimensions(
-    i: number,
-    d: any,
-    w: any
-    // padding = 0,
-    // middleW = 0,
-    // ratioX = 0,
-    // logView: any
-  ) {
-    // console.log('d:', d);
+  getLogBarXDimensions(i: number, d: any, w: any) {
     let barW = 0;
     let x = 0;
     let color = this.histogramUIService.getColor(2);
@@ -153,9 +140,7 @@ export class Histogram2Service {
     if (i === 0) {
       this.barWs = [];
     }
-    // if (d.partition[0] >= 1 ) {
-    // barMin = Math.min(d.partition[1], d.partition[0]);
-    // barMin = barMin - this.rangeXLog.pP.min;
+
     x = 0;
 
     if (d.partition[0] === 0 || d.partition[1] === 0) {
@@ -173,20 +158,10 @@ export class Histogram2Service {
       if (d.partition[0] < 0 && d.partition[1] > 0) {
         // barW = Math.log10(this.rangeXLog.max) / 20;
         barW = Math.log10(this.rangeXLog.middlewidth);
+        // barW = 0
         color = this.histogramUIService.getColor(0);
       }
     }
-
-    // if (d.partition[0] <1) {
-    //   barW = 0
-    // }
-
-    // barW =
-    //   Math.log10(Math.abs(d.partition[1])) -
-    //   Math.log10(Math.abs(d.partition[0]));
-    // barW =
-    //   Math.log10((d.partition[1])) -
-    //   Math.log10((d.partition[0]));
 
     barW = Math.abs(barW);
     // console.log('file: histogram.service.ts:135 ~ barW:', barW);
