@@ -4,15 +4,14 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class Histogram2UIService {
-  chartColors = ['#ffb703', '#fb8500', '#023047'];
-
   constructor() {}
 
-  getColor(i: number) {
-    return this.chartColors[i];
+  static getColor(i: number): string {
+    const chartColors = ['#ffb703', '#fb8500', '#023047'];
+    return chartColors[i];
   }
 
-  generateTooltip(d: any) {
+  static generateTooltip(d: any) {
     let logRange =
       '[' +
       this.getSign(d.partition[0]) +
@@ -38,7 +37,7 @@ export class Histogram2UIService {
     );
   }
 
-  getSign(input: number) {
+  static getSign(input: number) {
     return input > 0 ? '' : '-';
   }
 }

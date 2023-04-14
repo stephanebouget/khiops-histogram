@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Histogram2Type as HistogramType } from './histogram.types';
-import { Histogram2UIService as HistogramUIService } from './histogram.ui.service';
+import { HistogramBarVO } from './histogram.bar-vo';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +16,7 @@ export class Histogram2Service {
   rangeXLog: any = {};
   barWs: any[] = [];
 
-  constructor(private histogramUIService: HistogramUIService) {}
+  constructor() {}
 
   getRangeX(datas: any) {
     this.rangeXLog.min =
@@ -171,97 +170,15 @@ export class Histogram2Service {
     return ratioY;
   }
 
-  // getLogBarXDimensions(i: number, d: any, w: any) {
-  //   let barW = 0;
-  //   let x = 0;
-  //   let color = this.histogramUIService.getColor(2);
-
-  //   if (i === 0) {
-  //     this.barWs = [];
-  //   }
-
-  //   x = 0;
-
-  //   if (d.partition[0] === 0 || d.partition[1] === 0) {
-  //     // barW = Math.log10(this.rangeXLog.max) / 20; // 20 = 1/10 /2
-  //     barW = Math.log10(this.rangeXLog.middlewidth);
-  //     // barW = Math.log10(2)
-  //     // barW = 0.5
-  //     // barW = 1 / Math.pow(w / 20, 10)
-  //     color = this.histogramUIService.getColor(1);
-  //   } else {
-  //     barW =
-  //       Math.log10(Math.abs(d.partition[0])) -
-  //       Math.log10(Math.abs(d.partition[1]));
-
-  //     if (d.partition[0] < 0 && d.partition[1] > 0) {
-  //       // barW = Math.log10(this.rangeXLog.max) / 20;
-  //       barW = Math.log10(this.rangeXLog.middlewidth);
-  //       // barW = 0
-  //       color = this.histogramUIService.getColor(0);
-  //     }
-  //   }
-
-  //   // barW =
-  //   // Math.log10(Math.abs(d.partition[0])) -
-  //   // Math.log10(Math.abs(d.partition[1]))
-
-  //   barW = Math.abs(barW);
-  //   console.log('file: histogram.service.ts:135 ~ barW:', barW);
-
-  //   const sum = this.barWs.reduce(
-  //     (partialSum: any, a: any) => Math.abs(partialSum) + Math.abs(a),
-  //     0
-  //   );
-  //   this.barWs.push(barW);
-  //   x = sum || 0;
-  //   console.log(
-  //     'file: histogram.service.ts:200 ~ Histogram2Service ~ getLogBarXDimensions ~ sum:',
-  //     sum
-  //   );
-
-  //   return [x, barW, color, sum];
-  // }
   computeLogBarXDimensions(datas: any) {
-    let barWs: any = [];
-    let barXs: any = [];
+    let bars: HistogramBarVO[] = [];
 
     datas.forEach((d: any, i: number) => {
-      let barW = 0;
-      let x = 0;
-      // let color = this.histogramUIService.getColor(2);
-      let sum;
-
-      if (d.partition[0] === 0 || d.partition[1] === 0) {
-        barW = Math.log10(this.rangeXLog.middlewidth);
-        // color = this.histogramUIService.getColor(1);
-      } else {
-        barW =
-          Math.log10(Math.abs(d.partition[0])) -
-          Math.log10(Math.abs(d.partition[1]));
-
-        if (d.partition[0] < 0 && d.partition[1] > 0) {
-          barW = Math.log10(this.rangeXLog.middlewidth) * 2;
-          // color = this.histogramUIService.getColor(0);
-        }
-      }
-
-      barW = Math.abs(barW);
-
-      sum = barWs.reduce(
-        (partialSum: any, a: any) => Math.abs(partialSum) + Math.abs(a),
-        0
-      );
-      barWs.push(barW);
-      x = sum || 0;
-      barXs.push(x);
+      let histogramBar = new HistogramBarVO(d, this.rangeXLog.middlewidth);
+      histogramBar.computeX(bars);
+      bars.push(histogramBar);
     });
 
-    console.log(
-      'file: histogram.service.ts:242 ~ Histogram2Service ~ computeLogBarXDimensions ~ barW:',
-      barWs,
-      barXs
-    );
-    return [barWs, barXs];
+    return bars;
   }
 }

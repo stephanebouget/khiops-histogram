@@ -10,6 +10,7 @@ import { Histogram2Service as HistogramService } from './histogram.service';
 import { format } from 'mathjs';
 import { Histogram2UIService as HistogramUIService } from './histogram.ui.service';
 import { Histogram2Type as HistogramType } from './histogram.types';
+import { HistogramBarVO } from './histogram.bar-vo';
 
 @Component({
   selector: 'app-histogram-2',
@@ -123,13 +124,11 @@ export class Histogram2Component {
         this.drawChart(this.w);
         this.drawYAxis();
         this.addTooltip();
-        let logW;
 
         [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
           this.datas
         );
 
-        let log = 0;
         // log = this.rangeXLog.logtotwidth;
 
         // if (this.rangeXLog.min > 0) {
@@ -180,109 +179,16 @@ export class Histogram2Component {
       .attr('class', 'tooltip');
   }
 
-  // drawRect(d: any, i: number) {
-  //   var self = this;
-  //   let x: any, barH, barW: any, ratio: any, color;
-
-  //   if (this.xType === HistogramType.LIN) {
-  //   } else {
-  //     [x, barW, color, ratio] = this.histogramService.getLogBarXDimensions(
-  //       i,
-  //       d,
-  //       this.w
-  //     );
-  //     ratio = 1.54;
-  //     x = (this.w / ratio) * x;
-  //     barW = (this.w / ratio) * barW;
-  //     console.log(
-  //       'file: histogram.component.ts:198 ~ Histogram2Component ~ drawRect ~ barW:',
-  //       barW
-  //     );
-  //   }
-
-  //   const onclickRect = function (e: any) {
-  //     //@ts-ignore
-  //     d3.select(this.parentNode).selectAll('rect').style('stroke-width', '0');
-  //     //@ts-ignore
-  //     d3.select(this).style('stroke-width', '2px');
-  //     self.bringSvgToTop(document.getElementById('rect-' + i));
-  //   };
-  //   const mouseover = function (e: any) {
-  //     //@ts-ignore
-  //     self.tooltip.style('display', 'block').style('width', '140px');
-  //   };
-  //   const mousemove = function (e: any) {
-  //     const tooltipText = self.histogramUIService.generateTooltip(d);
-  //     //@ts-ignore
-  //     self.tooltip.html(tooltipText);
-  //     //@ts-ignore
-  //     self.tooltip.style('margin-left', e.clientX - 70 + 'px');
-  //     //@ts-ignore
-  //     self.tooltip.style('margin-top', e.layerY - self.h / 2 + 'px');
-  //   };
-  //   const mouseleave = function (e: any) {
-  //     //@ts-ignore
-  //     self.tooltip
-  //       .style('display', 'none')
-  //       .style('margin-left', '0px')
-  //       .style('margin-top', '0px');
-  //   };
-
-  //   if (this.yType === HistogramType.LIN) {
-  //     barH = d.value * this.ratioY;
-  //   } else {
-  //     if (d.logValue !== 0) {
-  //       let shift = Math.abs(this.rangeYLog.max);
-  //       barH = Math.abs(d.logValue) * this.ratioY - shift * this.ratioY;
-  //       barH = this.h - this.yPadding / 2 - barH;
-  //     } else {
-  //       barH = 0;
-  //     }
-  //   }
-  //   if (barH !== 0 && barH < this.minBarHeight) {
-  //     barH = this.minBarHeight;
-  //   }
-  //   // barW = barW * this.ratioX;
-  //   // if (barW !== 0 && barW < this.minBarWidth) {
-  //   //   barW = this.minBarWidth;
-  //   // }
-  //   // console.log(
-  //   //   'file: histogram.component.ts:392 ~ Histogram2Component ~ drawRect ~ barW:',
-  //   //   barW
-  //   // );
-
-  //   this.svg
-  //     .append('rect')
-  //     .attr('id', 'rect-' + i)
-  //     .attr('x', x)
-  //     .attr('y', this.h - barH)
-  //     .attr('stroke', 'black')
-  //     .attr('stroke-width', '0')
-  //     .on('click', onclickRect)
-  //     .on('mouseover', mouseover)
-  //     .on('mousemove', mousemove)
-  //     .on('mouseleave', mouseleave)
-  //     .attr('width', barW)
-  //     .attr('height', barH)
-  //     .attr('fill', color);
-  // }
-  drawRect2(d: any, i: number, barWs: any, barXs: any) {
+  drawRect(d: any, i: number, bar: HistogramBarVO, ratio = 1) {
     var self = this;
-    let x: any, barH, barW: any, ratio: any, color;
+    let barX: any, barH, barW: any;
 
     if (this.xType === HistogramType.LIN) {
+      barX = (this.w / ratio) * bar.barX;
+      barW = (this.w / ratio) * bar.barW;
     } else {
-      ratio = barXs[barXs.length - 1] + barWs[barWs.length - 1];
-      x = (this.w / ratio) * barXs[i];
-      barW = (this.w / ratio) * barWs[i];
-      color = this.histogramUIService.getColor(2);
-
-      if (d.partition[0] < 0 && d.partition[1] > 0) {
-        color = this.histogramUIService.getColor(0);
-      }
-      if (d.partition[0] === 0 || d.partition[1] === 0) {
-        color = this.histogramUIService.getColor(1);
-      }
+      barX = (this.w / ratio) * bar.barX;
+      barW = (this.w / ratio) * bar.barW;
     }
 
     const onclickRect = function (e: any) {
@@ -297,7 +203,7 @@ export class Histogram2Component {
       self.tooltip.style('display', 'block').style('width', '140px');
     };
     const mousemove = function (e: any) {
-      const tooltipText = self.histogramUIService.generateTooltip(d);
+      const tooltipText = HistogramUIService.generateTooltip(d);
       //@ts-ignore
       self.tooltip.html(tooltipText);
       //@ts-ignore
@@ -339,7 +245,7 @@ export class Histogram2Component {
     this.svg
       .append('rect')
       .attr('id', 'rect-' + i)
-      .attr('x', x)
+      .attr('x', barX)
       .attr('y', this.h - barH)
       .attr('stroke', 'black')
       .attr('stroke-width', '0')
@@ -349,15 +255,17 @@ export class Histogram2Component {
       .on('mouseleave', mouseleave)
       .attr('width', barW)
       .attr('height', barH)
-      .attr('fill', color);
+      .attr('fill', bar.color);
   }
 
   drawHistogram(datasSet: any) {
-    let barWs: any, barXs: any;
-    [barWs, barXs] = this.histogramService.computeLogBarXDimensions(datasSet);
+    let bars: HistogramBarVO[] =
+      this.histogramService.computeLogBarXDimensions(datasSet);
+
+    let ratio = bars[bars.length - 1].barX + bars[bars.length - 1].barW;
 
     datasSet.forEach((d: any, i: number) => {
-      this.drawRect2(d, i, barWs, barXs);
+      this.drawRect(d, i, bars[i], ratio);
     });
   }
 
@@ -380,11 +288,11 @@ export class Histogram2Component {
       width
     );
     if (width !== 0) {
-      let x;
+      let barX;
       let tickCount = this.xTickCount;
 
       if (this.xType === HistogramType.LIN) {
-        x = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
+        barX = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
       } else {
         if (part === 'pP') {
           if (this.rangeXLog.min <= 0) {
@@ -405,15 +313,15 @@ export class Histogram2Component {
           }
         }
 
-        x = d3.scaleLog().base(10).domain(domain).range([0, width]);
+        barX = d3.scaleLog().base(10).domain(domain).range([0, width]);
       }
       // if (part === 'p0') {
-      //   x = d3.scaleLinear().domain(domain).range([0, width]);
+      //   barX = d3.scaleLinear().domain(domain).range([0, width]);
       //   tickCount = 3;
       // }
 
       const axis = d3
-        .axisBottom(x)
+        .axisBottom(barX)
         .ticks(tickCount)
         .tickSize(-this.h + this.yPadding / 2)
         //@ts-ignore
@@ -461,7 +369,7 @@ export class Histogram2Component {
         });
       this.svg
         .append('g')
-        .attr('class', 'x axis-grid')
+        .attr('class', 'barX axis-grid')
         .attr('transform', 'translate(' + shift + ',' + this.h + ') ') // This controls the vertical position of the Axis
         .call(axis)
         .selectAll('text')
