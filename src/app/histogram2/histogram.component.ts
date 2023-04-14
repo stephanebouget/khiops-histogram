@@ -42,7 +42,7 @@ export class Histogram2Component {
   yTicksCount = 25;
   tickSize = 0;
   minBarHeight = 4;
-  minBarWidth = 1;
+  minbarWlogidth = 1;
 
   // Local variables
   rangeXLog: any;
@@ -116,11 +116,6 @@ export class Histogram2Component {
           );
         }
 
-        // if (this.xType === HistogramType.LOG) {
-        //   this.drawLogX();
-        // } else {
-        //   this.drawLinX();
-        // }
         this.drawChart(this.w);
         this.drawYAxis();
         this.addTooltip();
@@ -128,29 +123,6 @@ export class Histogram2Component {
         [this.rangeXLin, this.rangeXLog] = this.histogramService.getRangeX(
           this.datas
         );
-
-        // log = this.rangeXLog.logtotwidth;
-
-        // if (this.rangeXLog.min > 0) {
-        //   log = Math.log10(Math.abs(this.rangeXLog.max));
-        //   log = log - Math.log10(Math.abs(this.rangeXLog.min));
-        // } else if (this.rangeXLog.min !== 0) {
-        //   log = Math.log10(Math.abs(this.rangeXLog.max));
-        //   log = log - Math.log10(Math.abs(this.rangeXLog.posStart));
-        //   log = this.rangeXLog.logtotwidth;
-
-        //   // if (this.rangeXLog.negPart) {
-        //   //   log = this.rangeXLog.logtotwidth;
-        //   // }
-        //   // if (this.rangeXLog.negStart === 0) {
-        //   //   log = this.rangeXLog.logtotwidth;
-        //   // }
-        // } else {
-        //   // log = this.rangeXLog.logtotwidth;
-        // }
-
-        // this.ratio = this.w / log;
-        // console.log('file: histogram.component.ts:154 ~ Histogram2Component ~ init ~ log:', log);
 
         // this.drawXAxis(
         //   'pP',
@@ -179,16 +151,16 @@ export class Histogram2Component {
       .attr('class', 'tooltip');
   }
 
-  drawRect(d: any, i: number, bar: HistogramBarVO, ratio = 1) {
+  drawRect(d: any, i: number, bar: HistogramBarVO, ratio = 0) {
     var self = this;
-    let barX: any, barH, barW: any;
+    let barXlog: any, barH, barWlog: any;
 
     if (this.xType === HistogramType.LIN) {
-      barX = (this.w / ratio) * bar.barX;
-      barW = (this.w / ratio) * bar.barW;
+      barXlog = (this.w / ratio) * bar.barXlin;
+      barWlog = (this.w / ratio) * bar.barWlin;
     } else {
-      barX = (this.w / ratio) * bar.barX;
-      barW = (this.w / ratio) * bar.barW;
+      barXlog = (this.w / ratio) * bar.barXlog;
+      barWlog = (this.w / ratio) * bar.barWlog;
     }
 
     const onclickRect = function (e: any) {
@@ -233,19 +205,19 @@ export class Histogram2Component {
     if (barH !== 0 && barH < this.minBarHeight) {
       barH = this.minBarHeight;
     }
-    // barW = barW * this.ratioX;
-    // if (barW !== 0 && barW < this.minBarWidth) {
-    //   barW = this.minBarWidth;
+    // barWlog = barWlog * this.ratioX;
+    // if (barWlog !== 0 && barWlog < this.minbarWlogidth) {
+    //   barWlog = this.minbarWlogidth;
     // }
     // console.log(
-    //   'file: histogram.component.ts:392 ~ Histogram2Component ~ drawRect ~ barW:',
-    //   barW
+    //   'file: histogram.component.ts:392 ~ Histogram2Component ~ drawRect ~ barWlog:',
+    //   barWlog
     // );
 
     this.svg
       .append('rect')
       .attr('id', 'rect-' + i)
-      .attr('x', barX)
+      .attr('x', barXlog)
       .attr('y', this.h - barH)
       .attr('stroke', 'black')
       .attr('stroke-width', '0')
@@ -253,17 +225,20 @@ export class Histogram2Component {
       .on('mouseover', mouseover)
       .on('mousemove', mousemove)
       .on('mouseleave', mouseleave)
-      .attr('width', barW)
+      .attr('width', barWlog)
       .attr('height', barH)
       .attr('fill', bar.color);
   }
 
   drawHistogram(datasSet: any) {
     let bars: HistogramBarVO[] =
-      this.histogramService.computeLogBarXDimensions(datasSet);
-
-    let ratio = bars[bars.length - 1].barX + bars[bars.length - 1].barW;
-
+      this.histogramService.computeLogbarXlogDimensions(datasSet);
+    let ratio = 0;
+    if (this.xType === HistogramType.LIN) {
+      ratio = bars[bars.length - 1].barXlin + bars[bars.length - 1].barWlin;
+    } else {
+      ratio = bars[bars.length - 1].barXlog + bars[bars.length - 1].barWlog;
+    }
     datasSet.forEach((d: any, i: number) => {
       this.drawRect(d, i, bars[i], ratio);
     });
@@ -288,11 +263,11 @@ export class Histogram2Component {
       width
     );
     if (width !== 0) {
-      let barX;
+      let barXlog;
       let tickCount = this.xTickCount;
 
       if (this.xType === HistogramType.LIN) {
-        barX = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
+        barXlog = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
       } else {
         if (part === 'pP') {
           if (this.rangeXLog.min <= 0) {
@@ -313,15 +288,15 @@ export class Histogram2Component {
           }
         }
 
-        barX = d3.scaleLog().base(10).domain(domain).range([0, width]);
+        barXlog = d3.scaleLog().base(10).domain(domain).range([0, width]);
       }
       // if (part === 'p0') {
-      //   barX = d3.scaleLinear().domain(domain).range([0, width]);
+      //   barXlog = d3.scaleLinear().domain(domain).range([0, width]);
       //   tickCount = 3;
       // }
 
       const axis = d3
-        .axisBottom(barX)
+        .axisBottom(barXlog)
         .ticks(tickCount)
         .tickSize(-this.h + this.yPadding / 2)
         //@ts-ignore
@@ -369,7 +344,7 @@ export class Histogram2Component {
         });
       this.svg
         .append('g')
-        .attr('class', 'barX axis-grid')
+        .attr('class', 'barXlog axis-grid')
         .attr('transform', 'translate(' + shift + ',' + this.h + ') ') // This controls the vertical position of the Axis
         .call(axis)
         .selectAll('text')
