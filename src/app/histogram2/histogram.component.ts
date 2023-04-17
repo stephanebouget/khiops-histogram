@@ -38,7 +38,7 @@ export class Histogram2Component {
   middleW = 0;
 
   // Static config values
-  xTickCount = 26;
+  xTickCount = 40;
   yTicksCount = 25;
   tickSize = 0;
   minBarHeight = 4;
@@ -124,13 +124,22 @@ export class Histogram2Component {
           this.datas
         );
 
-        // this.drawXAxis(
-        //   'pP',
-        //   [this.rangeXLog.posStart, this.rangeXLog.max],
-        //   this.padding,
-        //   this.w
-        // );
         this.drawHistogram(this.datas);
+
+        let shift = 0;
+        let width = this.w;
+        let domain = [this.rangeXLog.posStart, this.rangeXLog.max];
+        if (this.rangeXLog.inf) {
+          shift =
+            (this.w / this.ratio) * Math.log10(this.rangeXLog.middlewidth);
+        }
+        if (this.rangeXLog.min < 0) {
+          domain = [this.rangeXLog.posStart, this.rangeXLog.max];
+          shift =
+            (this.w / this.ratio) * Math.log10(this.rangeXLog.middlewidth) * 2;
+          width -= shift;
+        }
+        this.drawXAxis(domain, shift, width, false);
       }
     }
   }
@@ -233,14 +242,16 @@ export class Histogram2Component {
   drawHistogram(datasSet: any) {
     let bars: HistogramBarVO[] =
       this.histogramService.computeLogbarXlogDimensions(datasSet);
-    let ratio = 0;
+    this.ratio = 0;
     if (this.xType === HistogramType.LIN) {
-      ratio = bars[bars.length - 1].barXlin + bars[bars.length - 1].barWlin;
+      this.ratio =
+        bars[bars.length - 1].barXlin + bars[bars.length - 1].barWlin;
     } else {
-      ratio = bars[bars.length - 1].barXlog + bars[bars.length - 1].barWlog;
+      this.ratio =
+        bars[bars.length - 1].barXlog + bars[bars.length - 1].barWlog;
     }
     datasSet.forEach((d: any, i: number) => {
-      this.drawRect(d, i, bars[i], ratio);
+      this.drawRect(d, i, bars[i], this.ratio);
     });
   }
 
@@ -250,53 +261,19 @@ export class Histogram2Component {
     parent.appendChild(targetElement);
   }
 
-  drawXAxis(
-    part: string,
-    domain: any,
-    shift: number,
-    width: number,
-    reverse = false
-  ) {
-    console.log(
-      'file: histogram.component.ts:394 ~ HistogramComponent ~ domain:',
-      domain,
-      width
-    );
+  drawXAxis(domain: any, shift: number, width: number, reverse = false) {
     if (width !== 0) {
-      let barXlog;
+      let xAxis;
       let tickCount = this.xTickCount;
 
       if (this.xType === HistogramType.LIN) {
-        barXlog = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
+        xAxis = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
       } else {
-        if (part === 'pP') {
-          if (this.rangeXLog.min <= 0) {
-            shift = Math.log10(this.rangeXLog.middlewidth) * this.ratio;
-            width = width - Math.log10(this.rangeXLog.middlewidth) * this.ratio;
-
-            if (this.rangeXLog.negPart) {
-              shift =
-                shift +
-                (Math.log10(Math.abs(this.rangeXLog.min)) -
-                  Math.log10(Math.abs(this.rangeXLog.negStart))) *
-                  this.ratio;
-              // shift =                shift + (Math.log10(this.rangeXLog.diff) / 20) * this.ratio;
-              // width =
-              //   width /
-              //   (Math.abs(this.rangeXLog.diff) / Math.abs(this.rangeXLog.min));
-            }
-          }
-        }
-
-        barXlog = d3.scaleLog().base(10).domain(domain).range([0, width]);
+        xAxis = d3.scaleLog().base(10).domain(domain).range([0, width]);
       }
-      // if (part === 'p0') {
-      //   barXlog = d3.scaleLinear().domain(domain).range([0, width]);
-      //   tickCount = 3;
-      // }
 
       const axis = d3
-        .axisBottom(barXlog)
+        .axisBottom(xAxis)
         .ticks(tickCount)
         .tickSize(-this.h + this.yPadding / 2)
         //@ts-ignore
@@ -313,33 +290,33 @@ export class Histogram2Component {
             }
           } else {
             return this.formatTickDEBUG(val, reverse);
-            if (part === 'p0') {
-              if (i === 1) {
-                return '-Infinity';
-              }
-            } else {
-              let xTicksValuesCount = Math.ceil((1 / this.w) * 1000 * 3);
+            // if (part === 'p0') {
+            //   if (i === 1) {
+            //     return '-Infinity';
+            //   }
+            // } else {
+            //   let xTicksValuesCount = Math.ceil((1 / this.w) * 1000 * 3);
 
-              // Adjust according to charts number
-              xTicksValuesCount = Math.ceil(
-                (xTicksValuesCount / 4) * this.visibleChartsCount
-              );
+            //   // Adjust according to charts number
+            //   xTicksValuesCount = Math.ceil(
+            //     (xTicksValuesCount / 4) * this.visibleChartsCount
+            //   );
 
-              if (i === 0) {
-                if (part === 'p0N' || part === 'p1P') {
-                  return;
-                }
-                if (domain[0] < domain[1]) {
-                  return this.formatTickDEBUG(0, false);
-                }
-              } else if (val === 1) {
-                // always show 1
-                return this.formatTickDEBUG(val, reverse);
-              } else if (i % xTicksValuesCount === 0) {
-                // return this.formatTick(val, reverse);
-                return this.formatTickDEBUG(val, reverse);
-              }
-            }
+            //   if (i === 0) {
+            //     if (part === 'p0N' || part === 'p1P') {
+            //       return;
+            //     }
+            //     if (domain[0] < domain[1]) {
+            //       return this.formatTickDEBUG(0, false);
+            //     }
+            //   } else if (val === 1) {
+            //     // always show 1
+            //     return this.formatTickDEBUG(val, reverse);
+            //   } else if (i % xTicksValuesCount === 0) {
+            //     // return this.formatTick(val, reverse);
+            //     return this.formatTickDEBUG(val, reverse);
+            //   }
+            // }
           }
         });
       this.svg
