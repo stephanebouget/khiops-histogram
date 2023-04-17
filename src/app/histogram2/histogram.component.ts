@@ -38,7 +38,7 @@ export class Histogram2Component {
   middleW = 0;
 
   // Static config values
-  xTickCount = 40;
+  xTickCount = 30;
   yTicksCount = 25;
   tickSize = 0;
   minBarHeight = 4;
@@ -129,16 +129,33 @@ export class Histogram2Component {
         let shift = 0;
         let width = this.w;
         let domain = [this.rangeXLog.posStart, this.rangeXLog.max];
-        if (this.rangeXLog.inf) {
-          shift =
-            (this.w / this.ratio) * Math.log10(this.rangeXLog.middlewidth);
-        }
-        if (this.rangeXLog.min < 0) {
-          domain = [this.rangeXLog.posStart, this.rangeXLog.max];
-          shift =
+
+        if (this.rangeXLog.min) {
+          shift +=
             (this.w / this.ratio) * Math.log10(this.rangeXLog.middlewidth) * 2;
-          width -= shift;
+          if (this.rangeXLog.negValuesCount !== 0) {
+            shift +=
+              (this.w / this.ratio) * Math.log10(Math.abs(this.rangeXLog.min));
+
+            shift -=
+              (this.w / this.ratio) *
+              Math.log10(Math.abs(this.rangeXLog.negStart));
+          }
         }
+        width = this.w - shift;
+
+        console.log(
+          'file: histogram.component.ts:175 ~ Histogram2Component ~ init ~ domain:',
+          domain
+        );
+        console.log(
+          'file: histogram.component.ts:176 ~ Histogram2Component ~ init ~ shift:',
+          shift
+        );
+        console.log(
+          'file: histogram.component.ts:177 ~ Histogram2Component ~ init ~  width:',
+          width
+        );
         this.drawXAxis(domain, shift, width, false);
       }
     }

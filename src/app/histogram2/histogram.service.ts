@@ -19,28 +19,46 @@ export class Histogram2Service {
   constructor() {}
 
   getRangeX(datas: any) {
+    this.rangeXLog.inf = datas.find(function (d: any) {
+      return d.partition[0] === 0 || d.partition[1] === 0;
+    });
+
     this.rangeXLog.min =
       datas.find(function (d: any) {
         return d.partition[0] < 0;
       })?.partition[0] || 0;
-
-    this.rangeXLog.negStart =
-      datas.findLast(function (d: any) {
-        return d.partition[0] < 0 && d.partition[1] <= 0;
-      })?.partition[1] || -1;
-    this.rangeXLog.posStart =
-      datas.find(function (d: any) {
-        return d.partition[0] > 0 && d.partition[1] > 0;
-      })?.partition[0] || 1;
+    this.rangeXLog.negValuesCount = datas.filter(function (d: any) {
+      return d.partition[1] < 0;
+    })?.length;
+    this.rangeXLog.posValuesCount = datas.filter(function (d: any) {
+      return d.partition[1] > 0;
+    })?.length;
+    if (this.rangeXLog.inf) {
+      // 0 exist
+      this.rangeXLog.negStart =
+        datas.findLast(function (d: any) {
+          return d.partition[0] < 0 && d.partition[1] <= 0;
+        })?.partition[0] || -1;
+      this.rangeXLog.posStart =
+        datas.find(function (d: any) {
+          return d.partition[0] > 0 && d.partition[1] > 0;
+        })?.partition[0] || 1;
+    } else {
+      this.rangeXLog.negStart =
+        datas.findLast(function (d: any) {
+          return d.partition[0] < 0 && d.partition[1] <= 0;
+        })?.partition[1] || -1;
+      this.rangeXLog.posStart =
+        datas.find(function (d: any) {
+          return d.partition[0] > 0 && d.partition[1] > 0;
+        })?.partition[0] || 1;
+    }
 
     this.rangeXLog.max =
       datas.findLast(function (d: any) {
         return d.partition[1] > 0;
       })?.partition[1] || 0;
 
-    this.rangeXLog.inf = datas.find(function (d: any) {
-      return d.partition[0] === 0 || d.partition[1] === 0;
-    });
     this.rangeXLog.middlewidth = 1.2;
 
     this.rangeXLin = 0;
@@ -72,10 +90,6 @@ export class Histogram2Service {
     this.rangeYLog.min = Math.floor(Math.min(...dataValues));
     this.rangeYLog.realMax = Math.max(...dataValues);
     this.rangeYLog.realMin = Math.min(...dataValues);
-    console.log(
-      'file: histogram.service.ts:75 ~ getLogRangeY ~ this.rangeYLog:',
-      this.rangeYLog
-    );
 
     return this.rangeYLog;
   }

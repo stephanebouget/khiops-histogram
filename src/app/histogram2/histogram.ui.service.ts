@@ -38,6 +38,6 @@ export class Histogram2UIService {
   }
 
   static getSign(input: number) {
-    return input > 0 ? '' : '-';
+    return Math.log10(input) > 0 ? '' : '-';
   }
 }
