@@ -1,12 +1,12 @@
-import { HistogramType } from '../histogram/histogram.types';
-import { Histogram2UIService } from '../histogram2/histogram.ui.service';
+import { HistogramType } from './histogram.types';
+import { HistogramUIService } from '../histogram/histogram.ui.service';
 
 export class HistogramBarVO {
   barWlog: number = 0;
   barXlog: number = 0;
   barWlin: number = 0;
   barXlin: number = 0;
-  color: string = Histogram2UIService.getColor(2);
+  color: string = HistogramUIService.getColor(2);
   partition = [];
 
   constructor(d: any, middlewidth: number, xType: string) {
@@ -20,7 +20,7 @@ export class HistogramBarVO {
       let barWlog = 0;
       if (d.partition[0] === 0 || d.partition[1] === 0) {
         barWlog = Math.log10(middlewidth);
-        this.color = Histogram2UIService.getColor(1);
+        this.color = HistogramUIService.getColor(1);
       } else {
         barWlog =
           Math.log10(Math.abs(this.partition[0])) -
@@ -28,7 +28,7 @@ export class HistogramBarVO {
 
         if (this.partition[0] < 0 && this.partition[1] > 0) {
           barWlog = Math.log10(middlewidth) * 2;
-          this.color = Histogram2UIService.getColor(0);
+          this.color = HistogramUIService.getColor(0);
         }
       }
       this.barWlog = Math.abs(barWlog);
