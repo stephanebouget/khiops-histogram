@@ -38,7 +38,7 @@ export class Histogram2Component {
   middleW = 0;
 
   // Static config values
-  xTickCount = 30;
+  xTickCount = 12;
   yTicksCount = 25;
   tickSize = 0;
   minBarHeight = 4;
@@ -126,24 +126,22 @@ export class Histogram2Component {
 
         this.drawHistogram(this.datas);
 
+        // Draw positive axis
         let shift = 0;
         let width = this.w;
         let domain = [this.rangeXLog.posStart, this.rangeXLog.max];
-
         if (this.rangeXLog.min) {
           shift +=
             (this.w / this.ratio) * Math.log10(this.rangeXLog.middlewidth) * 2;
           if (this.rangeXLog.negValuesCount !== 0) {
             shift +=
               (this.w / this.ratio) * Math.log10(Math.abs(this.rangeXLog.min));
-
             shift -=
               (this.w / this.ratio) *
               Math.log10(Math.abs(this.rangeXLog.negStart));
           }
         }
         width = this.w - shift;
-
         console.log(
           'file: histogram.component.ts:175 ~ Histogram2Component ~ init ~ domain:',
           domain
@@ -157,6 +155,18 @@ export class Histogram2Component {
           width
         );
         this.drawXAxis(domain, shift, width, false);
+
+        // Draw negative axis
+        width = this.w - width;
+        if (
+          this.rangeXLog.inf ||
+          this.rangeXLog.negStart !== this.rangeXLog.min
+        ) {
+          width =
+            width -
+            (this.w / this.ratio) * Math.log10(this.rangeXLog.middlewidth) * 2;
+        }
+        this.drawXAxis(domain, 0, width, false);
       }
     }
   }
@@ -282,6 +292,10 @@ export class Histogram2Component {
     if (width !== 0) {
       let xAxis;
       let tickCount = this.xTickCount;
+
+      // if (this.xType === HistogramType.LOG) {
+      //   tickCount = Math.log10(domain[1]);
+      // }
 
       if (this.xType === HistogramType.LIN) {
         xAxis = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
