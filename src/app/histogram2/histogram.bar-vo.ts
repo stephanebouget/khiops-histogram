@@ -1,3 +1,4 @@
+import { HistogramType } from '../histogram/histogram.types';
 import { Histogram2UIService } from '../histogram2/histogram.ui.service';
 
 export class HistogramBarVO {
@@ -8,29 +9,30 @@ export class HistogramBarVO {
   color: string = Histogram2UIService.getColor(2);
   partition = [];
 
-  constructor(d: any, middlewidth: number) {
+  constructor(d: any, middlewidth: number, xType: string) {
     this.partition = d.partition;
-    let barWlog = 0;
-    let barWlin = 0;
-    if (d.partition[0] === 0 || d.partition[1] === 0) {
-      barWlog = Math.log10(middlewidth);
-      barWlin = middlewidth;
-      this.color = Histogram2UIService.getColor(1);
-    } else {
-      barWlog =
-        Math.log10(Math.abs(this.partition[0])) -
-        Math.log10(Math.abs(this.partition[1]));
+
+    if (xType === HistogramType.LIN) {
+      let barWlin = 0;
       barWlin = Math.abs(this.partition[0]) - Math.abs(this.partition[1]);
+      this.barWlin = Math.abs(barWlin);
+    } else {
+      let barWlog = 0;
+      if (d.partition[0] === 0 || d.partition[1] === 0) {
+        barWlog = Math.log10(middlewidth);
+        this.color = Histogram2UIService.getColor(1);
+      } else {
+        barWlog =
+          Math.log10(Math.abs(this.partition[0])) -
+          Math.log10(Math.abs(this.partition[1]));
 
-      if (this.partition[0] < 0 && this.partition[1] > 0) {
-        barWlog = Math.log10(middlewidth) * 2;
-        barWlin = middlewidth * 2;
-        this.color = Histogram2UIService.getColor(0);
+        if (this.partition[0] < 0 && this.partition[1] > 0) {
+          barWlog = Math.log10(middlewidth) * 2;
+          this.color = Histogram2UIService.getColor(0);
+        }
       }
+      this.barWlog = Math.abs(barWlog);
     }
-
-    this.barWlog = Math.abs(barWlog);
-    this.barWlin = Math.abs(barWlin);
   }
 
   computeX(bars: HistogramBarVO[]) {

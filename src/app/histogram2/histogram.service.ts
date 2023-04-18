@@ -5,7 +5,7 @@ import { HistogramBarVO } from './histogram.bar-vo';
   providedIn: 'root',
 })
 export class Histogram2Service {
-  rangeXLin: number = 0;
+  rangeXLin: any = {};
   rangeYLin: number = 0;
   rangeYLog = {
     min: 0,
@@ -61,7 +61,8 @@ export class Histogram2Service {
 
     this.rangeXLog.middlewidth = 1.2;
 
-    this.rangeXLin = 0;
+    this.rangeXLin.min = datas[0].partition[0];
+    this.rangeXLin.max = datas[datas.length - 1].partition[1];
 
     console.log(
       'file: histogram.service.ts:84 ~ Histogram2Service ~ getRangeX ~ this.rangeXLin, this.rangeXLog:',
@@ -94,11 +95,6 @@ export class Histogram2Service {
     return this.rangeYLog;
   }
 
-  getLinRatioX(w: number) {
-    let ratioX = w / this.rangeXLin;
-    return ratioX;
-  }
-
   getLinRatioY(h: number, padding: number) {
     let ratioY = (h - padding / 2) / this.rangeYLin;
     return ratioY;
@@ -111,11 +107,15 @@ export class Histogram2Service {
     return ratioY;
   }
 
-  computeLogbarXlogDimensions(datas: any) {
+  computeXbarDimensions(datas: any, xType: string) {
     let bars: HistogramBarVO[] = [];
 
     datas.forEach((d: any, i: number) => {
-      let histogramBar = new HistogramBarVO(d, this.rangeXLog.middlewidth);
+      let histogramBar = new HistogramBarVO(
+        d,
+        this.rangeXLog.middlewidth,
+        xType
+      );
       histogramBar.computeX(bars);
       bars.push(histogramBar);
     });

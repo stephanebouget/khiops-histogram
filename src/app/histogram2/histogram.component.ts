@@ -126,47 +126,48 @@ export class Histogram2Component {
 
         this.drawHistogram(this.datas);
 
-        // Draw positive axis
-        let shift = 0;
-        let width = this.w;
-        let domain = [this.rangeXLog.posStart, this.rangeXLog.max];
-        if (this.rangeXLog.min) {
-          shift +=
-            (this.w / this.ratio) * Math.log10(this.rangeXLog.middlewidth) * 2;
-          if (this.rangeXLog.negValuesCount !== 0) {
-            shift +=
-              (this.w / this.ratio) * Math.log10(Math.abs(this.rangeXLog.min));
-            shift -=
-              (this.w / this.ratio) *
-              Math.log10(Math.abs(this.rangeXLog.negStart));
-          }
-        }
-        width = this.w - shift;
-        console.log(
-          'file: histogram.component.ts:175 ~ Histogram2Component ~ init ~ domain:',
-          domain
-        );
-        console.log(
-          'file: histogram.component.ts:176 ~ Histogram2Component ~ init ~ shift:',
-          shift
-        );
-        console.log(
-          'file: histogram.component.ts:177 ~ Histogram2Component ~ init ~  width:',
-          width
-        );
-        this.drawXAxis(domain, shift, width, false);
+        if (this.xType === HistogramType.LIN) {
+          let shift = 0;
+          let width = this.w;
+          let domain = [this.rangeXLin.min, this.rangeXLin.max];
 
-        // Draw negative axis
-        width = this.w - width;
-        if (
-          this.rangeXLog.inf ||
-          this.rangeXLog.negStart !== this.rangeXLog.min
-        ) {
-          width =
-            width -
-            (this.w / this.ratio) * Math.log10(this.rangeXLog.middlewidth) * 2;
+          this.drawXAxis(domain, shift, width, false);
+        } else {
+          // Draw positive axis
+          let shift = 0;
+          let width = this.w;
+          let domain = [this.rangeXLog.posStart, this.rangeXLog.max];
+          if (this.rangeXLog.min) {
+            shift +=
+              (this.w / this.ratio) *
+              Math.log10(this.rangeXLog.middlewidth) *
+              2;
+            if (this.rangeXLog.negValuesCount !== 0) {
+              shift +=
+                (this.w / this.ratio) *
+                Math.log10(Math.abs(this.rangeXLog.min));
+              shift -=
+                (this.w / this.ratio) *
+                Math.log10(Math.abs(this.rangeXLog.negStart));
+            }
+          }
+          width = this.w - shift;
+          this.drawXAxis(domain, shift, width, false);
+
+          // Draw negative axis
+          width = this.w - width;
+          if (
+            this.rangeXLog.inf ||
+            this.rangeXLog.negStart !== this.rangeXLog.min
+          ) {
+            width =
+              width -
+              (this.w / this.ratio) *
+                Math.log10(this.rangeXLog.middlewidth) *
+                2;
+          }
+          this.drawXAxis(domain, 0, width, false);
         }
-        this.drawXAxis(domain, 0, width, false);
       }
     }
   }
@@ -267,8 +268,10 @@ export class Histogram2Component {
   }
 
   drawHistogram(datasSet: any) {
-    let bars: HistogramBarVO[] =
-      this.histogramService.computeLogbarXlogDimensions(datasSet);
+    let bars: HistogramBarVO[] = this.histogramService.computeXbarDimensions(
+      datasSet,
+      this.xType
+    );
     this.ratio = 0;
     if (this.xType === HistogramType.LIN) {
       this.ratio =
