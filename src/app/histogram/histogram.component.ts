@@ -142,7 +142,8 @@ export class HistogramComponent {
           // Draw negative axis
           if (
             this.rangeXLog.inf ||
-            this.rangeXLog.negStart !== this.rangeXLog.min
+            (this.rangeXLog.negStart !== this.rangeXLog.min &&
+              this.rangeXLog.negValuesCount)
           ) {
             width = this.w - 2 * this.xPadding - width;
             domain = [this.rangeXLog.min, this.rangeXLog.negStart];
