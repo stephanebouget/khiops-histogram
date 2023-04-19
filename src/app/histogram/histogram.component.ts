@@ -120,6 +120,7 @@ export class HistogramComponent {
         } else {
           // Draw positive axis
           let shift = 0;
+
           let width = this.w - 2 * this.xPadding;
           let domain = [this.rangeXLog.posStart, this.rangeXLog.max];
           if (this.rangeXLog.min) {
@@ -127,6 +128,7 @@ export class HistogramComponent {
               ((this.w - 2 * this.xPadding) / this.ratio) *
               Math.log10(this.rangeXLog.middlewidth) *
               2;
+
             if (this.rangeXLog.negValuesCount !== 0) {
               shift +=
                 ((this.w - 2 * this.xPadding) / this.ratio) *
@@ -138,6 +140,14 @@ export class HistogramComponent {
           }
           width = this.w - 2 * this.xPadding - shift;
           this.drawXAxis(domain, shift, width);
+
+          // Draw -Inf axis
+          let middleShift =
+            shift -
+            ((this.w - 2 * this.xPadding) / this.ratio) *
+              Math.log10(this.rangeXLog.middlewidth);
+          domain = [1];
+          this.drawXAxis(domain, middleShift, width);
 
           // Draw negative axis
           if (
@@ -281,7 +291,6 @@ export class HistogramComponent {
       // }
 
       shift = shift + this.xPadding;
-      // width = width - 2 * this.xPadding;
 
       if (this.xType === HistogramType.LIN) {
         xAxis = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
@@ -300,34 +309,11 @@ export class HistogramComponent {
           if (this.xType === HistogramType.LIN) {
             return '' + format(val);
           } else {
-            return this.formatTickDEBUG(val);
-            // if (part === 'p0') {
-            //   if (i === 1) {
-            //     return '-Infinity';
-            //   }
-            // } else {
-            //   let xTicksValuesCount = Math.ceil((1 / this.w) * 1000 * 3);
-
-            //   // Adjust according to charts number
-            //   xTicksValuesCount = Math.ceil(
-            //     (xTicksValuesCount / 4) * this.visibleChartsCount
-            //   );
-
-            //   if (i === 0) {
-            //     if (part === 'p0N' || part === 'p1P') {
-            //       return;
-            //     }
-            //     if (domain[0] < domain[1]) {
-            //       return this.formatTickDEBUG(0, false);
-            //     }
-            //   } else if (val === 1) {
-            //     // always show 1
-            //     return this.formatTickDEBUG(val, reverse);
-            //   } else if (i % xTicksValuesCount === 0) {
-            //     // return this.formatTick(val, reverse);
-            //     return this.formatTickDEBUG(val, reverse);
-            //   }
-            // }
+            if (domain.length === 1) {
+              return '(0) -Inf';
+            } else {
+              return this.formatTickDEBUG(val);
+            }
           }
         });
 
