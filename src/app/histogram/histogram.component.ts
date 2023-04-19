@@ -33,7 +33,7 @@ export class HistogramComponent {
   @Input() yType: HistogramType | string = HistogramType.LIN;
   @Input() h: number = 220;
   @Input() w: number = 1000;
-  xPadding = 0;
+  xPadding = 30;
   yPadding = 100;
 
   defaultChartW = 0;
@@ -113,30 +113,30 @@ export class HistogramComponent {
         this.drawHistogram(this.datas);
         if (this.xType === HistogramType.LIN) {
           let shift = 0;
-          let width = this.w;
+          let width = this.w - 2 * this.xPadding;
           let domain = [this.rangeXLin.min, this.rangeXLin.max];
 
           this.drawXAxis(domain, shift, width);
         } else {
           // Draw positive axis
-          let shift = this.xPadding;
+          let shift = 0;
           let width = this.w - 2 * this.xPadding;
           let domain = [this.rangeXLog.posStart, this.rangeXLog.max];
           if (this.rangeXLog.min) {
             shift +=
-              (this.w / this.ratio) *
+              ((this.w - 2 * this.xPadding) / this.ratio) *
               Math.log10(this.rangeXLog.middlewidth) *
               2;
             if (this.rangeXLog.negValuesCount !== 0) {
               shift +=
-                (this.w / this.ratio) *
+                ((this.w - 2 * this.xPadding) / this.ratio) *
                 Math.log10(Math.abs(this.rangeXLog.min));
               shift -=
-                (this.w / this.ratio) *
+                ((this.w - 2 * this.xPadding) / this.ratio) *
                 Math.log10(Math.abs(this.rangeXLog.negStart));
             }
           }
-          width = this.w - shift;
+          width = this.w - 2 * this.xPadding - shift;
           this.drawXAxis(domain, shift, width);
 
           // Draw negative axis
@@ -144,12 +144,12 @@ export class HistogramComponent {
             this.rangeXLog.inf ||
             this.rangeXLog.negStart !== this.rangeXLog.min
           ) {
-            width = this.w - width;
+            width = this.w - 2 * this.xPadding - width;
             domain = [this.rangeXLog.min, this.rangeXLog.negStart];
 
             width =
               width -
-              (this.w / this.ratio) *
+              ((this.w - 2 * this.xPadding) / this.ratio) *
                 Math.log10(this.rangeXLog.middlewidth) *
                 2;
             this.drawXAxis(domain, 0, width);
@@ -280,7 +280,7 @@ export class HistogramComponent {
       // }
 
       shift = shift + this.xPadding;
-      width = width - 2 * this.xPadding;
+      // width = width - 2 * this.xPadding;
 
       if (this.xType === HistogramType.LIN) {
         xAxis = d3.scaleLinear().domain(domain).range([0, width]); // This is where the axis is placed: from 100px to 800px
