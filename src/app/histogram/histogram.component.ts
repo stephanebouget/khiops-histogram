@@ -116,7 +116,7 @@ export class HistogramComponent {
           let width = this.w;
           let domain = [this.rangeXLin.min, this.rangeXLin.max];
 
-          this.drawXAxis(domain, shift, width, false);
+          this.drawXAxis(domain, shift, width);
         } else {
           // Draw positive axis
           let shift = this.xPadding;
@@ -137,7 +137,7 @@ export class HistogramComponent {
             }
           }
           width = this.w - shift;
-          this.drawXAxis(domain, shift, width, false);
+          this.drawXAxis(domain, shift, width);
 
           // Draw negative axis
           if (
@@ -152,7 +152,7 @@ export class HistogramComponent {
               (this.w / this.ratio) *
                 Math.log10(this.rangeXLog.middlewidth) *
                 2;
-            this.drawXAxis(domain, 0, width, false);
+            this.drawXAxis(domain, 0, width);
           }
         }
       }
@@ -270,8 +270,7 @@ export class HistogramComponent {
     parent.appendChild(targetElement);
   }
 
-  drawXAxis(domain: any, shift: number, width: number, reverse = false) {
-    0.3;
+  drawXAxis(domain: any, shift: number, width: number) {
     if (width !== 0) {
       let xAxis;
       let tickCount = this.xTickCount;
@@ -298,15 +297,9 @@ export class HistogramComponent {
           //@ts-ignore
           let val: any = d;
           if (this.xType === HistogramType.LIN) {
-            if (reverse) {
-              if (d !== 0) {
-                return '-' + format(val);
-              }
-            } else {
-              return '' + format(val);
-            }
+            return '' + format(val);
           } else {
-            return this.formatTickDEBUG(val, reverse);
+            return this.formatTickDEBUG(val);
             // if (part === 'p0') {
             //   if (i === 1) {
             //     return '-Infinity';
@@ -350,15 +343,12 @@ export class HistogramComponent {
     }
   }
 
-  formatTickDEBUG(val: number, reverse: boolean) {
+  formatTickDEBUG(val: number) {
     const tick = Math.round(Math.log10(Math.abs(val)) * 100) / 100;
-    if (reverse) {
-      return tick !== 0
-        ? '-' + format(val, this.formatOpts) + ' (-' + tick + ')'
-        : '' + format(val, this.formatOpts) + ' (' + tick + ')';
-    } else {
-      return '' + format(val, this.formatOpts) + ' (' + tick + ')';
-    }
+
+    // const sign = HistogramUIService.getSign(val);
+
+    return format(val, this.formatOpts) + ' (' + tick + ')';
   }
 
   formatTick(val: number, reverse: boolean) {
