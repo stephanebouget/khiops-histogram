@@ -33,7 +33,7 @@ export class HistogramComponent {
   @Input() yType: HistogramType | string = HistogramType.LIN;
   @Input() h: number = 220;
   @Input() w: number = 1000;
-  xPadding = 30;
+  xPadding = 80;
   yPadding = 100;
 
   defaultChartW = 0;
@@ -115,39 +115,49 @@ export class HistogramComponent {
           let shift = 0;
           let width = this.w - 2 * this.xPadding;
           let domain = [this.rangeXLin.min, this.rangeXLin.max];
-
-          this.drawXAxis(domain, shift, width);
+          let tickValues = this.datas.map((e: any) => e.partition[0]);
+          tickValues.push(this.datas[this.datas.length - 1].partition[1]);
+          this.drawXAxis(domain, shift, width, tickValues);
         } else {
           // Draw positive axis
           let shift = 0;
+          let width = 0;
+          let domain: any = [];
 
-          let width = this.w - 2 * this.xPadding;
-          let domain = [this.rangeXLog.posStart, this.rangeXLog.max];
-          if (this.rangeXLog.min) {
-            shift +=
-              ((this.w - 2 * this.xPadding) / this.ratio) *
-              Math.log10(this.rangeXLog.middlewidth) *
-              2;
-
-            if (this.rangeXLog.negValuesCount !== 0) {
+          if (
+            this.rangeXLog.posStart !== this.rangeXLog.max &&
+            this.rangeXLog.posValuesCount
+          ) {
+            width = this.w - 2 * this.xPadding;
+            domain = [this.rangeXLog.posStart, this.rangeXLog.max];
+            if (this.rangeXLog.min) {
               shift +=
                 ((this.w - 2 * this.xPadding) / this.ratio) *
-                Math.log10(Math.abs(this.rangeXLog.min));
-              shift -=
-                ((this.w - 2 * this.xPadding) / this.ratio) *
-                Math.log10(Math.abs(this.rangeXLog.negStart));
+                Math.log10(this.rangeXLog.middlewidth) *
+                2;
+
+              if (this.rangeXLog.negValuesCount !== 0) {
+                shift +=
+                  ((this.w - 2 * this.xPadding) / this.ratio) *
+                  Math.log10(Math.abs(this.rangeXLog.min));
+                shift -=
+                  ((this.w - 2 * this.xPadding) / this.ratio) *
+                  Math.log10(Math.abs(this.rangeXLog.negStart));
+              }
             }
           }
           width = this.w - 2 * this.xPadding - shift;
-          this.drawXAxis(domain, shift, width);
+          this.drawXAxis(domain, shift, width, domain);
 
           // Draw -Inf axis
-          let middleShift =
-            shift -
-            ((this.w - 2 * this.xPadding) / this.ratio) *
-              Math.log10(this.rangeXLog.middlewidth);
-          domain = [1];
-          this.drawXAxis(domain, middleShift, width);
+          if (this.rangeXLog.inf) {
+            let middleShift =
+              shift -
+              ((this.w - 2 * this.xPadding) / this.ratio) *
+                Math.log10(this.rangeXLog.middlewidth);
+            domain = [1];
+            this.drawXAxis(domain, middleShift, width, domain);
+          }
 
           // Draw negative axis
           if (
@@ -163,7 +173,7 @@ export class HistogramComponent {
               ((this.w - 2 * this.xPadding) / this.ratio) *
                 Math.log10(this.rangeXLog.middlewidth) *
                 2;
-            this.drawXAxis(domain, 0, width);
+            this.drawXAxis(domain, 0, width, domain);
           }
         }
       }
@@ -281,14 +291,16 @@ export class HistogramComponent {
     parent.appendChild(targetElement);
   }
 
-  drawXAxis(domain: any, shift: number, width: number) {
+  drawXAxis(domain: any, shift: number, width: number, tickValues: any) {
     if (width !== 0) {
       let xAxis;
       let tickCount = this.xTickCount;
-
-      // if (this.xType === HistogramType.LOG) {
-      //   tickCount = Math.log10(domain[1]);
-      // }
+      if (this.xType === HistogramType.LOG && domain.length !== 1) {
+        tickCount = domain[1] / domain[0];
+        if (tickCount > 10) {
+          tickCount = 10;
+        }
+      }
 
       shift = shift + this.xPadding;
 
@@ -298,9 +310,10 @@ export class HistogramComponent {
         xAxis = d3.scaleLog().base(10).domain(domain).range([0, width]);
       }
 
-      const axis = d3
+      const axis: d3.Axis<d3.NumberValue> = d3
         .axisBottom(xAxis)
-        .ticks(tickCount)
+        // .tickValues(tickValues)
+        // .ticks(tickCount)
         .tickSize(-this.h + this.yPadding / 2)
         //@ts-ignore
         .tickFormat((d, i) => {
@@ -316,6 +329,14 @@ export class HistogramComponent {
             }
           }
         });
+
+      if (this.xType === HistogramType.LIN) {
+        // @ts-ignore
+        axis.ticks = tickCount;
+      } else {
+        // @ts-ignore
+        axis.tickValues = tickValues;
+      }
 
       this.svg
         .append('g')

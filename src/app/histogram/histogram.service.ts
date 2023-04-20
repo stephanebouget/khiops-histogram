@@ -23,10 +23,7 @@ export class HistogramService {
       return d.partition[0] === 0 || d.partition[1] === 0;
     });
 
-    this.rangeXLog.min =
-      datas.find(function (d: any) {
-        return d.partition[0] < 0;
-      })?.partition[0] || 0;
+    this.rangeXLog.min = datas[0].partition[0];
     this.rangeXLog.negValuesCount = datas.filter(function (d: any) {
       return d.partition[1] < 0;
     })?.length;
@@ -54,10 +51,7 @@ export class HistogramService {
         })?.partition[0] || 1;
     }
 
-    this.rangeXLog.max =
-      datas.findLast(function (d: any) {
-        return d.partition[1] > 0;
-      })?.partition[1] || 0;
+    this.rangeXLog.max = datas[datas.length - 1].partition[1];
 
     this.rangeXLog.middlewidth = 1.2;
 
