@@ -13,7 +13,7 @@ import { HistogramType } from './histogram.types';
 import { HistogramBarVO } from './histogram.bar-vo';
 
 @Component({
-  selector: 'app-histogram-2',
+  selector: 'app-histogram',
   templateUrl: './histogram.component.html',
   styleUrls: ['./histogram.component.scss'],
 })
@@ -36,15 +36,11 @@ export class HistogramComponent {
   xPadding = 80;
   yPadding = 100;
 
-  defaultChartW = 0;
-  middleW = 0;
-
   // Static config values
   xTickCount = 12;
   yTicksCount = 25;
   tickSize = 0;
   minBarHeight = 4;
-  minbarWlogidth = 1;
 
   // Local variables
   rangeXLog: any;
@@ -52,7 +48,6 @@ export class HistogramComponent {
   rangeYLin: any;
   rangeYLog: any;
 
-  ratioX = 0;
   ratioY = 0;
 
   formatOpts = { lowerExp: -2, upperExp: 2 };
@@ -157,7 +152,7 @@ export class HistogramComponent {
                 ((this.w - 2 * this.xPadding) / this.ratio) *
                   Math.log10(this.rangeXLog.middlewidth);
               domain = [1];
-              this.drawXAxis(domain,middleShift - 1, 1, domain);
+              this.drawXAxis(domain, middleShift - 1, 1, domain);
             } else {
               let middleWidth =
                 ((this.w - 2 * this.xPadding) / this.ratio) *
