@@ -157,7 +157,7 @@ export class HistogramComponent {
                 ((this.w - 2 * this.xPadding) / this.ratio) *
                   Math.log10(this.rangeXLog.middlewidth);
               domain = [1];
-              this.drawXAxis(domain, middleShift, 0.1, domain); // 0.1 to make bigger line
+              this.drawXAxis(domain, middleShift, width, domain);
             } else {
               let middleWidth =
                 ((this.w - 2 * this.xPadding) / this.ratio) *
@@ -165,7 +165,7 @@ export class HistogramComponent {
               let middleShift =
                 (this.w - 2 * this.xPadding) / this.ratio - middleWidth / 2;
               domain = [1];
-              this.drawXAxis(domain, middleShift, 0.1, domain); // 0.1 to make bigger line
+              this.drawXAxis(domain, middleShift + 1, 1, domain); // 1 to make bigger line
             }
           }
 
