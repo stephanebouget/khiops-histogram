@@ -28,6 +28,9 @@ export class AppComponent {
   yType = 'lin';
 
   constructor() {
+
+    console.log('CHECK DEPLOY', 1);
+
     const previousDataSet = window.localStorage.getItem(this.ls_key);
     if (previousDataSet) {
       this.datasSet = previousDataSet;
