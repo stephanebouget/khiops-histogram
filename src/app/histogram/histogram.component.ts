@@ -145,18 +145,28 @@ export class HistogramComponent {
                   Math.log10(Math.abs(this.rangeXLog.negStart));
               }
             }
+            width = this.w - 2 * this.xPadding - shift;
+            this.drawXAxis(domain, shift, width, domain);
           }
-          width = this.w - 2 * this.xPadding - shift;
-          this.drawXAxis(domain, shift, width, domain);
 
           // Draw -Inf axis
           if (this.rangeXLog.inf) {
-            let middleShift =
-              shift -
-              ((this.w - 2 * this.xPadding) / this.ratio) *
+            if (this.rangeXLog.posValuesCount) {
+              let middleShift =
+                shift -
+                ((this.w - 2 * this.xPadding) / this.ratio) *
+                  Math.log10(this.rangeXLog.middlewidth);
+              domain = [1];
+              this.drawXAxis(domain, middleShift, 0.1, domain); // 0.1 to make bigger line
+            } else {
+              let middleWidth =
+                ((this.w - 2 * this.xPadding) / this.ratio) *
                 Math.log10(this.rangeXLog.middlewidth);
-            domain = [1];
-            this.drawXAxis(domain, middleShift, width, domain);
+              let middleShift =
+                (this.w - 2 * this.xPadding) / this.ratio - middleWidth / 2;
+              domain = [1];
+              this.drawXAxis(domain, middleShift, 0.1, domain); // 0.1 to make bigger line
+            }
           }
 
           // Draw negative axis
@@ -168,11 +178,14 @@ export class HistogramComponent {
             width = this.w - 2 * this.xPadding - width;
             domain = [this.rangeXLog.min, this.rangeXLog.negStart];
 
-            width =
-              width -
-              ((this.w - 2 * this.xPadding) / this.ratio) *
-                Math.log10(this.rangeXLog.middlewidth) *
-                2;
+            if (this.rangeXLog.posValuesCount) {
+              // If there is pos and neg values
+              width =
+                width -
+                ((this.w - 2 * this.xPadding) / this.ratio) *
+                  Math.log10(this.rangeXLog.middlewidth) *
+                  2;
+            }
             this.drawXAxis(domain, 0, width, domain);
           }
         }

@@ -35,20 +35,20 @@ export class HistogramService {
       this.rangeXLog.negStart =
         datas.findLast(function (d: any) {
           return d.partition[0] < 0 && d.partition[1] <= 0;
-        })?.partition[0] || -1;
+        })?.partition[0] || undefined;
       this.rangeXLog.posStart =
         datas.find(function (d: any) {
           return d.partition[0] > 0 && d.partition[1] > 0;
-        })?.partition[0] || 1;
+        })?.partition[0] || undefined;
     } else {
       this.rangeXLog.negStart =
         datas.findLast(function (d: any) {
           return d.partition[0] < 0 && d.partition[1] <= 0;
-        })?.partition[1] || -1;
+        })?.partition[1] || undefined;
       this.rangeXLog.posStart =
         datas.find(function (d: any) {
           return d.partition[0] > 0 && d.partition[1] > 0;
-        })?.partition[0] || 1;
+        })?.partition[0] || undefined;
     }
 
     this.rangeXLog.max = datas[datas.length - 1].partition[1];
