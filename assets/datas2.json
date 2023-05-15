@@ -1,0 +1,17 @@
+[
+  {
+    "partition": [-50, 0],
+    "value": 40,
+    "color": "#ffa600"
+  },
+  {
+    "partition": [0, 1],
+    "value": 100,
+    "color": "#ff6600"
+  },
+  {
+    "partition": [0, 10],
+    "value": 10,
+    "color": "#125487"
+  }
+]

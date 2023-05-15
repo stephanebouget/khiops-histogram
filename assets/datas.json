@@ -1,0 +1,80 @@
+[
+  {
+    "partition": [-100, -20],
+    "value": 20,
+    "color": "#839192"
+  },
+  {
+    "partition": [-20, -2],
+    "value": 50,
+    "color": "#34495E"
+  },
+  {
+    "partition": [-2, -1.5],
+    "value": 140,
+    "color": "#ff6600"
+  },
+  {
+    "partition": [-1.5, -0.1],
+    "value": 56,
+    "color": "#ff9865"
+  },
+  {
+    "partition": [-0.1, -0.01],
+    "value": 80,
+    "color": "#963258"
+  },
+  {
+    "partition": [-0.01, 0],
+    "value": 300,
+    "color": "#000000"
+  },
+  {
+    "partition": [0, 0.01],
+    "value": 200,
+    "color": "#986354"
+  },
+  {
+    "partition": [0.01, 0.1],
+    "value": 30,
+    "color": "#123123"
+  },
+  {
+    "partition": [0.1, 0.2],
+    "value": 60,
+    "color": "#655498"
+  },
+  {
+    "partition": [0.2, 1],
+    "value": 60,
+    "color": "#ff6600"
+  },
+  {
+    "partition": [1, 1.2],
+    "value": 80,
+    "color": "#003f5c"
+  },
+  {
+    "partition": [1.2, 10],
+    "value": 70,
+    "color": "#58508d"
+  },
+  {
+    "partition": [10, 50],
+    "value": 60,
+    "color": "#bc5090"
+  },
+
+  {
+    "name": "5",
+    "partition": [50, 100],
+    "value": 40,
+    "color": "#ffa600"
+  },
+  {
+    "name": "6",
+    "partition": [100, 200],
+    "value": 100,
+    "color": "#dd5182"
+  }
+]
