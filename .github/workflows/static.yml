@@ -12,8 +12,7 @@ jobs:
 
       - name: Install and Build 🔧
         run: |
-          npm install yarn
-          yarn install
+          yarn install --frozen-lockfile
           yarn build
 
       - name: Deploy 🚀
