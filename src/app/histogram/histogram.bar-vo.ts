@@ -14,7 +14,11 @@ export class HistogramBarVO {
 
     if (xType === HistogramType.LIN) {
       let barWlin = 0;
-      barWlin = Math.abs(this.partition[0]) - Math.abs(this.partition[1]);
+      if (this.partition[0] < 0 && this.partition[1] > 0) {
+        barWlin = Math.abs(this.partition[0]) + Math.abs(this.partition[1]);
+      } else {
+        barWlin = Math.abs(this.partition[0]) - Math.abs(this.partition[1]);
+      }
       this.barWlin = Math.abs(barWlin);
     } else {
       let barWlog = 0;
