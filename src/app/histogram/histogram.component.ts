@@ -34,7 +34,7 @@ export class HistogramComponent {
   @Input() h: number = 220;
   @Input() w: number = 1000;
   xPadding = 80;
-  yPadding = 100;
+  yPadding = 60;
 
   // Static config values
   xTickCount = 12;
@@ -125,20 +125,24 @@ export class HistogramComponent {
           ) {
             width = this.w - 2 * this.xPadding;
             domain = [this.rangeXLog.posStart, this.rangeXLog.max];
-            if (this.rangeXLog.min) {
+
+            let shiftInf = 2;
+            if (this.rangeXLog.inf && !this.rangeXLog.negStart) {
+              shiftInf = 1;
+            }
+
+            shift +=
+              ((this.w - 2 * this.xPadding) / this.ratio) *
+              Math.log10(this.rangeXLog.middlewidth) *
+              shiftInf;
+
+            if (this.rangeXLog.negValuesCount !== 0) {
               shift +=
                 ((this.w - 2 * this.xPadding) / this.ratio) *
-                Math.log10(this.rangeXLog.middlewidth) *
-                2;
-
-              if (this.rangeXLog.negValuesCount !== 0) {
-                shift +=
-                  ((this.w - 2 * this.xPadding) / this.ratio) *
-                  Math.log10(Math.abs(this.rangeXLog.min));
-                shift -=
-                  ((this.w - 2 * this.xPadding) / this.ratio) *
-                  Math.log10(Math.abs(this.rangeXLog.negStart));
-              }
+                Math.log10(Math.abs(this.rangeXLog.min));
+              shift -=
+                ((this.w - 2 * this.xPadding) / this.ratio) *
+                Math.log10(Math.abs(this.rangeXLog.negStart));
             }
             width = this.w - 2 * this.xPadding - shift;
             this.drawXAxis(domain, shift, width, domain);
@@ -152,23 +156,19 @@ export class HistogramComponent {
                 ((this.w - 2 * this.xPadding) / this.ratio) *
                   Math.log10(this.rangeXLog.middlewidth);
               domain = [1];
-              this.drawXAxis(domain, middleShift - 1, 1, domain);
+              this.drawXAxis(domain, middleShift - 0.1, 1, domain);
             } else {
-              let middleWidth =
-                ((this.w - 2 * this.xPadding) / this.ratio) *
-                Math.log10(this.rangeXLog.middlewidth);
-              let middleShift =
-                (this.w - 2 * this.xPadding) / this.ratio - middleWidth / 2;
+              let middleShift = this.w - 2 * this.xPadding;
               domain = [1];
-              this.drawXAxis(domain, middleShift + 1, 1, domain); // 1 to make bigger line
+              this.drawXAxis(domain, middleShift - 0.1, 1, domain); // 1 to make bigger line
             }
           }
 
           // Draw negative axis
           if (
-            this.rangeXLog.inf ||
-            (this.rangeXLog.negStart !== this.rangeXLog.min &&
-              this.rangeXLog.negValuesCount)
+            // this.rangeXLog.inf ||
+            this.rangeXLog.negStart !== this.rangeXLog.min &&
+            this.rangeXLog.negValuesCount
           ) {
             width = this.w - 2 * this.xPadding - width;
             domain = [this.rangeXLog.min, this.rangeXLog.negStart];
@@ -180,6 +180,13 @@ export class HistogramComponent {
                 ((this.w - 2 * this.xPadding) / this.ratio) *
                   Math.log10(this.rangeXLog.middlewidth) *
                   2;
+            } else {
+              if (this.rangeXLog.inf) {
+                width =
+                  width -
+                  ((this.w - 2 * this.xPadding) / this.ratio) *
+                    Math.log10(this.rangeXLog.middlewidth);
+              }
             }
             this.drawXAxis(domain, 0, width, domain);
           }
