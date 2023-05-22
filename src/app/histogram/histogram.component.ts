@@ -33,7 +33,7 @@ export class HistogramComponent {
 	@Input() yType: HistogramType | string = HistogramType.LIN;
 	@Input() h: number = 220;
 	@Input() w: number = 1000;
-	xPadding = 80;
+	xPadding = 50;
 	yPadding = 60;
 
 	// Static config values
@@ -287,7 +287,7 @@ export class HistogramComponent {
 		this.svg
 			.append("rect")
 			.attr("id", "rect-" + i)
-			.attr("x", barX + this.xPadding)
+			.attr("x", barX + this.xPadding + this.xPadding / 2)
 			.attr("y", this.h - barH)
 			.attr("stroke", "black")
 			.attr("stroke-width", "0")
@@ -373,7 +373,14 @@ export class HistogramComponent {
 			this.svg
 				.append("g")
 				.attr("class", "barXlog axis-grid")
-				.attr("transform", "translate(" + shift + "," + this.h + ") ") // This controls the vertical position of the Axis
+				.attr(
+					"transform",
+					"translate(" +
+						(shift + this.xPadding / 2) +
+						"," +
+						this.h +
+						") "
+				) // This controls the vertical position of the Axis
 				.call(axis)
 				.selectAll("text")
 				.style("text-anchor", "end")
@@ -433,7 +440,11 @@ export class HistogramComponent {
 			.attr("class", "y axis-grid")
 			.attr(
 				"transform",
-				"translate(" + shift + "," + this.yPadding / 2 + ")"
+				"translate(" +
+					(shift + this.xPadding / 2) +
+					"," +
+					this.yPadding / 2 +
+					")"
 			) // This controls the vertical position of the Axis
 			.call(axis);
 	}
