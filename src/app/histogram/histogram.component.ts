@@ -341,6 +341,7 @@ export class HistogramComponent {
 				xAxis = d3.scaleLog().base(10).domain(domain).range([0, width]);
 			}
 
+			//@ts-ignore
 			const axis: d3.Axis<d3.NumberValue> = d3
 				.axisBottom(xAxis)
 				// .tickValues(tickValues)
