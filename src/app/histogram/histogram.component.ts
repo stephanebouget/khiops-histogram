@@ -38,7 +38,7 @@ export class HistogramComponent {
 
 	// Static config values
 	xTickCount = 12;
-	yTicksCount = 25;
+	yTicksCount = 10;
 	tickSize = 0;
 	minBarHeight = 4;
 
@@ -102,12 +102,12 @@ export class HistogramComponent {
 				}
 
 				this.drawChart(this.w);
-				this.drawYAxis();
 				this.addTooltip();
 
 				[this.rangeXLin, this.rangeXLog] =
 					this.histogramService.getRangeX(this.datas);
 
+				this.drawYAxis();
 				this.drawHistogram(this.datas);
 				if (this.xType === HistogramType.LIN) {
 					let shift = 0;
@@ -246,22 +246,38 @@ export class HistogramComponent {
 				.style("stroke-width", "0");
 			//@ts-ignore
 			d3.select(this).style("stroke-width", "2px");
-			self.bringSvgToTop(document.getElementById("rect-" + i));
+			//@ts-ignore
+			d3.select(this).moveToFront();
 		};
-		const mouseover = function (e: any) {
+		const mouseover = (e: any) => {
 			//@ts-ignore
 			self.tooltip.style("display", "block").style("width", "140px");
 		};
-		const mousemove = function (e: any) {
+		const mousemove = (e: any) => {
 			const tooltipText = HistogramUIService.generateTooltip(d);
 			//@ts-ignore
 			self.tooltip.html(tooltipText);
+
+			let left = e.offsetX - 70;
+
+			let top = e.offsetY - self.h / 2;
+
+			if (left < 10) {
+				left = 10;
+			}
+			if (left > this.w - 170) {
+				left = this.w - 170;
+			}
+			if (top < 10) {
+				top = 10;
+			}
+
 			//@ts-ignore
-			self.tooltip.style("margin-left", e.clientX - 70 + "px");
+			self.tooltip.style("margin-left", left + "px");
 			//@ts-ignore
-			self.tooltip.style("margin-top", e.layerY - self.h / 2 + "px");
+			self.tooltip.style("margin-top", top + "px");
 		};
-		const mouseleave = function (e: any) {
+		const mouseleave = (e: any) => {
 			//@ts-ignore
 			self.tooltip
 				.style("display", "none")
@@ -316,12 +332,6 @@ export class HistogramComponent {
 		});
 	}
 
-	bringSvgToTop(targetElement: any) {
-		// put the element at the bottom of its parent
-		let parent = targetElement.parentNode;
-		parent.appendChild(targetElement);
-	}
-
 	drawXAxis(domain: any, shift: number, width: number, tickValues: any) {
 		if (width !== 0) {
 			let xAxis;
@@ -371,7 +381,7 @@ export class HistogramComponent {
 			}
 
 			this.svg
-				.append("g")
+				.insert("g", ":first-child")
 				.attr("class", "barXlog axis-grid")
 				.attr(
 					"transform",
