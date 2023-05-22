@@ -384,9 +384,9 @@ export class HistogramComponent {
 				.call(axis)
 				.selectAll("text")
 				.style("text-anchor", "end")
-				.attr("dx", "-.8em")
-				.attr("dy", ".15em")
-				.attr("transform", "rotate(-65)");
+				.attr("dx", "-0.4em")
+				.attr("dy", "1em")
+				.attr("transform", "rotate(-35)");
 		}
 	}
 
