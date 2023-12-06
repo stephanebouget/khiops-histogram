@@ -1,3 +1,3 @@
 # KhiopsHistogram
 
-https://khiopsrelease.github.io/khiops-histogram/
+https://stephanebouget.github.io/khiops-histogram/
